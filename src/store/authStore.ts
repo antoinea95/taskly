@@ -7,20 +7,21 @@ import {
   updateProfile,
 } from "firebase/auth"; // Assurez-vous d'importer createUserWithEmailAndPassword
 import { auth } from "../firebase/firebase";
+import { Status, Error } from "../utils/types";
 
-type UserState = {
+type AuthState = {
   user: FirebaseUser | null;
-  status: "success" | "loading" | "error" | null;
-  error: string | null;
+  status: Status;
+  error: Error;
 };
 
-type UserAction = {
+type AuthAction = {
   createUser: (email: string, password: string, name: string) => void;
-  logInUser: (email: string, password: string) => void;
-  logOutUser: () => void;
+  logIn: (email: string, password: string) => void;
+  logOut: () => void;
 };
 
-export const useUserStore = create<UserState & UserAction>((set) => ({
+export const useAuthStore = create<AuthState & AuthAction>((set) => ({
   user: auth.currentUser,
   status: null,
   error: null,
@@ -52,7 +53,7 @@ export const useUserStore = create<UserState & UserAction>((set) => ({
       });
   },
 
-  logInUser: (email: string, password: string) => {
+  logIn: (email: string, password: string) => {
     set({ status: "loading", error: null });
 
     signInWithEmailAndPassword(auth, email, password)
@@ -73,7 +74,7 @@ export const useUserStore = create<UserState & UserAction>((set) => ({
       });
   },
 
-  logOutUser: () => {
+  logOut: () => {
     signOut(auth)
       .then(() => {
         set({
