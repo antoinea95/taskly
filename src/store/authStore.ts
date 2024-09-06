@@ -27,7 +27,9 @@ export const useAuthStore = create<AuthState & AuthAction>((set) => ({
   error: null,
 
   createUser: (email: string, password: string, name: string) => {
-    set({ status: "loading", error: null });
+    set((state) => ({ ...state, status: "loading", error: null }));
+
+    console.log(email, name, password)
 
     // Création de l'utilisateur avec email et mot de passe
     createUserWithEmailAndPassword(auth, email, password)
@@ -45,16 +47,14 @@ export const useAuthStore = create<AuthState & AuthAction>((set) => ({
         });
       })
       .catch((error) => {
-        set({
-          user: null,
-          status: "error",
-          error: error.message,
-        });
+        console.log(error)
+        set((state) => ({...state, status: "error", error: error.message }));
       });
   },
 
   logIn: (email: string, password: string) => {
-    set({ status: "loading", error: null });
+    set((state) => ({ ...state, status: "loading", error: null }));
+
 
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
@@ -66,15 +66,13 @@ export const useAuthStore = create<AuthState & AuthAction>((set) => ({
         });
       })
       .catch((error) => {
-        set({
-          user: null,
-          status: "error",
-          error: error.message,
-        });
+        set((state) => ({...state, status: "error", error: error.message }));
+
       });
   },
 
   logOut: () => {
+    set((state) => ({ ...state, status: "loading", error: null }));
     signOut(auth)
       .then(() => {
         set({
@@ -84,10 +82,7 @@ export const useAuthStore = create<AuthState & AuthAction>((set) => ({
         });
       })
       .catch((error) => {
-        set({
-          status: "error",
-          error: error.message,
-        });
+        set((state) => ({...state, status: "error", error: error.message }));
       });
   },
 

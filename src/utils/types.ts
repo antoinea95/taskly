@@ -1,3 +1,5 @@
+import { ZodType } from "zod";
+
 export type Status = "success" | "loading" | "error" | null;
 export type Error =  string | null;
 
@@ -16,7 +18,7 @@ export type Task = {
 export type List = {
     id: string;
     title: string;
-    cards: Card[];
+    cards: Task[];
   };
   
 export type Board = {
@@ -24,3 +26,8 @@ export type Board = {
     title: string;
     members: string[]; 
   };
+
+export type DialogType = {
+  triggerName: string,
+  dialogName: string, 
+}
