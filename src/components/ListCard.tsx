@@ -1,5 +1,5 @@
 
-export const Column = () => {
+export const ListCard = () => {
 
     return (
         <section>

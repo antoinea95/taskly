@@ -1,5 +1,5 @@
 
-export const Task = () => {
+export const TaskCard = () => {
 
     return (
         <div className="border">

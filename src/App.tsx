@@ -1,17 +1,21 @@
 import { useEffect } from "react";
-import { Form } from "./components/Connection/Form";
-import { useUserStore } from "./store/userStore";
+import { AuthForm } from "./components/Connection/AuthForm";
+import { useAuthStore } from "./store/authStore";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebase";
+import { Home } from "./pages/Home";
+import { Loader } from "./components/ui/loader";
+import { Header } from "./components/ui/Header";
 
 function App() {
-  const { user, status, logOutUser} = useUserStore();
+  // get auth state
+  const {user} = useAuthStore();
 
+
+  // Keeping user logged
   useEffect(() => {
-    console.log('exe')
-    useUserStore.setState({status: 'loading'});
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-        useUserStore.setState({
+        useAuthStore.setState({
           user: user ? user : null,
           status: user ? 'success' : null,
           error: null
@@ -24,16 +28,14 @@ function App() {
 
 
   return (
-    <main className="w-screen h-screen flex items-center justify-center">
-      {status === "loading" ? (
-        <p>Loading...</p> // Afficher un indicateur de chargement pendant que l'état est en cours de détermination
-      ) : !user ? (
-        <Form />
+    <main className="w-screen h-screen">
+    {!user ? (
+        <AuthForm />
       ) : (
-        <div className="flex flex-col">
-        <p>Welcome, {user.displayName}</p>
-        <button onClick={logOutUser} className="bg-blue-200">Déconnexion</button>
-        </div>
+        <>
+        <Header />
+        <Home/>
+        </>
 
       )}
     </main>
