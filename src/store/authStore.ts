@@ -7,12 +7,13 @@ import {
   updateProfile,
 } from "firebase/auth"; // Assurez-vous d'importer createUserWithEmailAndPassword
 import { auth } from "../firebase/firebase";
-import { Status, Error } from "../utils/types";
+import { StatusType, ErrorType } from "../utils/types";
+import { getFriendlyErrorMessage } from "@/utils/error";
 
 type AuthState = {
   user: FirebaseUser | null;
-  status: Status;
-  error: Error;
+  status: StatusType;
+  error: ErrorType;
 };
 
 type AuthAction = {
@@ -29,7 +30,7 @@ export const useAuthStore = create<AuthState & AuthAction>((set) => ({
   createUser: (email: string, password: string, name: string) => {
     set((state) => ({ ...state, status: "loading", error: null }));
 
-    console.log(email, name, password)
+    console.log(email, name, password);
 
     // Création de l'utilisateur avec email et mot de passe
     createUserWithEmailAndPassword(auth, email, password)
@@ -46,15 +47,14 @@ export const useAuthStore = create<AuthState & AuthAction>((set) => ({
           });
         });
       })
-      .catch((error) => {
-        console.log(error)
-        set((state) => ({...state, status: "error", error: error.message }));
+      .catch((err: any) => {
+        const friendlyMessage = getFriendlyErrorMessage(err.code);
+        set((state) => ({ ...state, status: "error", error: friendlyMessage }));
       });
   },
 
   logIn: (email: string, password: string) => {
     set((state) => ({ ...state, status: "loading", error: null }));
-
 
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
@@ -65,9 +65,10 @@ export const useAuthStore = create<AuthState & AuthAction>((set) => ({
           error: null,
         });
       })
-      .catch((error) => {
-        set((state) => ({...state, status: "error", error: error.message }));
-
+      .catch((err: any) => {
+        console.log(err.code);
+        const friendlyMessage = getFriendlyErrorMessage(err.code);
+        set((state) => ({ ...state, status: "error", error: friendlyMessage }));
       });
   },
 
@@ -81,9 +82,9 @@ export const useAuthStore = create<AuthState & AuthAction>((set) => ({
           error: null,
         });
       })
-      .catch((error) => {
-        set((state) => ({...state, status: "error", error: error.message }));
+      .catch((err: any) => {
+        const friendlyMessage = getFriendlyErrorMessage(err.code);
+        set((state) => ({ ...state, status: "error", error: friendlyMessage }));
       });
   },
-
 }));

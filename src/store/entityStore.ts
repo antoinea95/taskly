@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Board, Error, List, Status, Task } from "../utils/types";
+import { BoardType, ErrorType, ListType, StatusType, TaskType } from "../utils/types";
 import {
   addDoc,
   collection,
@@ -9,11 +9,12 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebase/firebase";
+import { getFriendlyErrorMessage } from "@/utils/error";
 
 type EntityState<T> = {
   items: T[];
-  status: Status;
-  error: Error;
+  status: StatusType;
+  error: ErrorType;
 };
 
 type EntityAction<T> = {
@@ -43,12 +44,15 @@ export const createStore = <T extends { id: string }>(
         await addDoc(ref, data);
         get().getItems()
       } catch (err: any) {
-        set((state) => ({ ...state, status: "error", error: err.message }));
+        const friendlyMessage = getFriendlyErrorMessage(err.code);
+        set((state) => ({ ...state, status: "error", error: friendlyMessage }));
       }
     },
 
     getItems: async () => {
+
       set((state) => ({ ...state, status: "loading", error: null }));
+
       try {
         const snap = await getDocs(collection(db, collectionName));
         const items: T[] = snap.docs.map(
@@ -60,7 +64,8 @@ export const createStore = <T extends { id: string }>(
           error: null,
         });
       } catch (err: any) {
-        set((state) => ({ ...state, status: "error", error: err.message }));
+        const friendlyMessage = getFriendlyErrorMessage(err.code);
+        set((state) => ({ ...state, status: "error", error: friendlyMessage }));
       }
     },
 
@@ -71,7 +76,8 @@ export const createStore = <T extends { id: string }>(
         await updateDoc(ref, data as T);
         get().getItems();
       } catch (err: any) {
-        set((state) => ({ ...state, status: "error", error: err.message }));
+        const friendlyMessage = getFriendlyErrorMessage(err.code);
+        set((state) => ({ ...state, status: "error", error: friendlyMessage }));
       }
     },
 
@@ -82,12 +88,13 @@ export const createStore = <T extends { id: string }>(
         await deleteDoc(ref);
         get().getItems()
       } catch (err: any) {
-        set((state) => ({ ...state, status: "error", error: err.message }));
+        const friendlyMessage = getFriendlyErrorMessage(err.code);
+        set((state) => ({ ...state, status: "error", error: friendlyMessage }));
       }
     },
   }));
 };
 
-export const useBoardStore = createStore<Board>("boards");
-export const useListStore = createStore<List>("lists");
-export const useTaskStore = createStore<Task>("tasks");
+export const useBoardStore = createStore<BoardType>("boards");
+export const useListStore = createStore<ListType>("lists");
+export const useTaskStore = createStore<TaskType>("tasks");

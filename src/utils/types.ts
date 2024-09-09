@@ -1,11 +1,12 @@
-import { ZodType } from "zod";
+import { LucideIcon } from "lucide-react";
+import { ReactNode } from "react";
 
-export type Status = "success" | "loading" | "error" | null;
-export type Error =  string | null;
+export type StatusType = "success" | "loading" | "error" | null;
+export type ErrorType =  string | null;
 
 
 
-export type Task = {
+export type TaskType = {
     id: string;
     title: string;
     description?: string;
@@ -15,13 +16,13 @@ export type Task = {
     assignedTo?: string[];
   };
   
-export type List = {
+export type ListType = {
     id: string;
     title: string;
-    cards: Task[];
+    cards: TaskType[];
   };
   
-export type Board = {
+export type BoardType = {
     id: string;
     title: string;
     members: string[]; 
@@ -29,5 +30,7 @@ export type Board = {
 
 export type DialogType = {
   triggerName: string,
+  icon: LucideIcon,
   dialogName: string, 
+  children: (props: { closeModal: () => void }) => ReactNode;
 }

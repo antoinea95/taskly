@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AuthForm } from "./components/Connection/AuthForm";
 import { useAuthStore } from "./store/authStore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -10,6 +10,7 @@ import { Header } from "./components/ui/Header";
 function App() {
   // get auth state
   const {user} = useAuthStore();
+ const [isLoading, setIsLoading] = useState(true);
 
 
   // Keeping user logged
@@ -20,11 +21,20 @@ function App() {
           status: user ? 'success' : null,
           error: null
         })
+
+        setIsLoading(false);
     });
 
     return () => unsubscribe();
 
   }, [])
+
+
+  if(isLoading) {
+    return <main className="w-screen h-screen flex justify-center items-center">
+      <Loader data={{color: "black", size: "24"}} />
+    </main>
+  }
 
 
   return (

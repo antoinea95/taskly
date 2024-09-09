@@ -10,7 +10,9 @@ import { Loader } from "@/components/ui/loader";
 
 export const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const { createUser, logIn, status } = useAuthStore();
+  const { createUser, logIn, status, error } = useAuthStore();
+  const isLoading = status === "loading";
+  const isError = status === "error";
 
   const UserSchema = z.object({
     name: isLogin
@@ -44,73 +46,83 @@ export const AuthForm = () => {
     }
   };
 
-
   return (
     <main className="w-screen h-screen flex justify-center items-center">
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="border border-black rounded-xl p-8 w-1/3 flex flex-col gap-8"
-    >
-      {!isLogin && (
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="border border-black rounded-xl p-8 w-1/3 flex flex-col gap-8"
+      >
+        {!isLogin && (
+          <div>
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" {...register("name")} placeholder="John Doe" />
+            {errors?.name && (
+              <p className="text-red-500 font-bold text-xs my-1">
+                {errors.name.message}
+              </p>
+            )}
+          </div>
+        )}
         <div>
-          <Label htmlFor="name">Name</Label>
-          <Input id="name" {...register("name")} placeholder="John Doe" />
-          {errors?.name && (
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            {...register("email")}
+            placeholder="johndoe@email.com"
+          />
+          {errors?.email && (
             <p className="text-red-500 font-bold text-xs my-1">
-              {errors.name.message}
+              {errors.email.message}
             </p>
           )}
         </div>
-      )}
-      <div>
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          {...register("email")}
-          placeholder="johndoe@email.com"
-        />
-        {errors?.email && (
-          <p className="text-red-500 font-bold text-xs my-1">
-            {errors.email.message}
+        <div>
+          <Label htmlFor="password">Password</Label>
+          <Input id="password" {...register("password")} type="password" />
+          {errors?.password && (
+            <p className="text-red-500 font-bold text-xs my-1">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+        <Button type="submit" disabled={isLoading || Object.keys(errors).length > 0}>
+          {isLoading ? (
+            <Loader data={{ color: "white", size: "4" }} />
+          ) : !isLogin ? (
+            "Sign in"
+          ) : (
+            "Login"
+          )}
+        </Button>
+        {isError && (
+          <small className="text-xs text-red-600 font-semibold text-center">
+            {error}
+          </small>
+        )}
+        {!isLogin ? (
+          <p className="text-center">
+            Already have an account ?{" "}
+            <button
+              type="button"
+              className="font-bold underline"
+              onClick={() => setIsLogin(true)}
+            >
+              Login
+            </button>
+          </p>
+        ) : (
+          <p className="text-center">
+            Don't have an account yet ?{" "}
+            <button
+              type="button"
+              className="font-bold underline"
+              onClick={() => setIsLogin(false)}
+            >
+              Signin
+            </button>
           </p>
         )}
-      </div>
-      <div>
-        <Label htmlFor="password">Password</Label>
-        <Input id="password" {...register("password")} type="password" />
-        {errors?.password && (
-          <p className="text-red-500 font-bold text-xs my-1">
-            {errors.password.message}
-          </p>
-        )}
-      </div>
-      <Button type="submit">
-        {status === "loading" ? <Loader data={{color: "white", size: "6"}} /> : (!isLogin ? "Sign in" : "Login")}
-      </Button>
-      {!isLogin ? (
-        <p className="text-center">
-          Already have an account ?{" "}
-          <button
-            type="button"
-            className="font-bold underline"
-            onClick={() => setIsLogin(true)}
-          >
-            Login
-          </button>
-        </p>
-      ) : (
-        <p className="text-center">
-          Don't have an account yet ?{" "}
-          <button
-            type="button"
-            className="font-bold underline"
-            onClick={() => setIsLogin(false)}
-          >
-            Signin
-          </button>
-        </p>
-      )}
-    </form>
+      </form>
     </main>
   );
 };

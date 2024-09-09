@@ -7,20 +7,27 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { PropsWithChildren } from "react";
+import {useState } from "react";
 
-export const Modal = ({triggerName, dialogName, children}: PropsWithChildren<DialogType>) => {
+export const Modal = ({triggerName, icon, dialogName, children}: DialogType) => {
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const Icon = icon;
 
   return (
-    <Dialog>
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogTrigger asChild>
-        <Button>{triggerName}</Button>
+        <Button>
+          <Icon size={16} className="mr-1"/>
+          {triggerName}
+          </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>{dialogName}</DialogTitle>
         </DialogHeader>
-        {children}
+        {children({ closeModal: () => setIsModalOpen(false) })}
       </DialogContent>
     </Dialog>
   );
