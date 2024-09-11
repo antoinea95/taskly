@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useAuthStore } from "../../store/authStore";
 import { z } from "zod";
 import { Form } from "../Form/Form";
+import {useSignIn, useSignUp } from "@/firebase/authHook";
 
 export const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const { createUser, logIn, status, error } = useAuthStore();
+  const signIn = useSignIn();
+  const signUp = useSignUp()
 
   const UserSchema = z.object({
     name: isLogin
@@ -32,22 +33,23 @@ export const AuthForm = () => {
 
   const onSubmit = (values: UserForm) => {
     if (isLogin) {
-      logIn(values.email, values.password);
+      signIn.mutate({email: values.email, password:values.password});
     } else {
-      createUser(values.email, values.password, values.name as string);
+      signUp.mutate({email: values.email, password:values.password, name: values.name as string});;
     }
   };
 
   return (
     <main className="w-screen h-screen flex justify-center items-center">
-      <div className="flex flex-col border-2 border-black rounded-xl p-10 w-1/2">
+      <div className="flex flex-col border-2 border-black rounded-xl p-10 w-1/2 justify-center items-center">
       <Form
         schema={UserSchema}
         onSubmit={onSubmit}
         formContent={formContent}
         buttonName={isLogin ? "Login" : "Signin"}
-        status={status}
-        error={error}
+        isError={isLogin ? signIn.isError : signUp.isError}
+        isLoading={isLogin ? signIn.isPending : signUp.isPending}
+        error={isLogin ? signIn.error : signUp.error}
       />
       {!isLogin ? (
         <p className="text-center">
@@ -61,7 +63,7 @@ export const AuthForm = () => {
           </button>
         </p>
       ) : (
-        <p className="text-center">
+        <p className="text-center mt-4">
           Don't have an account yet ?{" "}
           <button
             type="button"

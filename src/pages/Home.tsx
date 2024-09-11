@@ -1,21 +1,27 @@
-import { useBoardStore } from "../store/entityStore";
 import { BoardType } from "../utils/types";
-import { useEffect } from "react";
 import { BoardCard } from "../components/Board/BoardCard";
 import { Modal } from "@/components/ui/Modal";
 import { AddBoard } from "@/components/Board/AddBoard";
 import { CirclePlus } from "lucide-react";
+import { useFireStoreApi } from "@/firebase/useFirestoreQuery";
+import { Loader } from "@/components/ui/loader";
 
 export const Home = () => {
-  const { items, getItems } = useBoardStore();
 
-  useEffect(() => {
-    getItems();
-  }, [getItems]);
+  const {data, isLoading, error} = useFireStoreApi<BoardType[]>('boards')
+  // const { items, getItems } = useBoardStore();
+
+  if(isLoading) {
+    return <Loader data={{color: "white", size: "24"}} />
+  }
+
+  if(!data) {
+    return <p>Error</p>
+  }
 
   const renderBoardSection = () => (
     <section className="grid grid-cols-4 gap-3 w-fit m-8">
-      {items.map((board: BoardType) => (
+      {data.map((board) => (
         <BoardCard key={board.id} board={board} />
       ))}
     </section>
@@ -47,9 +53,9 @@ export const Home = () => {
         >
           {({ closeModal }) => <AddBoard closeModal={closeModal} />}
         </Modal>
-      </section>
+      </section> 
 
-      {items.length > 0 ? renderBoardSection() : renderEmptyState()}
+      {data.length > 0 ? renderBoardSection() : renderEmptyState()}
     </main>
   );
 };

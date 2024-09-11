@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldValues, Path, useForm } from "react-hook-form";
 import { ZodType } from "zod";
 import { Input } from "../ui/input";
-import { ErrorType, StatusType } from "@/utils/types";
 import { Loader } from "../ui/loader";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
@@ -18,8 +17,9 @@ type FormProps<T extends FieldValues> = {
     value?: string;
   }[];
   buttonName: string;
-  status: StatusType;
-  error: ErrorType;
+  isError: boolean;
+  isLoading: boolean;
+  error: Error | null;
 };
 
 export const Form = <T extends FieldValues>({
@@ -27,8 +27,9 @@ export const Form = <T extends FieldValues>({
   onSubmit,
   formContent,
   buttonName,
-  status,
-  error,
+  isError,
+  isLoading,
+  error
 }: FormProps<T>) => {
   const {
     register,
@@ -39,13 +40,10 @@ export const Form = <T extends FieldValues>({
     resolver: zodResolver(schema),
   });
 
-  const isLoading = status === "loading";
-  const isError = status === "error";
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-4 py-10"
+      className="flex flex-col gap-4 w-5/6"
     >
       {formContent.map((item, index) => (
         <div key={index}>
@@ -64,10 +62,7 @@ export const Form = <T extends FieldValues>({
           )}
         </div>
       ))}
-      <Button
-        type="submit"
-        disabled={isLoading || Object.keys(errors).length > 0}
-      >
+      <Button type="submit">
         {isLoading ? (
           <Loader data={{ color: "white", size: "4" }} />
         ) : (
@@ -75,7 +70,7 @@ export const Form = <T extends FieldValues>({
         )}
       </Button>
       {isError && (
-        <small className="text-xs font-semibold text-red-600">{error}</small>
+        <small className="text-xs font-semibold text-red-600 my-3 text-center">{error?.message}</small>
       )}
     </form>
   );
