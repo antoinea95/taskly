@@ -54,6 +54,7 @@ export const Form = <T extends FieldValues>({
             {...register(item.name as Path<T>)}
             placeholder={item.placeholder}
             defaultValue={item?.value}
+            autoComplete="true"
           />
           {errors[item.name] && (
             <small className="text-xs font-semibold text-red-600">
@@ -64,7 +65,7 @@ export const Form = <T extends FieldValues>({
       ))}
       <Button type="submit">
         {isLoading ? (
-          <Loader data={{ color: "white", size: "4" }} />
+          <Loader data={{ color: "white", size:"1rem"}} />
         ) : (
           buttonName
         )}

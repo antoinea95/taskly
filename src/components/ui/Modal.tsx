@@ -7,11 +7,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {useState } from "react";
+import {PropsWithChildren } from "react";
 
-export const Modal = ({triggerName, icon, dialogName, children}: DialogType) => {
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export const Modal = ({triggerName, icon, dialogName, setIsModalOpen, isModalOpen, children}: PropsWithChildren<DialogType>) => {
 
   const Icon = icon;
 
@@ -27,7 +25,7 @@ export const Modal = ({triggerName, icon, dialogName, children}: DialogType) => 
         <DialogHeader>
           <DialogTitle>{dialogName}</DialogTitle>
         </DialogHeader>
-        {children({ closeModal: () => setIsModalOpen(false) })}
+        {children}
       </DialogContent>
     </Dialog>
   );

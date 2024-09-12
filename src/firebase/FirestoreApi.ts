@@ -1,4 +1,5 @@
 import { getFriendlyErrorMessage } from "@/utils/error";
+import { BoardType, ListType, TaskType } from "@/utils/types";
 import { FirebaseApp, FirebaseError, initializeApp } from "firebase/app";
 import {
   Auth,
@@ -22,17 +23,37 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  query,
+  where,
+  QuerySnapshot,
 } from "firebase/firestore";
 
-export interface FirestoreFetchParams {
-  path: string;
-  documentId?: string;
+const app = initializeApp({
+  apiKey: `${import.meta.env.VITE_FIREBASE_WEB_API_KEY}`,
+  authDomain: `${import.meta.env.VITE_FIREBASE_AUTH_DOMAIN}`,
+  projectId: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}`,
+  storageBucket: `${import.meta.env.VITE_FIREBASE_STORAGE_BUCKET}`,
+  messagingSenderId: `${import.meta.env.VITE_FIREBASE_SENDER_ID}`,
+  appId: `${import.meta.env.VITE_FIREBASE_WEB_APP_ID}`,
+});
+
+export interface FirestoreFetchColParams {
+  collectionName: string;
+  field: string;
+  value: string;
+  errorMessage: string;
 }
 
-export interface FirestoreSubscribeParams<T> {
-  path: string;
-  callback: (value: T) => void;
+export interface FirestoreFetchDocParams {
+  collectionName: string;
+  documentId: string;
+}
+
+interface SubscribeParams<T> {
+  collectionName: string;
+  queryFn?: (colRef: CollectionReference) => any;
   documentId?: string;
+  callback: (data: T[]) => void;
 }
 
 export class FirestoreApi {
@@ -41,14 +62,7 @@ export class FirestoreApi {
   private firebaseFirestore: Firestore;
 
   constructor() {
-    this.firebaseApp = initializeApp({
-      apiKey: `${import.meta.env.VITE_FIREBASE_WEB_API_KEY}`,
-      authDomain: `${import.meta.env.VITE_FIREBASE_AUTH_DOMAIN}`,
-      projectId: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}`,
-      storageBucket: `${import.meta.env.VITE_FIREBASE_STORAGE_BUCKET}`,
-      messagingSenderId: `${import.meta.env.VITE_FIREBASE_SENDER_ID}`,
-      appId: `${import.meta.env.VITE_FIREBASE_WEB_APP_ID}`,
-    });
+    this.firebaseApp = app;
 
     this.firebaseAuth = getAuth(this.firebaseApp);
     this.firebaseFirestore = getFirestore(this.firebaseApp);
@@ -161,74 +175,112 @@ export class FirestoreApi {
     }
   }
 
-  public async fetch<T>({
-    path,
-    documentId,
-  }: FirestoreFetchParams): Promise<T> {
+  public async fetchBoards(): Promise<BoardType[]> {
     try {
-      if (documentId) {
-        const docRef = doc(this.firebaseFirestore, path, documentId);
-        const docSnap = await getDoc(docRef);
+      const currentUser = this.getCurrentUser();
 
-        if (docSnap.exists()) {
-          return docSnap.data() as T;
-        } else {
-          throw new Error("No document found");
-        }
-      } else {
-        const colRef = collection(this.firebaseFirestore, path);
-        const querySnapshot = await getDocs(colRef);
-        const data = querySnapshot.docs.map((doc) => ({
+      if (!currentUser || !currentUser.uid) {
+        // Lancer une erreur si l'utilisateur n'est pas défini ou si l'ID utilisateur est manquant
+        throw new Error("No user found or user ID is missing");
+      }
+
+        const colRef = collection(this.firebaseFirestore, "boards");
+        const q = query(colRef, where("members", "array-contains", currentUser.uid));
+        const querySnapshot = await getDocs(q);
+  
+        const boards = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
           id: doc.id,
-          ...(doc.data() as T),
-        }));
-        return data as T;
+        })) as BoardType[];
+  
+        return boards;
+
+    } catch (error) {
+      console.error("Error fetching user boards", error);
+      throw new Error("Failed to fetch boards");
+    }
+  }
+
+  private async fetchDocumentsByField<T>({
+    collectionName,
+    field,
+    value,
+    errorMessage,
+  }: FirestoreFetchColParams): Promise<T[]> {
+    try {
+      const colRef = collection(this.firebaseFirestore, collectionName);
+      const q = query(colRef, where(field, "==", value));
+      const querySnapshot = await getDocs(q);
+
+      return querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      })) as T[];
+    } catch (error) {
+      console.error(`${errorMessage}`, error);
+      throw new Error(errorMessage);
+    }
+  }
+
+  public async fetchLists(boardId: string): Promise<ListType[]> {
+    return this.fetchDocumentsByField<ListType>({
+      collectionName: "lists",
+      field: "boardId",
+      value: boardId,
+      errorMessage: "Error fetching lists",
+    });
+  }
+
+  public async fetchTasks(listId: string): Promise<TaskType[]> {
+    return this.fetchDocumentsByField<TaskType>({
+      collectionName: "tasks",
+      field: "listId",
+      value: listId,
+      errorMessage: "Error fetching tasks",
+    });
+  }
+
+  public async fetchDoc<T>({
+    collectionName,
+    documentId,
+  }: FirestoreFetchDocParams): Promise<T> {
+    try {
+      const docRef = doc(this.firebaseFirestore, collectionName, documentId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        return docSnap.data() as T;
+      } else {
+        throw new Error("No document found");
       }
     } catch (error) {
-      console.error("Error fetching document or collection:", error);
+      console.error("Error fetching document", error);
       throw new Error("Failed to fetch data");
     }
   }
 
-  public subscribe<T>(params: FirestoreSubscribeParams<T>) {
-    const { path, callback, documentId } = params;
-
-    if (documentId) {
-      // Si c'est un document
-      const docRef: DocumentReference = doc(
-        this.firebaseFirestore,
-        path,
-        documentId
-      );
-      return onSnapshot(
-        docRef,
-        (docSnap) => {
-          if (docSnap.exists()) {
-            const data = docSnap.data() as T;
-            callback(data);
-          }
-        },
-        (error) => this.handleAuthErrors(error)
-      );
-    } else {
-      // Si c'est une collection
-      const colRef: CollectionReference = collection(
-        this.firebaseFirestore,
-        path
-      );
-      return onSnapshot(
-        colRef,
-        (querySnapshot) => {
-          const data = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          callback(data as T);
-        },
-        (error) => this.handleAuthErrors(error)
-      );
-    }
+ public subscribe<T>({ collectionName, queryFn, documentId, callback }: SubscribeParams<T>): () => void {
+  if (documentId) {
+    const docRef: DocumentReference = doc(this.firebaseFirestore, collectionName, documentId);
+    return onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data() as T;
+        callback([data]);
+      }
+    }, (error) => this.handleAuthErrors(error));
+  } else {
+    // Si c'est une collection
+    const colRef: CollectionReference = collection(this.firebaseFirestore, collectionName);
+    const q = queryFn ? queryFn(colRef) : colRef;
+    return onSnapshot(q, (querySnapshot: QuerySnapshot<T>) => {
+      const data = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      })) as T[];
+      callback(data);
+    }, (error) => this.handleAuthErrors(error));
   }
+}
 }
 
 export default new FirestoreApi();

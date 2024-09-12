@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { User } from "firebase/auth";
 import FirestoreApi from "./FirestoreApi";
+import {useNavigate } from "react-router-dom";
 
 
 export const useSignIn = () => {
+    const navigate = useNavigate();
     return useMutation({
        mutationFn: ({email, password} : {email: string, password: string}) => FirestoreApi.signIn(email, password),
-       onSuccess: (user) => {
-        console.log("User signed in:", user);
+       onSuccess: () => {
+        navigate("/");
       },
       onError: (error) => {
         console.error("Sign in error:", error);
@@ -17,10 +19,11 @@ export const useSignIn = () => {
 }
 
 export const useSignUp = () => {
+  const navigate = useNavigate();
     return useMutation({
        mutationFn: ({email, password, name} : {email: string, password: string, name: string}) => FirestoreApi.signUp(email, password, name),
-       onSuccess: (user) => {
-        console.log("User created:", user);
+       onSuccess: () => {
+        navigate("/");
       },
       onError: (error) => {
         console.error("Sign up error:", error);
@@ -29,10 +32,14 @@ export const useSignUp = () => {
 }
 
 export const useSignOut = () => {
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+
     return useMutation({
         mutationFn: () => FirestoreApi.signOut(),
         onSuccess: () => {
-          console.log("User signed out");
+          queryClient.invalidateQueries();
+          navigate("/login");
         },
         onError: (error) => {
           console.error("Sign out error:", error);
@@ -45,11 +52,13 @@ export const useAuth = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(
     FirestoreApi.getCurrentUser()
   );
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = FirestoreApi.getAuthInstance().onAuthStateChanged(
       (user: User | null) => {
         setCurrentUser(user);
+        setIsLoading(false);
       }
     );
 
@@ -57,7 +66,5 @@ export const useAuth = () => {
   }, []);
 
 
-  return {
-    currentUser,
-  };
+  return {currentUser, isLoading};
 };

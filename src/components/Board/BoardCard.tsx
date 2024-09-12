@@ -1,23 +1,32 @@
 import { Pencil, Trash } from "lucide-react";
 import { BoardType } from "../../utils/types";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "../Form/Form";
+import { useDeleteDoc, useUpdateDoc } from "@/firebase/mutateHook";
+import { Loader } from "../ui/loader";
 
 export const BoardCard = ({ board }: { board: BoardType }) => {
-
   const TitleSchema = z.object({
     title: z.string().min(3),
   });
 
-
+  const updateBoard = useUpdateDoc<BoardType>("boards", board.id);
+  const deleteBoard = useDeleteDoc("boards", board.id);
 
   const [isUpdate, setIsUpdate] = useState(false);
 
   const onSubmit = (values: z.infer<typeof TitleSchema>) => {
+    updateBoard.mutate(values);
   };
+
+  useEffect(() => {
+    if (updateBoard.isSuccess) {
+      setIsUpdate(false);
+    }
+  }, [updateBoard.isSuccess]);
 
   const formContent = [
     {
@@ -37,6 +46,9 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
             formContent={formContent}
             onSubmit={onSubmit}
             buttonName="Update"
+            isLoading={updateBoard.isPending}
+            isError={updateBoard.isError}
+            error={updateBoard.error}
           />
         </div>
       ) : (
@@ -54,9 +66,13 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
               />
               Update
             </Button>
-            <Button>
+            <Button onClick={() => deleteBoard.mutate()}>
               <Trash size={18} color="white" strokeWidth={2} className="mr-1" />
-              Delete
+              {deleteBoard.isPending ? (
+                <Loader data={{ color: "white", size: "1rem" }} />
+              ) : (
+                "Delete"
+              )}
             </Button>
           </CardFooter>
         </>
