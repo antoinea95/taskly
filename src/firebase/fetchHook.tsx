@@ -77,11 +77,10 @@ export const useFetchBoards = () => {
 
 export const useFetchLists = (boardId: string) => {
   return useFireStoreApi<ListType[]>({
-    collectionName: "lists",
+    collectionName: `boards/${boardId}/lists`,
     fetchMethod: async () => FirestoreApi.fetchLists(boardId),
     subscribeParams: {
-      collectionName: "lists",
-      queryFn: (colRef) => query(colRef, where("boardId", "==", boardId)),
+      collectionName: `boards/${boardId}/lists`,
     },
   });
 };

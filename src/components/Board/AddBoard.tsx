@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { Form } from "../Form/Form";
 import { useAddDoc } from "@/firebase/mutateHook";
-import { BoardType } from "@/utils/types";
+import { BoardType, ListType } from "@/utils/types";
 import { useAuth } from "@/firebase/authHook";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 export const AddBoard = ({
   setIsModalOpen,
@@ -17,17 +17,31 @@ export const AddBoard = ({
   const { currentUser } = useAuth();
 
   const createBoard = useAddDoc<Omit<BoardType, "id">>("boards");
-  const onSubmit = (value: z.infer<typeof BoardSchema>) => {
+  const createList = useAddDoc<Omit<ListType, "id">>("boards", "lists");
+
+  const onSubmit = async (value: z.infer<typeof BoardSchema>) => {
     if (currentUser) {
-      createBoard.mutate({ title: value.title, members: [currentUser?.uid] });
+      createBoard.mutate(
+        { document: { title: value.title, members: [currentUser?.uid] } },
+        {
+          onSuccess: async (boardId) => {
+            const defaultLists = [
+              { title: "To do", cards: [], boardId },
+              { title: "In progress", cards: [], boardId },
+              { title: "Finish", cards: [], boardId },
+            ];
+
+            await Promise.all(
+              defaultLists.map((list) =>
+                createList.mutateAsync({ parentId: boardId, document: list })
+              )
+            );
+            setIsModalOpen(false);
+          },
+        }
+      );
     }
   };
-
-  useEffect(() => {
-    if (createBoard.isSuccess) {
-      setIsModalOpen(false);
-    }
-  }, [createBoard.isSuccess, setIsModalOpen]);
 
   const formContent = [
     { name: "title", type: "text", placeholder: "Board title" },

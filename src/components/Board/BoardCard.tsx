@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "../Form/Form";
 import { useDeleteDoc, useUpdateDoc } from "@/firebase/mutateHook";
 import { Loader } from "../ui/loader";
+import { useNavigate } from "react-router-dom";
 
 export const BoardCard = ({ board }: { board: BoardType }) => {
   const TitleSchema = z.object({
@@ -15,6 +16,7 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
 
   const updateBoard = useUpdateDoc<BoardType>("boards", board.id);
   const deleteBoard = useDeleteDoc("boards", board.id);
+  const navigate = useNavigate();
 
   const [isUpdate, setIsUpdate] = useState(false);
 
@@ -38,7 +40,7 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
   ];
 
   return (
-    <Card className="w-72 h-32 flex flex-col justify-between overflow-hidden">
+    <Card className="w-72 h-32 flex flex-col justify-between overflow-hidden" onClick={() => navigate(`/${board.id}`)}>
       {isUpdate ? (
         <div className="h-full p-3 flex flex-col items-center justify-center">
           <Form

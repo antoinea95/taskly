@@ -82,11 +82,23 @@ export class FirestoreApi {
 
   public async createDocument<T>(
     collectionName: string,
-    data: Omit<T, "id">
-  ): Promise<void> {
+    data: Omit<T, "id">,    
+    parentId?: string,  
+    subCollectionName?: string
+  ): Promise<string> {
     try {
-      const docRef = collection(this.firebaseFirestore, collectionName);
-      await addDoc(docRef, data);
+      let docRef;
+  
+      // Si un parentId est fourni, c'est une sous-collection
+      if (parentId && subCollectionName) {
+        docRef = collection(this.firebaseFirestore, collectionName, parentId, subCollectionName);
+      } else {
+        // Sinon, c'est une collection principale
+        docRef = collection(this.firebaseFirestore, collectionName);
+      }
+  
+      const snapShotRef = await addDoc(docRef, data);
+      return snapShotRef.id;
     } catch (error) {
       console.error("Error creating document:", error);
       throw new Error("Failed to create document");
@@ -201,7 +213,25 @@ export class FirestoreApi {
     }
   }
 
-  private async fetchDocumentsByField<T>({
+  private async fetchCollections<T>({
+    collectionName,
+    errorMessage,
+  } : {collectionName: string, errorMessage: string}): Promise<T[]> {
+    try {
+      const colRef = collection(this.firebaseFirestore, collectionName);
+      const querySnapshot = await getDocs(colRef);
+
+      return querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      })) as T[];
+    } catch (error) {
+      console.error(`${errorMessage}`, error);
+      throw new Error(errorMessage);
+    }
+  }
+
+  private async fetchCollectionsByField<T>({
     collectionName,
     field,
     value,
@@ -223,16 +253,14 @@ export class FirestoreApi {
   }
 
   public async fetchLists(boardId: string): Promise<ListType[]> {
-    return this.fetchDocumentsByField<ListType>({
-      collectionName: "lists",
-      field: "boardId",
-      value: boardId,
+    return this.fetchCollections<ListType>({
+      collectionName: `boards/${boardId}/lists`,
       errorMessage: "Error fetching lists",
     });
   }
 
   public async fetchTasks(listId: string): Promise<TaskType[]> {
-    return this.fetchDocumentsByField<TaskType>({
+    return this.fetchCollectionsByField<TaskType>({
       collectionName: "tasks",
       field: "listId",
       value: listId,
