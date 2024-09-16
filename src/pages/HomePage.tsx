@@ -21,7 +21,8 @@ export const HomePage = () => {
   }
 
   if (boards.isSuccess) {
-    const userBoards = boards.data;
+    const userBoards = boards.data.sort((a, b) => b.createdAt - a.createdAt);
+
 
     const renderBoardSection = () => (
       <section className="grid grid-cols-4 gap-3 w-fit m-8">

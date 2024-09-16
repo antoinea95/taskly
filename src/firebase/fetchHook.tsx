@@ -7,52 +7,46 @@ import {
 import { useEffect } from "react";
 import FirestoreApi from "./FirestoreApi";
 import { BoardType, ListType, TaskType } from "@/utils/types";
-import { CollectionReference, query, where } from "firebase/firestore";
 
 type FetchMethod<T> = () => Promise<T>;
-type SubscribeParams = {
-  collectionName: string;
-  queryFn?: (colRef: CollectionReference) => any;
-  documentId?: string;
-};
 
 interface UseFireStoreApiParams<T> {
-  collectionName: string;
+  queryName: string;
+  databaseName: string;
   documentId?: string;
   fetchMethod?: FetchMethod<T>;
-  subscribeParams: SubscribeParams;
   useQueryOptions?: UseQueryOptions<T>;
 }
 
 const useFireStoreApi = <T,>({
-  collectionName,
+  queryName,
+  databaseName,
   documentId,
   fetchMethod,
-  subscribeParams,
   useQueryOptions,
 }: UseFireStoreApiParams<T>): UseQueryResult<T> => {
   const queryClient = useQueryClient();
 
+
   useEffect(() => {
-    if (subscribeParams) {
-      const queryKey = documentId ? [collectionName, documentId] : [collectionName];
       const unsubscribe = FirestoreApi.subscribe<T>({
-        collectionName: collectionName,
+        databaseName: databaseName,
         documentId: documentId,
-        queryFn: subscribeParams.queryFn,
         callback: (data) => {
-          queryClient.setQueryData(queryKey, data);
+          console.log("Firestore data received:", data);
+          queryClient.setQueryData(documentId ? [queryName, documentId] : [queryName], data);
         },
       });
 
       return () => {
+        console.log("Unsubscribing from Firestore");
         unsubscribe();
       };
-    }
-  }, [collectionName, queryClient, documentId, subscribeParams]);
+
+  }, [databaseName, queryName, documentId, queryClient]);
 
   return useQuery<T>({
-    queryKey: documentId ? [collectionName, documentId] : [collectionName],
+    queryKey: documentId ? [queryName, documentId] : [queryName],
     queryFn: fetchMethod
       ? fetchMethod
       : () => Promise.reject("No fetch method provided"),
@@ -62,49 +56,34 @@ const useFireStoreApi = <T,>({
 
 export const useFetchBoards = () => {
   return useFireStoreApi<BoardType[]>({
-    collectionName: "boards",
+    queryName: "boards",
+    databaseName: "boards",
     fetchMethod: async () => FirestoreApi.fetchBoards(),
-    subscribeParams: {
-      collectionName: "boards",
-      queryFn: (colRef) =>
-        query(
-          colRef,
-          where("members", "array-contains", FirestoreApi.getCurrentUser()?.uid)
-        ),
-    },
   });
 };
 
 export const useFetchLists = (boardId: string) => {
   return useFireStoreApi<ListType[]>({
-    collectionName: `boards/${boardId}/lists`,
+    queryName: `${boardId}, lists`,
+    databaseName: `boards/${boardId}/lists`,
     fetchMethod: async () => FirestoreApi.fetchLists(boardId),
-    subscribeParams: {
-      collectionName: `boards/${boardId}/lists`,
-    },
   });
 };
 
-export const useFetchTasks = (listId: string) => {
+export const useFetchTasks = (boardId: string, listId: string) => {
   return useFireStoreApi<TaskType[]>({
-    collectionName: "tasks",
-    fetchMethod: async () => FirestoreApi.fetchTasks(listId),
-    subscribeParams: {
-      collectionName: "tasks",
-      queryFn: (colRef) => query(colRef, where("boardId", "==", listId)),
-    },
+    queryName: `${listId}, tasks`,
+    databaseName: `boards/${boardId}/lists/${listId}/tasks`,
+    fetchMethod: async () => FirestoreApi.fetchTasks(boardId, listId),
   });
 };
 
-export const useFetchDoc = <T,>(collectionName: string, documentId: string) => {
+export const useFetchDoc = <T,>(queryName: string, databaseName: string, documentId: string) => {
   return useFireStoreApi<T>({
-    collectionName: collectionName,
+    queryName: queryName,
+    databaseName: databaseName,
     documentId: documentId,
     fetchMethod: async () =>
-      FirestoreApi.fetchDoc<T>({ collectionName, documentId }),
-    subscribeParams: {
-      collectionName: collectionName,
-      documentId: documentId,
-    },
+      FirestoreApi.fetchDoc<T>({ databaseName, documentId }),
   });
 };

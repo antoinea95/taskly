@@ -2,6 +2,7 @@ import { BoardForm } from "@/components/Board/BoardForm";
 import { AddList } from "@/components/List/AddList";
 import { ListCard } from "@/components/List/ListCard";
 import { Button } from "@/components/ui/button";
+import { Loader } from "@/components/ui/loader";
 import { useFetchDoc, useFetchLists } from "@/firebase/fetchHook";
 import { BoardType } from "@/utils/types";
 import { useState } from "react";
@@ -12,7 +13,7 @@ export const BoardPage = () => {
   const [isBoardTitleUpdate, setIsBoardTitleUpdate] = useState(false);
   const [isAddList, setIsAddList] = useState(false);
 
-  const board = useFetchDoc<BoardType[]>("boards", boardId ?? "");
+  const board = useFetchDoc<BoardType[]>("boards", "boards", boardId ?? "");
   const lists = useFetchLists(boardId ?? "");
 
   if (!boardId) {
@@ -20,18 +21,23 @@ export const BoardPage = () => {
   }
 
   if (lists.isLoading) {
-    return <p>...</p>;
+    return (
+      <main className="h-screen flex items-center justify-center">
+        <Loader data={{ color: "black", size: "6rem" }} />
+      </main>
+    );
   }
 
   if (lists.isError) {
     return <p>Error</p>;
   }
 
-  const listsData = lists.data ?? [];
-  const boardData = board.data ?? [];
+  const listsData = lists.data
+    ? lists.data.sort((a, b) => a.createdAt - b.createdAt)
+    : [];
 
-  if (!boardData[0]) {
-    return <p>...</p>;
+  if (!board.data) {
+    return <p> Super</p>;
   }
 
   const handleCloseInput = () => {
@@ -39,6 +45,13 @@ export const BoardPage = () => {
       setIsBoardTitleUpdate(false);
     }
   };
+
+  const boardData = board.data ?? [];
+
+  if(!boardData[0]) {
+    return <p>Super</p>
+  }
+
 
   return (
     <main className="p-10" onClick={handleCloseInput}>
@@ -48,20 +61,24 @@ export const BoardPage = () => {
         isBoardTitleUpdate={isBoardTitleUpdate}
         setIsBoardTitleUpdate={setIsBoardTitleUpdate}
       />
-      <section className="w-full border h-screen flex items-start flex-nowrap py-10 px-3 gap-5 overflow-x-scroll">
-        {listsData.length === 0 ? (
-          <p>No list</p>
-        ) : (
-          listsData.map((list) => <ListCard list={list} key={list.id} />)
-        )}
-        <section className="flex-1">
-          {!isAddList ? (
-            <Button className="w-full" onClick={() => setIsAddList(true)}>
-              Add a list
-            </Button>
+      <section className="overflow-x-auto h-96">
+        <section className="flex items-start flex-nowrap py-10 px-3 gap-5">
+          {listsData.length === 0 ? (
+            <p>No list</p>
           ) : (
-            <AddList boardId={boardId} setIsAddList={setIsAddList} />
+            listsData.map((list) => (
+              <ListCard boardId={boardId} list={list} key={list.id} />
+            ))
           )}
+          <section className="flex-1 min-w-72">
+            {!isAddList ? (
+              <Button className="w-full" onClick={() => setIsAddList(true)}>
+                Add a list
+              </Button>
+            ) : (
+              <AddList boardId={boardId} setIsAddList={setIsAddList} />
+            )}
+          </section>
         </section>
       </section>
     </main>

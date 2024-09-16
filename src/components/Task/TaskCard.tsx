@@ -1,9 +1,13 @@
+import { TaskType } from "@/utils/types"
+import { Card, CardHeader } from "../ui/card"
 
-export const TaskCard = () => {
+export const TaskCard = ({task} : {task: TaskType}) => {
 
     return (
-        <div className="border">
-            <h2>Task title</h2>
-        </div>
+        <Card>
+            <CardHeader>
+                {task.title}
+            </CardHeader>
+        </Card>
     )
 }

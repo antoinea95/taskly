@@ -2,39 +2,35 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import FirestoreApi from "./FirestoreApi";
 
 
-export const useAddDoc = <T, >(collectionName: string, subCollectionName?: string) => {
+export const useAddDoc = <T, >(queryName: string, databaseName: string, ) => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: {parentId?: string, document: T}): Promise<string> => FirestoreApi.createDocument<T>(collectionName, data.document, data.parentId, subCollectionName),
-        onSuccess: (data, variables) => {
-            if (variables.parentId && subCollectionName) {
-              queryClient.invalidateQueries({queryKey: [`${collectionName}/${variables.parentId}/${subCollectionName}`]});
-            } else {
-              queryClient.invalidateQueries({queryKey: [collectionName]});
-            }
+        mutationFn: (data : T): Promise<string> => FirestoreApi.createDocument<T>(databaseName, data),
+        onSuccess: () => {
+              queryClient.invalidateQueries({queryKey: [queryName]});
           },
     });
 };
 
-export const useUpdateDoc = <T, >(collectionName: string, id: string) => {
+export const useUpdateDoc = <T, >(queryName: string, databaseName: string, id: string) => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: Partial<T>) => FirestoreApi.updateDocument<T>(collectionName, data, id),
+        mutationFn: (data:Partial<T>) => FirestoreApi.updateDocument<T>(databaseName, data, id),
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: [collectionName, id]});
+            queryClient.invalidateQueries({queryKey: [queryName]});
         }
     })
 }
 
-export const useDeleteDoc = (collectionName: string, id: string) => {
+export const useDeleteDoc = (queryName: string, databaseName: string, id: string, subCollections?: string[]) => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: () => FirestoreApi.deleteDocument(collectionName, id),
+        mutationFn: () => FirestoreApi.deleteDocument(databaseName, id, subCollections),
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: [collectionName]});
+            queryClient.invalidateQueries({queryKey: [queryName]});
         }
     })
 }

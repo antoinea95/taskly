@@ -14,8 +14,8 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
     title: z.string().min(3),
   });
 
-  const updateBoard = useUpdateDoc<BoardType>("boards", board.id);
-  const deleteBoard = useDeleteDoc("boards", board.id);
+  const updateBoard = useUpdateDoc<BoardType>("boards", "boards", board.id);
+  const deleteBoard = useDeleteDoc("boards", "boards", board.id, ["lists", "tasks"]);
   const navigate = useNavigate();
 
   const [isUpdate, setIsUpdate] = useState(false);

@@ -14,20 +14,21 @@ export type TaskType = {
     labels?: string[];
     comments?: Comment[];
     assignedTo?: string[];
-    taskId: string;
+    listId: string;
+    createdAt: number;
   };
   
 export type ListType = {
     id: string;
     title: string;
-    cards: TaskType[];
-    boardId: string;
+    createdAt: number;
   };
   
 export type BoardType = {
     id: string;
     title: string;
     members: string[]; 
+    createdAt: number;
   };
 
 export type DialogType = {

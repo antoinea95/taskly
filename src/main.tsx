@@ -10,7 +10,15 @@ import ErrorPage from './error-page.tsx'
 import { BoardPage } from './pages/BoardPage.tsx'
 import { LoginPage } from './pages/LoginPage.tsx'
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    }
+  }
+
+});
 
 
 const router = createBrowserRouter([

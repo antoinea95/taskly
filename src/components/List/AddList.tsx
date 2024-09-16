@@ -17,13 +17,10 @@ export const AddList = ({
     title: z.string().min(2),
   });
 
-  const createList = useAddDoc<Omit<ListType, "id">>("boards", "lists");
+  const createList = useAddDoc<Omit<ListType, "id">>(`${boardId}, lists`, `boards/${boardId}/lists`);
 
   const onSubmit = async (value: z.infer<typeof ListSchema>) => {
-    createList.mutate({
-      parentId: boardId,
-      document: { title: value.title, boardId: boardId, cards: [] },
-    });
+    createList.mutate({title: value.title, createdAt: Date.now() });
   };
 
   const formContent = [
@@ -31,7 +28,7 @@ export const AddList = ({
   ];
 
   return (
-    <div className="flex items-end justify-center p-4 rounded-xl border-black border gap-3">
+    <div className="flex items-end justify-center p-4 rounded-xl border-black border gap-3 min-w-72">
       <Form
         schema={ListSchema}
         onSubmit={onSubmit}

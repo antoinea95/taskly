@@ -45,12 +45,12 @@ export interface FirestoreFetchColParams {
 }
 
 export interface FirestoreFetchDocParams {
-  collectionName: string;
+  databaseName: string;
   documentId: string;
 }
 
 interface SubscribeParams<T> {
-  collectionName: string;
+  databaseName: string;
   queryFn?: (colRef: CollectionReference) => any;
   documentId?: string;
   callback: (data: T[]) => void;
@@ -83,19 +83,9 @@ export class FirestoreApi {
   public async createDocument<T>(
     collectionName: string,
     data: Omit<T, "id">,    
-    parentId?: string,  
-    subCollectionName?: string
   ): Promise<string> {
-    try {
-      let docRef;
-  
-      // Si un parentId est fourni, c'est une sous-collection
-      if (parentId && subCollectionName) {
-        docRef = collection(this.firebaseFirestore, collectionName, parentId, subCollectionName);
-      } else {
-        // Sinon, c'est une collection principale
-        docRef = collection(this.firebaseFirestore, collectionName);
-      }
+    try {  
+      const docRef = collection(this.firebaseFirestore, collectionName);
   
       const snapShotRef = await addDoc(docRef, data);
       return snapShotRef.id;
@@ -119,12 +109,31 @@ export class FirestoreApi {
     }
   }
 
+  private async deleteSubcollections(docRef: DocumentReference, subCollections: string[]): Promise<void> {
+    if (subCollections.length === 0) return;
+
+    const currentLevel = subCollections[0];
+    const subCollectionRef = collection(docRef, currentLevel);
+    const subCollectionDocs = await getDocs(subCollectionRef);
+
+    for (const subDoc of subCollectionDocs.docs) {
+      await this.deleteSubcollections(subDoc.ref, subCollections.slice(1));
+      await deleteDoc(subDoc.ref);
+    }
+  }
+
   public async deleteDocument(
-    collectionName: string,
-    id: string
+    databaseName: string,
+    id: string,
+    subCollections?: string[], 
   ): Promise<void> {
     try {
-      const docRef = doc(this.firebaseFirestore, collectionName, id);
+      const docRef = doc(this.firebaseFirestore, databaseName, id);
+
+      if (subCollections && subCollections.length > 0) {
+        await this.deleteSubcollections(docRef, subCollections);
+      }
+     
       await deleteDoc(docRef);
     } catch (error) {
       console.error("Error deleting document:", error);
@@ -214,33 +223,12 @@ export class FirestoreApi {
   }
 
   private async fetchCollections<T>({
-    collectionName,
+    databaseName,
     errorMessage,
-  } : {collectionName: string, errorMessage: string}): Promise<T[]> {
+  } : {databaseName: string, errorMessage: string}): Promise<T[]> {
     try {
-      const colRef = collection(this.firebaseFirestore, collectionName);
+      const colRef = collection(this.firebaseFirestore, databaseName);
       const querySnapshot = await getDocs(colRef);
-
-      return querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      })) as T[];
-    } catch (error) {
-      console.error(`${errorMessage}`, error);
-      throw new Error(errorMessage);
-    }
-  }
-
-  private async fetchCollectionsByField<T>({
-    collectionName,
-    field,
-    value,
-    errorMessage,
-  }: FirestoreFetchColParams): Promise<T[]> {
-    try {
-      const colRef = collection(this.firebaseFirestore, collectionName);
-      const q = query(colRef, where(field, "==", value));
-      const querySnapshot = await getDocs(q);
 
       return querySnapshot.docs.map((doc) => ({
         ...doc.data(),
@@ -254,26 +242,24 @@ export class FirestoreApi {
 
   public async fetchLists(boardId: string): Promise<ListType[]> {
     return this.fetchCollections<ListType>({
-      collectionName: `boards/${boardId}/lists`,
+      databaseName: `boards/${boardId}/lists`,
       errorMessage: "Error fetching lists",
     });
   }
 
-  public async fetchTasks(listId: string): Promise<TaskType[]> {
-    return this.fetchCollectionsByField<TaskType>({
-      collectionName: "tasks",
-      field: "listId",
-      value: listId,
+  public async fetchTasks(boardId: string, listId: string): Promise<TaskType[]> {
+    return this.fetchCollections<TaskType>({
+      databaseName: `boards/${boardId}/lists/${listId}/tasks`,
       errorMessage: "Error fetching tasks",
     });
   }
 
   public async fetchDoc<T>({
-    collectionName,
+    databaseName,
     documentId,
   }: FirestoreFetchDocParams): Promise<T> {
     try {
-      const docRef = doc(this.firebaseFirestore, collectionName, documentId);
+      const docRef = doc(this.firebaseFirestore, databaseName, documentId);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -287,28 +273,41 @@ export class FirestoreApi {
     }
   }
 
- public subscribe<T>({ collectionName, queryFn, documentId, callback }: SubscribeParams<T>): () => void {
-  if (documentId) {
-    const docRef: DocumentReference = doc(this.firebaseFirestore, collectionName, documentId);
-    return onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data() as T;
-        callback([data]);
-      }
-    }, (error) => this.handleAuthErrors(error));
-  } else {
-    // Si c'est une collection
-    const colRef: CollectionReference = collection(this.firebaseFirestore, collectionName);
-    const q = queryFn ? queryFn(colRef) : colRef;
-    return onSnapshot(q, (querySnapshot: QuerySnapshot<T>) => {
-      const data = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      })) as T[];
-      callback(data);
-    }, (error) => this.handleAuthErrors(error));
+  public subscribe<T>({
+    databaseName,
+    queryFn,
+    documentId,
+    callback,
+  }: SubscribeParams<T>): () => void {
+    if (documentId) {
+      const docRef: DocumentReference = doc(this.firebaseFirestore, databaseName, documentId);
+      return onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data() as T;
+          callback([data]);
+        }
+      }, (error) => this.handleAuthErrors(error));
+    } else {
+      const colRef: CollectionReference = collection(this.firebaseFirestore, databaseName);
+      const q = queryFn ? queryFn(colRef) : colRef;
+      return onSnapshot(q, (querySnapshot: QuerySnapshot<T>) => {
+        const newData = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        })) as T[];
+  
+        // Comparer les données avant de mettre à jour le cache
+        const existingData = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        })) as T[];
+  
+        if (JSON.stringify(newData) !== JSON.stringify(existingData)) {
+          callback(newData);
+        }
+      }, (error) => this.handleAuthErrors(error));
+    }
   }
-}
 }
 
 export default new FirestoreApi();
