@@ -63,7 +63,7 @@ export const BoardPage = () => {
         isUpdate={isBoardTitleUpdate}
         setIsUpdate={setIsBoardTitleUpdate}
       />
-      <section className="overflow-x-auto h-96">
+      <section className="overflow-x-auto">
         <section className="flex items-start flex-nowrap py-10 px-3 gap-5">
           {listsData.length === 0 ? (
             <p>No list</p>

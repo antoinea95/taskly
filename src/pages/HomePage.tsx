@@ -6,6 +6,7 @@ import { useFetchBoards } from "@/firebase/fetchHook";
 import { useAuth } from "@/firebase/authHook";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export const HomePage = () => {
   const currentUser = useAuth();
@@ -22,7 +23,6 @@ export const HomePage = () => {
 
   if (boards.isSuccess) {
     const userBoards = boards.data.sort((a, b) => b.createdAt - a.createdAt);
-
 
     const renderBoardSection = () => (
       <section className="grid grid-cols-4 gap-3 w-fit m-8">
@@ -49,8 +49,17 @@ export const HomePage = () => {
         <section className="flex justify-between items-center px-10">
           <h1 className="text-xl font-bold uppercase">Your boards</h1>
           <Modal
-            triggerName={`New Board`}
-            icon={CirclePlus}
+            Trigger={
+              <Button onClick={() => setIsModalOpen(true)}>
+                <CirclePlus
+                  size={18}
+                  color="white"
+                  strokeWidth={2}
+                  className="mr-1"
+                />{" "}
+                Add Board
+              </Button>
+            }
             dialogName="Add a new board"
             setIsModalOpen={setIsModalOpen}
             isModalOpen={isModalOpen}

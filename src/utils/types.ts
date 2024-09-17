@@ -1,6 +1,3 @@
-import { LucideIcon } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
-
 export type StatusType = "success" | "loading" | "error" | null;
 export type ErrorType =  string | null;
 
@@ -30,11 +27,3 @@ export type BoardType = {
     members: string[]; 
     createdAt: number;
   };
-
-export type DialogType = {
-  triggerName: string,
-  icon: LucideIcon,
-  dialogName: string, 
-  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
-  isModalOpen: boolean;
-}

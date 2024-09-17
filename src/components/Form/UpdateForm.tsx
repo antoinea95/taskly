@@ -40,7 +40,7 @@ export const UpdateForm = ({queryName, databaseName, id, value, isUpdate, setIsU
     <>
       {!isUpdate ? (
         <button
-          className="text-xl uppercase font-bold w-36 h-12 rounded px-3 py-2 cursor-pointer hover:bg-gray-200"
+          className="text-xl uppercase font-bold h-12 rounded px-3 py-2 cursor-pointer hover:bg-gray-200"
           onClick={() => setIsUpdate(true)}
           aria-label="Update board title"
         >
@@ -49,7 +49,7 @@ export const UpdateForm = ({queryName, databaseName, id, value, isUpdate, setIsU
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
           <Input
-            className="text-xl uppercase font-bold w-36 h-12 border rounded px-3 py-2 cursor-pointer text-center selection:bg-blue-400"
+            className="text-xl uppercase font-bold max-w-40 h-12 border rounded px-3 py-2 cursor-pointer text-center selection:bg-blue-400"
             {...register("title")}
             id="title"
             type="text"

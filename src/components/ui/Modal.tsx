@@ -1,5 +1,3 @@
-import { DialogType } from "@/utils/types";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,19 +5,35 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {PropsWithChildren } from "react";
+import { LucideIcon } from "lucide-react";
+import {
+  Dispatch,
+  PropsWithChildren,
+  ReactElement,
+  SetStateAction,
+} from "react";
 
-export const Modal = ({triggerName, icon, dialogName, setIsModalOpen, isModalOpen, children}: PropsWithChildren<DialogType>) => {
+type DialogType = {
+  Trigger: ReactElement;
+  Icon?: LucideIcon;
+  dialogName: string | ReactElement;
+  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
+  isModalOpen: boolean;
+};
 
-  const Icon = icon;
+export const Modal = ({
+  Trigger,
+  dialogName,
+  setIsModalOpen,
+  isModalOpen,
+  children,
+}: PropsWithChildren<DialogType>) => {
+
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Icon size={16} className="mr-1"/>
-          {triggerName}
-          </Button>
+        {Trigger}
       </DialogTrigger>
       <DialogContent aria-describedby={undefined}>
         <DialogHeader>
