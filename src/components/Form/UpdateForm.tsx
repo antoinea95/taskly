@@ -4,42 +4,44 @@ import { useUpdateDoc } from "@/firebase/mutateHook";
 import { BoardType } from "@/utils/types";
 import { Dispatch, SetStateAction, useEffect} from "react";
 
-interface BoardForm {
-  boardId: string;
+interface UpdateFormProps {
+  queryName: string,
+  databaseName: string,
+  id: string;
   value: string;
-  isBoardTitleUpdate: boolean;
-  setIsBoardTitleUpdate: Dispatch<SetStateAction<boolean>>;
+  isUpdate: boolean;
+  setIsUpdate: Dispatch<SetStateAction<boolean>>;
 }
 
-export const BoardForm = ({ boardId, value, isBoardTitleUpdate, setIsBoardTitleUpdate}: BoardForm) => {
+export const UpdateForm = ({queryName, databaseName, id, value, isUpdate, setIsUpdate}: UpdateFormProps) => {
 
-  const updateBoard = useUpdateDoc("boards", boardId);
+  const updateItem = useUpdateDoc(queryName, databaseName, id);
 
   const { register, handleSubmit } = useForm();
 
   const onSubmit = (values: Partial<BoardType>) => {
-    updateBoard.mutate(values, {
+    updateItem.mutate(values, {
       onSuccess: () => {
-        setIsBoardTitleUpdate(false);
+        setIsUpdate(false);
       },
     });
   };
 
   useEffect(() => {
-    if (isBoardTitleUpdate) {
+    if (isUpdate) {
       const input = document.getElementById("title") as HTMLInputElement;
       if (input) {
         input.select();
       }
     }
-  }, [isBoardTitleUpdate]);
+  }, [isUpdate]);
 
   return (
     <>
-      {!isBoardTitleUpdate ? (
+      {!isUpdate ? (
         <button
           className="text-xl uppercase font-bold w-36 h-12 rounded px-3 py-2 cursor-pointer hover:bg-gray-200"
-          onClick={() => setIsBoardTitleUpdate(true)}
+          onClick={() => setIsUpdate(true)}
           aria-label="Update board title"
         >
           {value}

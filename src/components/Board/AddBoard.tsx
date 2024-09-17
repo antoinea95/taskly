@@ -1,9 +1,10 @@
 import { z } from "zod";
-import { Form } from "../Form/Form";
-import { useAddDoc } from "@/firebase/mutateHook";
-import { BoardType } from "@/utils/types";
+import { CreateForm } from "../Form/CreateForm";
+import { BoardType, ListType } from "@/utils/types";
 import { useAuth } from "@/firebase/authHook";
 import { Dispatch, SetStateAction } from "react";
+import FirestoreApi from "@/firebase/FirestoreApi";
+import { useCreateItem } from "@/utils/useCreateItem";
 
 export const AddBoard = ({
   setIsModalOpen,
@@ -16,22 +17,32 @@ export const AddBoard = ({
 
   const { currentUser } = useAuth();
 
-  const createBoard = useAddDoc<Omit<BoardType, "id">>("boards", "boards");
+  const { onSubmit, createItem } = useCreateItem<Omit<BoardType, "id">>({
+    schema: BoardSchema,
+    data: {members: currentUser ? [currentUser.uid] : [] },
+    queryName: "boards",
+    databaseName: "boards",
+    setIsOpen: setIsModalOpen,
+    onSuccessCallback: async (id?: string) => {
+      if (id) {
+        const now = Date.now();
+        const defaultList: Omit<ListType, "id">[] = [
+          { title: "To do", createdAt: now },
+          { title: "In progress", createdAt: now + 1 },
+          { title: "Finish", createdAt: now + 2 },
+        ];
 
-  const onSubmit = async (value: z.infer<typeof BoardSchema>) => {
-    if (currentUser) {
-      createBoard.mutate(
-        {
-          title: value.title,
-          members: [currentUser?.uid],
-          createdAt: Date.now(),
-        },
-        {
-          onSuccess: () => setIsModalOpen(false),
-        }
-      );
-    }
-  };
+        await Promise.all(
+          defaultList.map((list) =>
+            FirestoreApi.createDocument<Omit<ListType, "id">>(
+              `boards/${id}/lists`,
+              list
+            )
+          )
+        );
+      }
+    },
+  });
 
   const formContent = [
     { name: "title", type: "text", placeholder: "Board title" },
@@ -39,14 +50,12 @@ export const AddBoard = ({
 
   return (
     <div className="flex items-center justify-center py-10">
-      <Form
+      <CreateForm
         schema={BoardSchema}
         onSubmit={onSubmit}
         formContent={formContent}
         buttonName="Create"
-        isError={createBoard.isError}
-        isLoading={createBoard.isPending}
-        error={createBoard.error}
+        query={createItem}
       />
     </div>
   );

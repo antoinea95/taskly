@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { Form } from "../Form/Form";
-import { useAddDoc } from "@/firebase/mutateHook";
+import { CreateForm } from "../Form/CreateForm";
 import { TaskType } from "@/utils/types";
 import { Dispatch, SetStateAction } from "react";
 import { Button } from "../ui/button";
+import { useCreateItem } from "@/utils/useCreateItem";
 
 export const AddTask = ({
   boardId,
@@ -14,22 +14,21 @@ export const AddTask = ({
   listId: string;
   setIsAddTask: Dispatch<SetStateAction<boolean>>;
 }) => {
+
   const TaskSchema = z.object({
     title: z.string().min(2),
   });
 
-  const createTask = useAddDoc<Omit<TaskType, "id">>(
-    `${listId}, tasks`,
-    `boards/${boardId}/lists/${listId}/tasks`
-  );
-
-  const onSubmit = async (value: z.infer<typeof TaskSchema>) => {
-    createTask.mutate({
-      title: value.title,
+  const {onSubmit, createItem} = useCreateItem<Omit<TaskType, "id">>({
+    schema: TaskSchema,
+    data: {
       listId: listId,
-      createdAt: Date.now(),
-    });
-  };
+    },
+    queryName: `${listId}, tasks`,
+    databaseName: `boards/${boardId}/lists/${listId}/tasks`,
+    setIsOpen: setIsAddTask
+  })
+
 
   const formContent = [
     { name: "title", type: "text", placeholder: "Board title" },
@@ -37,14 +36,12 @@ export const AddTask = ({
 
   return (
     <div className="flex flex-col justify-center p-4 rounded-xl border-black border gap-3 w-full">
-      <Form
+      <CreateForm
         schema={TaskSchema}
         onSubmit={onSubmit}
         formContent={formContent}
         buttonName="Create"
-        isError={createTask.isError}
-        isLoading={createTask.isPending}
-        error={createTask.error}
+        query={createItem}
       />
       <Button
         className="w-full px-3 bg-red-500"

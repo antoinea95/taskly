@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { z } from "zod";
-import { Form } from "../Form/Form";
-import {useSignIn, useSignUp } from "@/firebase/authHook";
+import { CreateForm } from "../Form/CreateForm";
+import {useSign} from "@/firebase/authHook";
 
 export const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const signIn = useSignIn();
-  const signUp = useSignUp()
+  const sign = useSign();
 
   const UserSchema = z.object({
     name: isLogin
@@ -16,7 +15,11 @@ export const AuthForm = () => {
     password: z.string().min(8),
   });
 
-  type UserForm = z.infer<typeof UserSchema>;
+  type UserForm = {
+    name?: string, 
+    email: string,
+    password: string
+  };
 
   const authFormContent = [
     { name: "name", type: "text", placeholder: "John Doe", label: "Name" },
@@ -33,23 +36,21 @@ export const AuthForm = () => {
 
   const onSubmit = (values: UserForm) => {
     if (isLogin) {
-      signIn.mutate({email: values.email, password:values.password});
+      sign.mutate({email: values.email, password:values.password});
     } else {
-      signUp.mutate({email: values.email, password:values.password, name: values.name as string});;
+      sign.mutate({email: values.email, password:values.password, name: values.name as string});;
     }
   };
 
   return (
     <main className="w-screen h-screen flex justify-center items-center">
       <div className="flex flex-col border-2 border-black rounded-xl p-10 w-1/2 justify-center items-center">
-      <Form
+      <CreateForm
         schema={UserSchema}
         onSubmit={onSubmit}
         formContent={formContent}
         buttonName={isLogin ? "Login" : "Signin"}
-        isError={isLogin ? signIn.isError : signUp.isError}
-        isLoading={isLogin ? signIn.isPending : signUp.isPending}
-        error={isLogin ? signIn.error : signUp.error}
+        query={sign}
       />
       {!isLogin ? (
         <p className="text-center">

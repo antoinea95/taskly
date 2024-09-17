@@ -1,52 +1,35 @@
 import { useState, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { User } from "firebase/auth";
 import FirestoreApi from "./FirestoreApi";
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-
-export const useSignIn = () => {
-    const navigate = useNavigate();
-    return useMutation({
-       mutationFn: ({email, password} : {email: string, password: string}) => FirestoreApi.signIn(email, password),
-       onSuccess: () => {
-        navigate("/");
-      },
-      onError: (error) => {
-        console.error("Sign in error:", error);
-      },
-    })
-}
-
-export const useSignUp = () => {
+export const useSign = () => {
   const navigate = useNavigate();
-    return useMutation({
-       mutationFn: ({email, password, name} : {email: string, password: string, name: string}) => FirestoreApi.signUp(email, password, name),
-       onSuccess: () => {
-        navigate("/");
-      },
-      onError: (error) => {
-        console.error("Sign up error:", error);
-      },
-    })
-}
-
-export const useSignOut = () => {
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: () => FirestoreApi.signOut(),
-        onSuccess: () => {
-          queryClient.invalidateQueries();
-          navigate("/login");
-        },
-        onError: (error) => {
-          console.error("Sign out error:", error);
-        },
-      });
-}
-
+  return useMutation({
+    mutationFn: ({
+      email,
+      password,
+      name,
+    }: {
+      email: string;
+      password: string;
+      name?: string;
+    }) => {
+      if (!name) {
+        return FirestoreApi.signIn(email, password);
+      } else {
+        return FirestoreApi.signUp(email, password, name);
+      }
+    },
+    onSuccess: () => {
+      navigate("/");
+    },
+    onError: (error) => {
+      console.error("Sign in error:", error);
+    },
+  });
+};
 
 export const useAuth = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(
@@ -65,6 +48,5 @@ export const useAuth = () => {
     return () => unsubscribe();
   }, []);
 
-
-  return {currentUser, isLoading};
+  return { currentUser, isLoading };
 };

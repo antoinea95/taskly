@@ -1,4 +1,4 @@
-import { BoardForm } from "@/components/Board/BoardForm";
+import { UpdateForm } from "@/components/Form/UpdateForm";
 import { AddList } from "@/components/List/AddList";
 import { ListCard } from "@/components/List/ListCard";
 import { Button } from "@/components/ui/button";
@@ -55,11 +55,13 @@ export const BoardPage = () => {
 
   return (
     <main className="p-10" onClick={handleCloseInput}>
-      <BoardForm
-        boardId={boardId}
+      <UpdateForm
+        queryName="boards"
+        databaseName="boards"
+        id={boardId}
         value={boardData[0].title}
-        isBoardTitleUpdate={isBoardTitleUpdate}
-        setIsBoardTitleUpdate={setIsBoardTitleUpdate}
+        isUpdate={isBoardTitleUpdate}
+        setIsUpdate={setIsBoardTitleUpdate}
       />
       <section className="overflow-x-auto h-96">
         <section className="flex items-start flex-nowrap py-10 px-3 gap-5">

@@ -5,9 +5,12 @@ import { Input } from "../ui/input";
 import { Loader } from "../ui/loader";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import { UseMutationResult } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { User } from "firebase/auth";
 
-type FormProps<T extends FieldValues> = {
-  schema: ZodType<T>;
+type CreateFormProps<T extends FieldValues> = {
+  schema: ZodType<Partial<T>>;
   onSubmit: (data: T) => void;
   formContent: {
     name: string;
@@ -17,28 +20,34 @@ type FormProps<T extends FieldValues> = {
     value?: string;
   }[];
   buttonName: string;
-  isError: boolean;
-  isLoading: boolean;
-  error: Error | null;
+  query: UseMutationResult<string | User, Error, T, unknown>
+
 };
 
-export const Form = <T extends FieldValues>({
+export const CreateForm = <T extends FieldValues>({
   schema,
   onSubmit,
   formContent,
   buttonName,
-  isError,
-  isLoading,
-  error
-}: FormProps<T>) => {
+  query
+}: CreateFormProps<T>) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<T>({
     mode: "onBlur",
     resolver: zodResolver(schema),
   });
+
+  const {isError, error, isPending, isSuccess} = query
+
+  useEffect(() => {
+    if(isSuccess) {
+     reset();
+    }
+  }, [isSuccess, reset])
 
   return (
     <form
@@ -64,7 +73,7 @@ export const Form = <T extends FieldValues>({
         </div>
       ))}
       <Button type="submit">
-        {isLoading ? (
+        {isPending ? (
           <Loader data={{ color: "white", size:"1rem"}} />
         ) : (
           buttonName
