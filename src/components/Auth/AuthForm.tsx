@@ -2,6 +2,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { CreateForm } from "../Form/CreateForm";
 import {useSign} from "@/firebase/authHook";
+import { FormContent } from "@/utils/types";
 
 export const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -21,20 +22,16 @@ export const AuthForm = () => {
     password: string
   };
 
-  const authFormContent = [
+
+  const authFormContent : FormContent = [
     { name: "name", type: "text", placeholder: "John Doe", label: "Name" },
-    {
-      name: "email",
-      type: "email",
-      placeholder: "johndoe@email.com",
-      label: "Email",
-    },
+    { name: "email", type: "email", placeholder: "johndoe@email.com", label: "Email",},
     { name: "password", type: "password", placeholder: "", label: "Password" },
   ];
 
   const formContent = isLogin ? authFormContent.filter((item) => item.name !== "name") : authFormContent;
 
-  const onSubmit = (values: UserForm) => {
+  const onSubmit = async (values: UserForm) => {
     if (isLogin) {
       sign.mutate({email: values.email, password:values.password});
     } else {

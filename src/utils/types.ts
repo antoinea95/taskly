@@ -11,7 +11,6 @@ export type TaskType = {
     labels?: string[];
     comments?: Comment[];
     assignedTo?: string[];
-    listId: string;
     createdAt: number;
   };
   
@@ -19,6 +18,8 @@ export type ListType = {
     id: string;
     title: string;
     createdAt: number;
+    boardId: string;
+    tasks: string[];
   };
   
 export type BoardType = {
@@ -27,3 +28,13 @@ export type BoardType = {
     members: string[]; 
     createdAt: number;
   };
+
+export type InputType = 'text' | 'email' | 'password' | 'number' | 'textarea';
+
+
+export type FormContent = {
+  name: string, 
+  type: InputType,
+  placeholder: string, 
+  label?: string
+}[]

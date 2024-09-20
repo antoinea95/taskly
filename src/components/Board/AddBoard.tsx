@@ -1,10 +1,9 @@
 import { z } from "zod";
 import { CreateForm } from "../Form/CreateForm";
-import { BoardType, ListType } from "@/utils/types";
+import { BoardType, FormContent, ListType } from "@/utils/types";
 import { useAuth } from "@/firebase/authHook";
 import { Dispatch, SetStateAction } from "react";
-import FirestoreApi from "@/firebase/FirestoreApi";
-import { useCreateItem } from "@/utils/useCreateItem";
+import { useAddDoc } from "@/firebase/mutateHook";
 
 export const AddBoard = ({
   setIsModalOpen,
@@ -16,35 +15,47 @@ export const AddBoard = ({
   });
 
   const { currentUser } = useAuth();
+  const createBoard = useAddDoc<BoardType>("boards");
+  const createList = useAddDoc<ListType>("lists");
+  if (!currentUser) {
+    return <p>Loading ...</p>;
+  }
 
-  const { onSubmit, createItem } = useCreateItem<Omit<BoardType, "id">>({
-    schema: BoardSchema,
-    data: {members: currentUser ? [currentUser.uid] : [] },
-    queryName: "boards",
-    databaseName: "boards",
-    setIsOpen: setIsModalOpen,
-    onSuccessCallback: async (id?: string) => {
-      if (id) {
-        const now = Date.now();
-        const defaultList: Omit<ListType, "id">[] = [
-          { title: "To do", createdAt: now },
-          { title: "In progress", createdAt: now + 1 },
-          { title: "Finish", createdAt: now + 2 },
-        ];
-
-        await Promise.all(
-          defaultList.map((list) =>
-            FirestoreApi.createDocument<Omit<ListType, "id">>(
-              `boards/${id}/lists`,
-              list
-            )
-          )
-        );
+  const onSubmit = async (data: z.infer<typeof BoardSchema>) => {
+    createBoard.mutate(
+      {
+        ...data,
+        members: [currentUser.uid],
+        createdAt: Date.now(),
+      },
+      {
+        onSuccess: async (boardId) => {
+          setIsModalOpen(false);
+          const now = Date.now();
+          const defaultLists: Omit<ListType, "id">[] = [
+            { title: "To do", createdAt: now, boardId: boardId, tasks: [] },
+            {
+              title: "In progress",
+              createdAt: now + 1,
+              boardId: boardId,
+              tasks: [],
+            },
+            {
+              title: "Finish",
+              createdAt: now + 2,
+              boardId: boardId,
+              tasks: [],
+            },
+          ];
+          await Promise.all(
+            defaultLists.map((list) => createList.mutate(list))
+          );
+        },
       }
-    },
-  });
+    );
+  };
 
-  const formContent = [
+  const formContent: FormContent = [
     { name: "title", type: "text", placeholder: "Board title" },
   ];
 
@@ -55,7 +66,7 @@ export const AddBoard = ({
         onSubmit={onSubmit}
         formContent={formContent}
         buttonName="Create"
-        query={createItem}
+        query={createBoard}
       />
     </div>
   );

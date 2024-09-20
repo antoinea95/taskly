@@ -1,32 +1,45 @@
-import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { User } from "firebase/auth";
-import FirestoreApi from "./FirestoreApi";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FirestoreApi from "./FirestoreApi";
+import { User } from "firebase/auth";
+
+interface SignInData {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+const authenticateUser = async ({ email, password, name }: SignInData) => {
+  if (name) {
+    return FirestoreApi.signUp(email, password, name);
+  } else {
+    return FirestoreApi.signIn(email, password);
+  }
+};
 
 export const useSign = () => {
   const navigate = useNavigate();
   return useMutation({
-    mutationFn: ({
-      email,
-      password,
-      name,
-    }: {
-      email: string;
-      password: string;
-      name?: string;
-    }) => {
-      if (!name) {
-        return FirestoreApi.signIn(email, password);
-      } else {
-        return FirestoreApi.signUp(email, password, name);
-      }
-    },
+    mutationFn: authenticateUser,
     onSuccess: () => {
       navigate("/");
     },
     onError: (error) => {
-      console.error("Sign in error:", error);
+      console.error("Authentication error:", error);
+    },
+  });
+};
+
+export const useSignOut = () => {
+  const navigate = useNavigate();
+  return useMutation({
+    mutationFn: () => FirestoreApi.signOut(),
+    onSuccess: () => {
+      navigate("/login");
+    },
+    onError: (error) => {
+      console.error("Sign out error:", error);
     },
   });
 };

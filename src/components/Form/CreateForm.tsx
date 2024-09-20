@@ -7,21 +7,15 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { User } from "firebase/auth";
+import { FormContent } from "@/utils/types";
+
 
 type CreateFormProps<T extends FieldValues> = {
   schema: ZodType<Partial<T>>;
-  onSubmit: (data: T) => void;
-  formContent: {
-    name: string;
-    type: string;
-    placeholder: string;
-    label?: string;
-    value?: string;
-  }[];
+  onSubmit: (data: T) => Promise<void>;
+  formContent: FormContent;
   buttonName: string;
-  query: UseMutationResult<string | User, Error, T, unknown>
-
+  query: UseMutationResult<any, Error | unknown, T>;
 };
 
 export const CreateForm = <T extends FieldValues>({
@@ -29,8 +23,10 @@ export const CreateForm = <T extends FieldValues>({
   onSubmit,
   formContent,
   buttonName,
-  query
+  query,
 }: CreateFormProps<T>) => {
+
+
   const {
     register,
     handleSubmit,
@@ -41,19 +37,16 @@ export const CreateForm = <T extends FieldValues>({
     resolver: zodResolver(schema),
   });
 
-  const {isError, error, isPending, isSuccess} = query
+  const { isError, error, isPending, isSuccess } = query;
 
   useEffect(() => {
-    if(isSuccess) {
-     reset();
+    if (isSuccess) {
+      reset();
     }
-  }, [isSuccess, reset])
+  }, [isSuccess, reset]);
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-4"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       {formContent.map((item, index) => (
         <div key={index}>
           {item.label && <Label htmlFor={item.name}>{item.label}</Label>}
@@ -62,8 +55,7 @@ export const CreateForm = <T extends FieldValues>({
             id={item.name}
             {...register(item.name as Path<T>)}
             placeholder={item.placeholder}
-            defaultValue={item?.value}
-            autoComplete="true"
+            autoComplete="on"
           />
           {errors[item.name] && (
             <small className="text-xs font-semibold text-red-600">
@@ -72,15 +64,17 @@ export const CreateForm = <T extends FieldValues>({
           )}
         </div>
       ))}
-      <Button type="submit">
+      <Button type="submit" disabled={isPending}>
         {isPending ? (
-          <Loader data={{ color: "white", size:"1rem"}} />
+          <Loader data={{ color: "white", size: "1rem" }} />
         ) : (
           buttonName
         )}
       </Button>
       {isError && (
-        <small className="text-xs font-semibold text-red-600 my-3 text-center">{error?.message}</small>
+        <small className="text-xs font-semibold text-red-600 my-3 text-center">
+          {error instanceof Error && error?.message}
+        </small>
       )}
     </form>
   );

@@ -8,11 +8,8 @@ import { useNavigate } from "react-router-dom";
 
 export const BoardCard = ({ board }: { board: BoardType }) => {
 
-  const deleteBoard = useDeleteDoc("boards", "boards", board.id, ["lists", "tasks"]);
+  const deleteBoard = useDeleteDoc("boards", board.id);
   const navigate = useNavigate();
-
-
-
 
   return (
     <Card className="w-72 h-32 flex flex-col justify-between overflow-hidden" onClick={() => navigate(`/${board.id}`)}>
@@ -20,7 +17,7 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
             <CardTitle className="uppercase">{board.title}</CardTitle>
           </CardHeader>
           <CardFooter className="flex justify-center pb-3 gap-2">
-            <Button onClick={() => deleteBoard.mutate()}>
+            <Button onClick={() => deleteBoard.mutate}>
               <Trash size={18} color="white" strokeWidth={2} className="mr-1" />
               {deleteBoard.isPending ? (
                 <Loader data={{ color: "white", size: "1rem" }} />

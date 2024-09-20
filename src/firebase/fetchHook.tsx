@@ -1,89 +1,105 @@
-import {
-  useQuery,
-  useQueryClient,
-  UseQueryOptions,
-  UseQueryResult,
-} from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import FirestoreApi from "./FirestoreApi";
 import { BoardType, ListType, TaskType } from "@/utils/types";
+import { query, where } from "firebase/firestore";
 
-type FetchMethod<T> = () => Promise<T>;
+export const useGetBoards = (userId?: string) => {
+  return useQuery({
+    queryKey: ["boards", userId], // Ajoute userId dans la clé de la requête pour éviter des doublons
+    queryFn: () => {
+      if (!userId) {
+        return Promise.resolve([]); // Si userId est indéfini ou null, retourne un tableau vide
+      }
 
-interface UseFireStoreApiParams<T> {
-  queryName: string;
-  databaseName: string;
-  documentId?: string;
-  fetchMethod?: FetchMethod<T>;
-  useQueryOptions?: UseQueryOptions<T>;
-}
+      return new Promise<BoardType[]>((resolve) => {
+        const unsubscribe = FirestoreApi.subscribeToCollection<BoardType>({
+          collectionName: "boards",
+          queryFn: (colRef) =>
+            query(colRef, where("members", "array-contains", userId)),
+          callback: (boards) => resolve(boards),
+          errorMessage: "Error while getting boards",
+        });
 
-const useFireStoreApi = <T,>({
-  queryName,
-  databaseName,
-  documentId,
-  fetchMethod,
-  useQueryOptions,
-}: UseFireStoreApiParams<T>): UseQueryResult<T> => {
-  const queryClient = useQueryClient();
-
-
-  useEffect(() => {
-      const unsubscribe = FirestoreApi.subscribe<T>({
-        databaseName: databaseName,
-        documentId: documentId,
-        callback: (data) => {
-          console.log("Firestore data received:", data);
-          queryClient.setQueryData(documentId ? [queryName, documentId] : [queryName], data);
-        },
+        return unsubscribe;
       });
-
-      return () => {
-        console.log("Unsubscribing from Firestore");
-        unsubscribe();
-      };
-
-  }, [databaseName, queryName, documentId, queryClient]);
-
-  return useQuery<T>({
-    queryKey: documentId ? [queryName, documentId] : [queryName],
-    queryFn: fetchMethod
-      ? fetchMethod
-      : () => Promise.reject("No fetch method provided"),
-    ...useQueryOptions,
+    },
+    staleTime: Infinity,
+    enabled: !!userId,
   });
 };
 
-export const useFetchBoards = () => {
-  return useFireStoreApi<BoardType[]>({
-    queryName: "boards",
-    databaseName: "boards",
-    fetchMethod: async () => FirestoreApi.fetchBoards(),
+export const useGetLists = (boardId?: string) => {
+  return useQuery({
+    queryKey: ["lists", boardId],
+    queryFn: () => {
+      if (!boardId) {
+        return Promise.resolve([]);
+      }
+      return new Promise<ListType[]>((resolve) => {
+        const unsubscribe = FirestoreApi.subscribeToCollection<ListType>({
+          collectionName: "lists",
+          queryFn: (colRef) => query(colRef, where("boardId", "==", boardId)),
+          callback: (lists) => resolve(lists),
+          errorMessage: "Error while getting lists",
+        });
+
+        return unsubscribe;
+      });
+    },
+    staleTime: Infinity,
+    enabled: !!boardId
   });
 };
 
-export const useFetchLists = (boardId: string) => {
-  return useFireStoreApi<ListType[]>({
-    queryName: `${boardId}, lists`,
-    databaseName: `boards/${boardId}/lists`,
-    fetchMethod: async () => FirestoreApi.fetchLists(boardId),
+export const useGetTask = (taskId: string) => {
+  return useQuery({
+    queryKey: ["tasks", taskId],
+    queryFn: () =>
+      new Promise<TaskType>((resolve, reject) => {
+        const unsubscribe = FirestoreApi.subscribeToDocument<TaskType>({
+          collectionName: "tasks",
+          documentId: taskId,
+          callback: (task) => {
+            if (task) {
+              resolve(task);
+            } else {
+              reject(new Error(`Task with ID ${taskId} not found`));
+            }
+          },
+          errorMessage: "Error getting task",
+        });
+        return unsubscribe;
+      }),
+    staleTime: Infinity,
   });
 };
 
-export const useFetchTasks = (boardId: string, listId: string) => {
-  return useFireStoreApi<TaskType[]>({
-    queryName: `${listId}, tasks`,
-    databaseName: `boards/${boardId}/lists/${listId}/tasks`,
-    fetchMethod: async () => FirestoreApi.fetchTasks(boardId, listId),
-  });
-};
+export const useGetDoc = <T,>(collectionName: string, id?: string) => {
+  return useQuery<T | undefined, Error>({
+    queryKey: [collectionName, id],
+    queryFn: () => {
+      if (!id) {
+        // Retourner un élément par défaut compatible avec T ou undefined
+        return Promise.resolve(undefined);
+      }
 
-export const useFetchDoc = <T,>(queryName: string, databaseName: string, documentId: string) => {
-  return useFireStoreApi<T>({
-    queryName: queryName,
-    databaseName: databaseName,
-    documentId: documentId,
-    fetchMethod: async () =>
-      FirestoreApi.fetchDoc<T>({ databaseName, documentId }),
+      return new Promise<T>((resolve, reject) => {
+        const unsubscribe = FirestoreApi.subscribeToDocument<T>({
+          collectionName: collectionName,
+          documentId: id,
+          callback: (item) => {
+            if (item) {
+              resolve(item);
+            } else {
+              reject(new Error(`${collectionName} with ID ${id} not found`));
+            }
+          },
+          errorMessage: "Error getting item",
+        });
+        return unsubscribe;
+      });
+    },
+    staleTime: Infinity,
+    enabled: !!id
   });
 };

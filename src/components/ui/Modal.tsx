@@ -1,45 +1,29 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { LucideIcon } from "lucide-react";
-import {
-  Dispatch,
-  PropsWithChildren,
-  ReactElement,
-  SetStateAction,
-} from "react";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "./dialog";
+import { PropsWithChildren } from "react";
 
 type DialogType = {
-  Trigger: ReactElement;
-  Icon?: LucideIcon;
-  dialogName: string | ReactElement;
-  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
+  dialogName: string;
+  setIsModalOpen: (open: boolean) => void;
   isModalOpen: boolean;
 };
 
 export const Modal = ({
-  Trigger,
   dialogName,
   setIsModalOpen,
   isModalOpen,
   children,
 }: PropsWithChildren<DialogType>) => {
-
+  
+  const [trigger, ...modalContent] = Array.isArray(children) ? children : [children];
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-      <DialogTrigger asChild>
-        {Trigger}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>{dialogName}</DialogTitle>
         </DialogHeader>
-        {children}
+        {modalContent}
       </DialogContent>
     </Dialog>
   );
