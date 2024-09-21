@@ -13,8 +13,10 @@ export const useFirestoreMutation = <T,>(
 
   return useMutation({
     mutationFn,
+    // If the mutation fails,
+    // use the context returned from onMutate to roll back
     onError: (err) => {
-      console.error('Mutation error:', err);
+      console.error(err)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey});

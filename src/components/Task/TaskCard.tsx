@@ -18,7 +18,11 @@ export const TaskCard = ({ taskId }: { taskId: string }) => {
     transform,
     transition,
     isDragging
-  } = useSortable({ id: taskId, data: { type: "task" } });
+  } = useSortable({
+    id: taskId,
+    data: { type: "task" },
+  });
+
 
   if (isLoading) {
     return <Loader data={{ color: "white", size: "3rem" }} />;
@@ -29,25 +33,34 @@ export const TaskCard = ({ taskId }: { taskId: string }) => {
   }
 
   return (
-    <div ref={setNodeRef} className="border-2 p-2">
-      {task && <Modal
-        dialogName={task.title}
-        setIsModalOpen={setIsTaskOpen}
-        isModalOpen={isTaskOpen}
+    <div
+      className="p-2"
+      ref={setNodeRef}
       >
-        <Card
-          className="py-3 px-2 min-h-12 cursor-pointer hover:bg-gray-200"
-          onClick={() => setIsTaskOpen(true)}
-          style={{
-            transform: CSS.Transform.toString(transform),
-            transition: transition,
-          }}
-          {...attributes}
-          {...listeners}
-        >
-          <CardTitle>{!isDragging && task.title}</CardTitle>
-        </Card>
-      </Modal>}
+      {task && (
+        <>
+          <Modal
+            dialogName={task.title}
+            setIsModalOpen={setIsTaskOpen}
+            isModalOpen={isTaskOpen}
+          >
+              <Card
+            className="py-3 px-2 min-h-12 cursor-pointer hover:bg-gray-200"
+            style={{
+              transform: CSS.Transform.toString(transform),
+              transition,
+              opacity: isDragging ? 0.3 : 1,
+            }}
+            {...attributes}
+            {...listeners}
+          >
+            <CardTitle>{!isDragging && task.title}</CardTitle>
+          </Card>
+            <div>Super</div>
+          </Modal>
+        
+        </>
+      )}
     </div>
   );
 };

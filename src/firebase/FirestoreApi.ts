@@ -213,12 +213,12 @@ export class FirestoreApi {
     errorMessage,
   }: {
     collectionName: string;
-    queryFn: (colRef: CollectionReference) => any;
+    queryFn?: (colRef: CollectionReference) => any;
     callback: (data: T[]) => void;
     errorMessage: string;
   }): () => void {
     const colRef = collection(this.firebaseFirestore, collectionName);
-    const q = queryFn(colRef);
+    const q = queryFn ? queryFn(colRef) : colRef;
   
     const unsubscribe = onSnapshot(
       q,

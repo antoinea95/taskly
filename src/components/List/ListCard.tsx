@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AddTask } from "../Task/AddTask";
 import { ListType } from "@/utils/types";
 import { useDroppable } from "@dnd-kit/core";
@@ -24,6 +24,12 @@ export const ListCard = ({
   const { setNodeRef } = useDroppable({ id: list.id, data: { type: "list" } });
   const taskIds = list.tasks;
 
+  const memoizedTasks = useMemo(() => {
+    return taskIds.map((taskId) => (
+      <TaskCard key={taskId} taskId={taskId} />
+    ));
+  }, [taskIds]);
+
   return (
     <div ref={setNodeRef}>
       <Card className="min-h-32 shadow-none">
@@ -31,10 +37,8 @@ export const ListCard = ({
           <CardTitle>{list.title}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
-          <div className="flex-1 min-w-72 border-red-500 border-2">
-            {taskIds.map((taskId, index) => (
-              <TaskCard key={taskId} taskId={taskId} index={index} />
-            ))}
+          <div className="flex-1 min-w-72">
+            {memoizedTasks}
           </div>
         </CardContent>
         <CardFooter>
