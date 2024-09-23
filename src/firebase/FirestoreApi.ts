@@ -3,8 +3,12 @@ import { FirebaseApp, initializeApp } from "firebase/app";
 import {
   Auth,
   createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
   getAuth,
+  GoogleAuthProvider,
+  linkWithPopup,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   updateProfile,
   User,
@@ -25,12 +29,16 @@ import {
 
 const app = initializeApp({
   apiKey: `${import.meta.env.VITE_FIREBASE_WEB_API_KEY}`,
-  authDomain: `${import.meta.env.VITE_FIREBASE_AUTH_DOMAIN}`,
+  authDomain: `${import.meta.env.VITE_FIREBASE_DATABASE_URL}`,
   projectId: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}`,
   storageBucket: `${import.meta.env.VITE_FIREBASE_STORAGE_BUCKET}`,
   messagingSenderId: `${import.meta.env.VITE_FIREBASE_SENDER_ID}`,
   appId: `${import.meta.env.VITE_FIREBASE_WEB_APP_ID}`,
 });
+
+
+const googleProvider = new GoogleAuthProvider();
+
 
 export class FirestoreApi {
   private firebaseApp: FirebaseApp;
@@ -78,6 +86,30 @@ export class FirestoreApi {
         password
       );
       return useCredential.user;
+    } catch (error: any) {
+      const friendlyError = getFriendlyErrorMessage(error.code);
+      throw new Error(friendlyError);
+    }
+  }
+
+  public async signInWithGoogle(): Promise<User> {
+    try {
+      // Appelle une méthode spécifique pour l'authentification avec Google
+      const userCredential = await signInWithPopup(this.firebaseAuth, googleProvider);
+      const user = userCredential.user;
+
+      if(user.email) {
+        const signInMethods = await fetchSignInMethodsForEmail(this.firebaseAuth, user.email);
+        console.log(signInMethods)
+
+        if(signInMethods.length > 0) {
+          const linkedUserCredentials = await linkWithPopup(user, googleProvider);
+          console.log(linkedUserCredentials)
+          return linkedUserCredentials.user
+        }
+      }
+
+      return user;
     } catch (error: any) {
       const friendlyError = getFriendlyErrorMessage(error.code);
       throw new Error(friendlyError);

@@ -54,6 +54,7 @@ export const useAuth = () => {
     const unsubscribe = FirestoreApi.getAuthInstance().onAuthStateChanged(
       (user: User | null) => {
         setCurrentUser(user);
+        console.log(user?.photoURL);
         setIsLoading(false);
       }
     );

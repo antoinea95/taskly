@@ -14,15 +14,21 @@ import {
   useSensor,
   PointerSensor,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CirclePlus } from "lucide-react";
 import { useState } from "react";
 import { Card } from "../ui/card";
 import FirestoreApi from "@/firebase/FirestoreApi";
 import { ListType } from "@/utils/types";
 import { useQueryClient } from "@tanstack/react-query";
+import { useDragMouse } from "@/utils/useDragMouse";
 
 export const ListsSection = ({ boardId }: { boardId: string }) => {
+  const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } =
+    useDragMouse();
   const { data: lists, isLoading, isError } = useGetLists(boardId);
   const [isAddList, setIsAddList] = useState(false);
   const [activeDragTask, setActiveDragTask] = useState<string | null>(null);
@@ -35,7 +41,7 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
         distance: 8,
       },
     })
-  )
+  );
 
   if (isLoading) {
     return (
@@ -136,7 +142,7 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
       return;
     }
 
-    setActiveDragTask(null)
+    setActiveDragTask(null);
     const initialContainer = active.data.current.sortable?.containerId;
     const targetContainer = over.data.current.sortable?.containerId;
 
@@ -182,7 +188,7 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
         // Si une erreur se produit, annuler la mise à jour optimiste
         queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
       }
-  }
+    }
   };
 
   return (
@@ -193,11 +199,23 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
       collisionDetection={closestCorners}
       sensors={sensors}
     >
-      <section className="overflow-x-auto>">
+      <section
+        className="overflow-x-auto h-screen"
+        ref={sliderRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeaveOrUp}
+        onMouseUp={handleMouseLeaveOrUp}
+      >
         <section className="flex items-start flex-nowrap py-10 px-3 gap-5">
           {lists &&
             lists.map((list) => (
-              <SortableContext key={list.id} items={list.tasks} id={list.id} strategy={verticalListSortingStrategy}>
+              <SortableContext
+                key={list.id}
+                items={list.tasks}
+                id={list.id}
+                strategy={verticalListSortingStrategy}
+              >
                 <ListCard list={list} boardId={boardId} />
               </SortableContext>
             ))}
@@ -218,9 +236,11 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
           </section>
         </section>
       </section>
-      <DragOverlay >
+      <DragOverlay>
         {activeDragTask && activeTask.data ? (
-          <Card className="py-3 px-2 min-h-12 cursor-pointer">{activeTask.data.title}</Card>
+          <Card className="py-3 px-2 min-h-12 cursor-pointer">
+            {activeTask.data.title}
+          </Card>
         ) : null}
       </DragOverlay>
     </DndContext>

@@ -39,7 +39,7 @@ export const BoardPage = () => {
     return (
       <h1>No board</h1>
     )
-  }
+  }  
 
   return (
         <main className="p-10" onClick={handleCloseInput}>

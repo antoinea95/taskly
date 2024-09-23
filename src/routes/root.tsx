@@ -20,15 +20,20 @@ export const Root = () => {
     navigate("/login");
   }
 
+  
   return (
-    <main>
-      <header className="border flex justify-between px-8 py-3">
-        <p className="font-bold">Welcome {currentUser?.displayName}</p>
+    <main className="font-outfit bg-red-200 flex">
+      <nav className="w-1/5 border h-screen">
+        <ul>Test</ul>
+        <ul>
         <button className="p-1" onClick={() => FirestoreApi.signOut()}>
           <LogOut />
         </button>
-      </header>
+        </ul>
+      </nav>
+      <div className="w-4/5 bg-green-200">
       <Outlet />
+      </div>
     </main>
   );
 };

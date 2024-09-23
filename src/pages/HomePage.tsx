@@ -50,7 +50,7 @@ export const HomePage = () => {
     );
 
     return (
-      <main className="w-screen h-screen p-8">
+      <main className="h-screen p-8">
         <section className="flex justify-between items-center px-10">
           <h1 className="text-xl font-bold uppercase">Your boards</h1>
           <Modal

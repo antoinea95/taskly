@@ -36,5 +36,6 @@ export type FormContent = {
   name: string, 
   type: InputType,
   placeholder: string, 
-  label?: string
+  label?: string;
+  hidden?: boolean;
 }[]
