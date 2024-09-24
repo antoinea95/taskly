@@ -1,30 +1,42 @@
-import { Trash } from "lucide-react";
 import { BoardType } from "../../utils/types";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useDeleteDoc } from "@/firebase/mutateHook";
-import { Loader } from "../ui/loader";
 import { useNavigate } from "react-router-dom";
+import { BoardCardFooter } from "./BoardCardFooter";
+
 
 export const BoardCard = ({ board }: { board: BoardType }) => {
-
-  const deleteBoard = useDeleteDoc("boards", board.id);
   const navigate = useNavigate();
+  const createdDate = () => {
+   const date = new Date(board.createdAt);
+   const timeArray = date.toLocaleTimeString().split(":");
+   const time = `${timeArray[0]}:${timeArray[1]}`
+   return `${date.toLocaleDateString()} at ${time}`
+  }
 
   return (
-    <Card className="w-72 h-32 flex flex-col justify-between overflow-hidden" onClick={() => navigate(`/${board.id}`)}>
-          <CardHeader className="flex justify-center items-center pt-4">
-            <CardTitle className="uppercase">{board.title}</CardTitle>
-          </CardHeader>
-          <CardFooter className="flex justify-center pb-3 gap-2">
-            <Button onClick={() => deleteBoard.mutate}>
-              <Trash size={18} color="white" strokeWidth={2} className="mr-1" />
-              {deleteBoard.isPending ? (
-                <Loader data={{ color: "white", size: "1rem" }} />
-              ) : (
-                "Delete"
-              )}
-            </Button>
-          </CardFooter>
+    <Card
+      className="w-64 h-32 flex flex-col justify-between shadow-none bg-gray-100 overflow-hidden rounded-xl pt-3 pb-2 px-3 cursor-pointer hover:bg-gray-200 border-black"
+      onClick={() => navigate(`/${board?.id}`)}
+    >
+      <CardHeader className="flex-1 p-0">
+      <small className="text-xs leading-3 "> Created on {createdDate()}</small>
+        <CardTitle className="uppercase text-3xl tracking-normal font-light leading-none">{board?.title}</CardTitle>
+      </CardHeader>
+      <CardFooter className="flex justify-end p-0">
+        <div className="flex justify-end -space-x-3">
+          {board.members.slice(0, 5).map((member) => (
+            <BoardCardFooter
+              key={member} 
+              userId={member}
+            />
+          ))}
+          {board.members.length > 5 && (
+            <div className="w-8 h-8 rounded-full bg-black text-gray-700 flex items-center justify-center text-sm font-semibold">
+              +{board.members.length - 5}
+            </div>
+          )}
+        </div>
+      </CardFooter>
     </Card>
-)}
+  );
+};

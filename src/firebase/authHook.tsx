@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FirestoreApi from "./FirestoreApi";
 import { User } from "firebase/auth";
+import { UserType } from "@/utils/types";
 
 interface SignInData {
   email: string;
@@ -45,17 +46,17 @@ export const useSignOut = () => {
 };
 
 export const useAuth = () => {
-  const [currentUser, setCurrentUser] = useState<User | null>(
-    FirestoreApi.getCurrentUser()
-  );
+  const [currentUser, setCurrentUser] = useState<UserType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = FirestoreApi.getAuthInstance().onAuthStateChanged(
-      (user: User | null) => {
-        setCurrentUser(user);
-        console.log(user?.photoURL);
-        setIsLoading(false);
+      async (user: User | null) => {
+        if(user) {
+          const fireStoreUser : UserType | null = await FirestoreApi.fetchDoc({collectionName: "users", documentId: user.uid})
+          setCurrentUser(fireStoreUser);
+          setIsLoading(false);
+        }
       }
     );
 

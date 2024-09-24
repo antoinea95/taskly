@@ -1,4 +1,5 @@
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "./dialog";
+import { Cross } from "lucide-react";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose } from "./dialog";
 import { PropsWithChildren } from "react";
 
 type DialogType = {
@@ -21,7 +22,7 @@ export const Modal = ({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent aria-describedby={undefined}>
         <DialogHeader>
-          <DialogTitle>{dialogName}</DialogTitle>
+          <DialogTitle className="text-3xl font-normal">{dialogName}</DialogTitle>
         </DialogHeader>
         {modalContent}
       </DialogContent>

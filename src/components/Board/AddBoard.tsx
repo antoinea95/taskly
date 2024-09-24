@@ -17,6 +17,7 @@ export const AddBoard = ({
   const { currentUser } = useAuth();
   const createBoard = useAddDoc<BoardType>("boards");
   const createList = useAddDoc<ListType>("lists");
+
   if (!currentUser) {
     return <p>Loading ...</p>;
   }
@@ -25,7 +26,7 @@ export const AddBoard = ({
     createBoard.mutate(
       {
         ...data,
-        members: [currentUser.uid],
+        members: [currentUser.id],
         createdAt: Date.now(),
       },
       {
@@ -50,6 +51,8 @@ export const AddBoard = ({
           await Promise.all(
             defaultLists.map((list) => createList.mutate(list))
           );
+
+
         },
       }
     );

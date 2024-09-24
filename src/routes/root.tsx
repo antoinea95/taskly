@@ -1,39 +1,22 @@
-import FirestoreApi from "@/firebase/FirestoreApi";
-import { LogOut } from "lucide-react";
-import { Outlet, useNavigate } from "react-router-dom";
-import { Loader } from "@/components/ui/loader";
-import { useAuth } from "@/firebase/authHook";
+import { Outlet } from "react-router-dom";
+import { Sidebar } from "@/components/Nav/Sidebar";
+import { Header } from "@/components/Nav/Header";
+
 
 export const Root = () => {
-  const {currentUser, isLoading} = useAuth();
-  const navigate = useNavigate();
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader data={{ color: "black", size: "6rem" }} />
-      </div>
-    );
-  }
-
-  if(!currentUser) {
-    navigate("/login");
-  }
-
-  
   return (
-    <main className="font-outfit bg-red-200 flex">
-      <nav className="w-1/5 border h-screen">
-        <ul>Test</ul>
-        <ul>
-        <button className="p-1" onClick={() => FirestoreApi.signOut()}>
-          <LogOut />
-        </button>
-        </ul>
+    <main className="font-outfit flex">
+      <nav className="w-1/6 border-r h-screen pt-5 px-3 flex flex-col">
+        <h2 className="font-extrabold uppercase text-xl mb-3 px-2">Taskly</h2>
+        <Sidebar />
       </nav>
-      <div className="w-4/5 bg-green-200">
-      <Outlet />
-      </div>
+      <section className="w-5/6 pt-5 flex flex-col items-center justify-center">
+         <Header />
+        <section className="px-10 flex-1 w-full flex flex-col">
+        <Outlet />
+        </section>
+      </section>
     </main>
   );
 };
