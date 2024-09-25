@@ -1,5 +1,4 @@
-import { Cross } from "lucide-react";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose } from "./dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "./dialog";
 import { PropsWithChildren } from "react";
 
 type DialogType = {

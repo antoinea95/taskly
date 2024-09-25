@@ -1,23 +1,23 @@
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import { Avatar, AvatarImage } from "../ui/avatar";
-import { useAuth } from "@/firebase/authHook";
-import { useGetDoc } from "@/firebase/fetchHook";
 import { useNavigate } from "react-router-dom";
-import { UserType } from "@/utils/types";
 import { Skeleton } from "../ui/skeleton";
+import { useEffect } from "react";
+import { UserType } from "@/utils/types";
 
-export const Header = () => {
-  const { currentUser:user, isLoading } = useAuth();
+export const Header = ({user, isLoading} : {user: UserType | null, isLoading: boolean}) => {
   const navigate = useNavigate();
 
-  if (!user) {
-    navigate("/login");
-  }
+  useEffect(() => {
+    if (!isLoading && !user) {
+      navigate("/login");
+    }
+  }, [isLoading, user, navigate]);
 
   const HeaderSkeleton = () => (
     <div className="flex items-center gap-3">
       <div>
-        <Skeleton className="w-10 h-10 rounded-full" />
+        <Skeleton className="w-11 h-11 rounded-full" />
       </div>
       <div className="flex flex-col leading-tight gap-1">
         <Skeleton className="w-20 h-4" />
@@ -26,27 +26,31 @@ export const Header = () => {
     </div>
   );
 
-  const fallback = user?.name.charAt(0);
+  const fallback = user?.name?.charAt(0) || '';
 
   return (
-    <header className="flex items-center gap-3 w-full border-b px-10 pb-3">
+    <header className="flex items-center gap-3 w-full">
       {isLoading ? (
         <HeaderSkeleton />
-      ) : user && (
-        <>
-          <Avatar>
-            <AvatarImage src={user?.photoURL} />
-            <AvatarFallback delayMs={500}>{fallback}</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col leading-tight">
-            <span className="text-base text-gray-500 leading-tight w-fit">
-              Welcome,
-            </span>
-            <span className="text-2xl font-semibold leading-tight">
-              {user.name}
-            </span>
-          </div>
-        </>
+      ) : (
+        user && (
+          <>
+            <Avatar className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-black">
+              <AvatarImage src={user?.photoURL} alt={user?.name || "User avatar"} />
+              <AvatarFallback delayMs={500} className="flex items-center justify-center text-2xl w-full h-full bg-gray-200 pb-1">
+                {fallback}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col leading-tight">
+              <span className="text-base text-gray-500 leading-tight w-fit">
+                Welcome,
+              </span>
+              <span className="text-2xl font-semibold leading-tight">
+                {user.name}
+              </span>
+            </div>
+          </>
+        )
       )}
     </header>
   );

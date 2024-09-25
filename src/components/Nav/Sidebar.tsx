@@ -4,7 +4,7 @@ import { useGetBoards } from "@/firebase/fetchHook";
 import { useAuth } from "@/firebase/authHook";
 import { Accordion, AccordionContent, AccordionTrigger } from "../ui/accordion";
 import { AccordionItem } from "@radix-ui/react-accordion";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Modal } from "../ui/Modal";
 import { useState } from "react";
 import { Button } from "../ui/button";
@@ -12,12 +12,18 @@ import { AddBoard } from "../Board/AddBoard";
 
 export const Sidebar = () => {
   const { currentUser } = useAuth();
-  const { data: boards } = useGetBoards(currentUser?.uid);
+  const { data: boards, isLoading } = useGetBoards(currentUser?.id);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogOut = async () => {
     await FirestoreApi.signOut();
+    navigate("/login")
   };
+
+  if(!currentUser && isLoading) {
+    <p>Please sign In</p>
+  }
 
   return (
     <ul className="font-outfit flex-1 flex flex-col pb-2">
@@ -39,8 +45,9 @@ export const Sidebar = () => {
               </p>
             </AccordionTrigger>
             <AccordionContent className="m-2">
-              {boards?.map((board) => (
+              {boards && boards.map((board) => (
                 <NavLink
+                 key={board.id}
                   to={`/${board.id}`}
                   className={({ isActive }) =>
                     `text-base text-gray-500 border-black rounded  w-full flex items-center gap-2 p-2 my-2 hover:bg-gray-200 ${isActive ? "text-black border border-black" : ""}`

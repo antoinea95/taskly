@@ -1,7 +1,4 @@
-import { AddList } from "@/components/List/AddList";
 import { ListCard } from "@/components/List/ListCard";
-import { Button } from "@/components/ui/button";
-import { Loader } from "@/components/ui/loader";
 import { useGetLists, useGetTask } from "@/firebase/fetchHook";
 import {
   DndContext,
@@ -18,19 +15,19 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { CirclePlus } from "lucide-react";
 import { useState } from "react";
 import { Card } from "../ui/card";
 import FirestoreApi from "@/firebase/FirestoreApi";
 import { ListType } from "@/utils/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDragMouse } from "@/utils/useDragMouse";
+import { ListSkeleton } from "../skeletons";
 
 export const ListsSection = ({ boardId }: { boardId: string }) => {
   const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } =
     useDragMouse();
-  const { data: lists, isLoading, isError } = useGetLists(boardId);
-  const [isAddList, setIsAddList] = useState(false);
+  const { data: lists, isFetched } = useGetLists(boardId);
+
   const [activeDragTask, setActiveDragTask] = useState<string | null>(null);
   const activeTask = useGetTask(activeDragTask ?? "");
   const queryClient = useQueryClient();
@@ -43,18 +40,14 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
     })
   );
 
-  if (isLoading) {
+  if (!isFetched) {
     return (
-      <section className="overflow-x-auto border">
-        <Loader data={{ color: "black", size: "4rem" }} />
-      </section>
-    );
-  }
-
-  if (isError) {
-    return (
-      <section className="overflow-x-auto border">
-        <h1>Error during fetch</h1>
+      <section className="overflow-x-auto flex-1 flex flex-col w-full h-96 no-scrollbar">
+        <section className="flex items-start flex-nowrap mt-10 gap-8 flex-1 w-full">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <ListSkeleton key={index} />
+          ))}
+        </section>
       </section>
     );
   }
@@ -94,7 +87,6 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
         (taskId) => taskId !== active.id
       );
 
-      // Mise à jour optimiste des listes
       queryClient.setQueryData(
         ["lists", boardId],
         (oldLists: ListType[] | undefined) => {
@@ -113,7 +105,6 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
       );
 
       try {
-        // Effectuer les requêtes Firestore en parallèle
         await Promise.all([
           FirestoreApi.updateDocument<ListType>(
             "lists",
@@ -127,7 +118,6 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
           ),
         ]);
 
-        // Invalider les données pour recharger les dernières infos du serveur
         queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
       } catch (error) {
         console.error(error);
@@ -172,7 +162,6 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
         }
       );
 
-      // Mise à jour Firestore en arrière-plan
       try {
         await FirestoreApi.updateDocument<ListType>(
           "lists",
@@ -180,12 +169,10 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
           listToUpdate.id
         );
 
-        // Rafraîchir les données après la mise à jour
         queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
       } catch (error) {
         console.error("Erreur lors de la mise à jour des tâches :", error);
 
-        // Si une erreur se produit, annuler la mise à jour optimiste
         queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
       }
     }
@@ -200,45 +187,33 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
       sensors={sensors}
     >
       <section
-        className="overflow-x-auto h-screen"
+        className="overflow-x-auto flex-1 flex flex-col w-full no-scrollbar animate-fade-in"
         ref={sliderRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeaveOrUp}
         onMouseUp={handleMouseLeaveOrUp}
       >
-        <section className="flex items-start flex-nowrap py-10 px-3 gap-5">
+        <section className="flex items-start flex-nowrap mt-10 gap-8 flex-1 w-full">
           {lists &&
-            lists.map((list) => (
-              <SortableContext
-                key={list.id}
-                items={list.tasks}
-                id={list.id}
-                strategy={verticalListSortingStrategy}
-              >
-                <ListCard list={list} boardId={boardId} />
-              </SortableContext>
-            ))}
-          <section className="flex-1 min-w-72">
-            {!isAddList ? (
-              <Button onClick={() => setIsAddList(true)} className="w-full">
-                <CirclePlus
-                  size={18}
-                  color="white"
-                  strokeWidth={2}
-                  className="mr-1"
-                />
-                Add a list
-              </Button>
-            ) : (
-              <AddList boardId={boardId} setIsAddList={setIsAddList} />
-            )}
-          </section>
+            isFetched &&
+            lists
+              .sort((a, b) => a.createdAt - b.createdAt)
+              .map((list) => (
+                <SortableContext
+                  key={list.id}
+                  items={list.tasks}
+                  id={list.id}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <ListCard list={list} boardId={boardId} />
+                </SortableContext>
+              ))}
         </section>
       </section>
       <DragOverlay>
         {activeDragTask && activeTask.data ? (
-          <Card className="py-3 px-2 min-h-12 cursor-pointer">
+          <Card className="py-6 px-2 min-h-13 cursor-pointer shadow-none border-none">
             {activeTask.data.title}
           </Card>
         ) : null}

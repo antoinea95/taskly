@@ -47,7 +47,7 @@ export const CreateForm = <T extends FieldValues>({
   }, [isSuccess, reset]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-3/4 gap-6 h-fit">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full gap-4 h-fit">
       {formContent.map((item, index) => (
         <div
           key={index}
@@ -72,9 +72,10 @@ export const CreateForm = <T extends FieldValues>({
             style={{
               borderColor: errors[item.name] ? "red" : "black",
             }}
+            className="rounded-xl text-base font-outfit w-full"
           />
           {errors[item.name] && (
-            <p className="text-xs font-bold  border w-fit rounded bg-red-600 text-white py-2 px-3 uppercase">
+            <p className="text-xs font-bold  border w-fit rounded-xl  text-white p-2 uppercase text-center">
               {(errors[item.name] as { message?: string }).message || "Error"}
             </p>
           )}
@@ -83,7 +84,7 @@ export const CreateForm = <T extends FieldValues>({
       <Button
         type="submit"
         disabled={isPending}
-        className="uppercase text-lg px-10 py-6"
+        className="uppercase py-6 rounded-xl w-full"
       >
         {isPending ? (
           <Loader data={{ color: "white", size: "1rem" }} />

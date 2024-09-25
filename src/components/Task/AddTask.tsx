@@ -2,7 +2,6 @@ import { z } from "zod";
 import { CreateForm } from "../Form/CreateForm";
 import { FormContent, ListType, TaskType } from "@/utils/types";
 import { Dispatch, SetStateAction } from "react";
-import { Button } from "../ui/button";
 import { useAddDoc, useUpdateDoc } from "@/firebase/mutateHook";
 
 export const AddTask = ({
@@ -42,7 +41,7 @@ export const AddTask = ({
   ];
 
   return (
-    <div className="flex flex-col justify-center p-4 rounded-xl border-black border gap-3 w-full">
+    <div className="flex items-center justify-center py-10">
       <CreateForm 
       schema={TaskSchema}
       onSubmit={onSubmit}
@@ -50,12 +49,6 @@ export const AddTask = ({
       buttonName="Create task"
       query={createTask}
       />
-      <Button
-        className="w-full px-3 bg-red-500"
-        onClick={() => setIsAddTask(false)}
-      >
-        Cancel
-      </Button>
     </div>
   );
 };

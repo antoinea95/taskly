@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { Modal } from "../ui/Modal";
-import { Card, CardTitle } from "../ui/card";
+import { Card, CardHeader, CardTitle } from "../ui/card";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useGetTask } from "@/firebase/fetchHook";
-import { Loader } from "../ui/loader";
 
 export const TaskCard = ({ taskId }: { taskId: string }) => {
   const [isTaskOpen, setIsTaskOpen] = useState(false);
 
-  const { data: task, isLoading, isError } = useGetTask(taskId);
+  const { data: task, isFetched } = useGetTask(taskId);
 
   const {
     attributes,
@@ -17,26 +16,18 @@ export const TaskCard = ({ taskId }: { taskId: string }) => {
     setNodeRef,
     transform,
     transition,
-    isDragging
+    isDragging,
   } = useSortable({
     id: taskId,
     data: { type: "task" },
   });
 
-
-  if (isLoading) {
-    return <Loader data={{ color: "white", size: "3rem" }} />;
-  }
-
-  if (isError) {
-    return <p>Error</p>;
+  if (!isFetched) {
+    return null;
   }
 
   return (
-    <div
-      className="p-2"
-      ref={setNodeRef}
-      >
+    <div  ref={setNodeRef}>
       {task && (
         <>
           <Modal
@@ -44,21 +35,22 @@ export const TaskCard = ({ taskId }: { taskId: string }) => {
             setIsModalOpen={setIsTaskOpen}
             isModalOpen={isTaskOpen}
           >
-              <Card
-            className="py-3 px-2 min-h-12 cursor-pointer hover:bg-gray-200"
-            style={{
-              transform: CSS.Transform.toString(transform),
-              transition,
-              opacity: isDragging ? 0.3 : 1,
-            }}
-            {...attributes}
-            {...listeners}
-          >
-            <CardTitle>{!isDragging && task.title}</CardTitle>
-          </Card>
+            <Card
+              className="border-none shadow-none rounded-xl px-3 pb-6 animate-fade-in"
+              style={{
+                transform: CSS.Transform.toString(transform),
+                transition,
+                opacity: isDragging ? 0.3 : 1,
+              }}
+              {...attributes}
+              {...listeners}
+            >
+              <CardHeader className="px-0 pt-3 pb-0">
+                <CardTitle className="w-fit text-lg font-normal">{task.title}</CardTitle>
+              </CardHeader>
+            </Card>
             <div>Super</div>
           </Modal>
-        
         </>
       )}
     </div>

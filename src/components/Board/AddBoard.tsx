@@ -11,51 +11,47 @@ export const AddBoard = ({
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
   const BoardSchema = z.object({
-    title: z.string().min(2),
+    title: z.string().min(2, "Please provide a title with at least 2 characters"),
   });
 
   const { currentUser } = useAuth();
   const createBoard = useAddDoc<BoardType>("boards");
   const createList = useAddDoc<ListType>("lists");
 
-  if (!currentUser) {
-    return <p>Loading ...</p>;
-  }
-
   const onSubmit = async (data: z.infer<typeof BoardSchema>) => {
-    createBoard.mutate(
-      {
-        ...data,
-        members: [currentUser.id],
-        createdAt: Date.now(),
-      },
-      {
-        onSuccess: async (boardId) => {
-          setIsModalOpen(false);
-          const now = Date.now();
-          const defaultLists: Omit<ListType, "id">[] = [
-            { title: "To do", createdAt: now, boardId: boardId, tasks: [] },
-            {
-              title: "In progress",
-              createdAt: now + 1,
-              boardId: boardId,
-              tasks: [],
-            },
-            {
-              title: "Finish",
-              createdAt: now + 2,
-              boardId: boardId,
-              tasks: [],
-            },
-          ];
-          await Promise.all(
-            defaultLists.map((list) => createList.mutate(list))
-          );
-
-
+    if (currentUser) {
+      createBoard.mutate(
+        {
+          ...data,
+          members: [currentUser.id],
+          createdAt: Date.now(),
         },
-      }
-    );
+        {
+          onSuccess: async (boardId) => {
+            setIsModalOpen(false);
+            const now = Date.now();
+            const defaultLists: Omit<ListType, "id">[] = [
+              { title: "To do", createdAt: now, boardId: boardId, tasks: [] },
+              {
+                title: "In progress",
+                createdAt: now + 1,
+                boardId: boardId,
+                tasks: [],
+              },
+              {
+                title: "Finish",
+                createdAt: now + 2,
+                boardId: boardId,
+                tasks: [],
+              },
+            ];
+            await Promise.all(
+              defaultLists.map((list) => createList.mutate(list))
+            );
+          },
+        }
+      );
+    }
   };
 
   const formContent: FormContent = [

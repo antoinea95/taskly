@@ -20,7 +20,7 @@ export const useGetBoards = (userId?: string) => {
           errorMessage: "Error while getting boards",
         });
 
-        return unsubscribe;
+        return () => unsubscribe;
       });
     },
     staleTime: Infinity,
@@ -43,7 +43,7 @@ export const useGetLists = (boardId?: string) => {
           errorMessage: "Error while getting lists",
         });
 
-        return unsubscribe;
+        return () => unsubscribe;
       });
     },
     staleTime: Infinity,
@@ -68,38 +68,22 @@ export const useGetTask = (taskId: string) => {
           },
           errorMessage: "Error getting task",
         });
-        return unsubscribe;
+        return () => unsubscribe;
       }),
     staleTime: Infinity,
   });
 };
 
 export const useGetDoc = <T,>(collectionName: string, id?: string) => {
-  return useQuery<T | undefined, Error>({
-    queryKey: [collectionName, id],
-    queryFn: () => {
+  return useQuery<T | null>({
+    queryKey: [collectionName.endsWith('s') ? collectionName.slice(0, -1) : collectionName, id],
+    queryFn: async () => {
       if (!id) {
-        // Retourner un élément par défaut compatible avec T ou undefined
-        return Promise.resolve(undefined);
+        return null; // Retourne `null` si l'ID est absent
       }
-
-      return new Promise<T>((resolve, reject) => {
-        const unsubscribe = FirestoreApi.subscribeToDocument<T>({
-          collectionName: collectionName,
-          documentId: id,
-          callback: (item) => {
-            if (item) {
-              resolve(item);
-            } else {
-              reject(new Error(`${collectionName} with ID ${id} not found`));
-            }
-          },
-          errorMessage: "Error getting item",
-        });
-        return unsubscribe;
-      });
+      return FirestoreApi.fetchDoc({ collectionName, documentId: id });
     },
     staleTime: Infinity,
-    enabled: !!id
+    enabled: !!id // Exécute la requête uniquement si l'ID est présent
   });
 };

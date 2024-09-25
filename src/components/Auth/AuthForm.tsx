@@ -71,7 +71,9 @@ export const AuthForm = () => {
   return (
     <div className="flex flex-col w-1/2 justify-center items-center h-screen">
       <section className="w-3/4 mb-6 ">
-        <h1 className="text-4xl uppercase font-extrabold">{!isLogin ? "Create an account" : "Access your boards"}</h1>
+        <h1 className="text-4xl uppercase font-extrabold">
+          {!isLogin ? "Create an account" : "Access your boards"}
+        </h1>
         <div className="flex items-center gap-2">
           <p className="text-center">
             {isLogin
@@ -86,7 +88,7 @@ export const AuthForm = () => {
           </button>
         </div>
       </section>
-  <CreateForm
+      <CreateForm
         schema={UserSchema}
         onSubmit={onSubmit}
         formContent={formContent}
@@ -94,8 +96,7 @@ export const AuthForm = () => {
         query={sign}
       />
 
-      
-      <section className="w-3/4 mt-6 flex flex-col items-center gap-6">
+      <section className="w-3/4 mt-6 flex flex-col items-center gap-4">
         <p className="uppercase flex items-center justify-between text-gray-400 w-full">
           <span className="border border-gray-400 inline-block w-1/3"></span> Or
           register with
@@ -103,7 +104,7 @@ export const AuthForm = () => {
         </p>
         <Button
           onClick={signinWithGoogle}
-          className="text-lg uppercase w-full flex items-center py-6"
+          className="uppercase w-full flex items-center py-6 rounded-xl"
         >
           <FcGoogle color="white" style={{ marginRight: "6px" }} /> Google
         </Button>

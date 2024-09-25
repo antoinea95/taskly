@@ -2,8 +2,6 @@ import { z } from "zod";
 import { CreateForm } from "../Form/CreateForm";
 import { FormContent, ListType } from "@/utils/types";
 import { Dispatch, SetStateAction } from "react";
-import { X } from "lucide-react";
-import { Button } from "../ui/button";
 import { useAddDoc } from "@/firebase/mutateHook";
 
 export const AddList = ({
@@ -19,24 +17,27 @@ export const AddList = ({
   });
 
   const onSubmit = async (data: z.infer<typeof ListSchema>) => {
-    createList.mutate({
-      ...data,
-      createdAt: Date.now(),
-      tasks: [],
-      boardId: boardId,
-    }, {
-      onSuccess: () => {
-        setIsAddList(false);
+    createList.mutate(
+      {
+        ...data,
+        createdAt: Date.now(),
+        tasks: [],
+        boardId: boardId,
+      },
+      {
+        onSuccess: () => {
+          setIsAddList(false);
+        },
       }
-    });
+    );
   };
 
   const formContent: FormContent = [
-    { name: "title", type: "text", placeholder: "Board title" },
+    { name: "title", type: "text", placeholder: "List title" },
   ];
 
   return (
-    <div className="flex items-end justify-center p-4 rounded-xl border-black border gap-3 min-w-72">
+    <div className="flex items-center justify-center py-10">
       <CreateForm
         schema={ListSchema}
         onSubmit={onSubmit}
@@ -44,9 +45,6 @@ export const AddList = ({
         buttonName="Create"
         query={createList}
       />
-      <Button className="w-fit px-3" onClick={() => setIsAddList(false)}>
-        <X size={18} />
-      </Button>
     </div>
   );
 };
