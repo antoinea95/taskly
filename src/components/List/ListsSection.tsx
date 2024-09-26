@@ -1,5 +1,5 @@
 import { ListCard } from "@/components/List/ListCard";
-import { useGetLists, useGetTask } from "@/firebase/fetchHook";
+import { useGetLists } from "@/firebase/fetchHook";
 import {
   DndContext,
   DragEndEvent,
@@ -18,19 +18,37 @@ import {
 import { useState } from "react";
 import { Card } from "../ui/card";
 import FirestoreApi from "@/firebase/FirestoreApi";
-import { ListType } from "@/utils/types";
+import { ListType, TaskType } from "@/utils/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDragMouse } from "@/utils/useDragMouse";
-import { ListSkeleton } from "../skeletons";
+import { ListSectionSkeleton } from "../skeletons";
 
 export const ListsSection = ({ boardId }: { boardId: string }) => {
   const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } =
     useDragMouse();
   const { data: lists, isFetched } = useGetLists(boardId);
 
-  const [activeDragTask, setActiveDragTask] = useState<string | null>(null);
-  const activeTask = useGetTask(activeDragTask ?? "");
+  const [activeTask, setActiveTask] = useState<TaskType | null>(null);
   const queryClient = useQueryClient();
+
+  const getActiveTask = async (taskId: string) => {
+    const task = await new Promise<TaskType>((resolve, reject) => {
+      const unsubscribe = FirestoreApi.subscribeToDocument<TaskType>({
+        collectionName: "tasks",
+        documentId: taskId,
+        callback: (task) => {
+          if (task) {
+            resolve(task);
+          } else {
+            reject(new Error(`Task with ID ${taskId} not found`));
+          }
+        },
+        errorMessage: "Error getting task",
+      });
+      return () => unsubscribe;
+    });
+    setActiveTask(task);
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -40,20 +58,8 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
     })
   );
 
-  if (!isFetched) {
-    return (
-      <section className="overflow-x-auto flex-1 flex flex-col w-full h-96 no-scrollbar">
-        <section className="flex items-start flex-nowrap mt-10 gap-8 flex-1 w-full">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <ListSkeleton key={index} />
-          ))}
-        </section>
-      </section>
-    );
-  }
-
   const handleDragStart = ({ active }: DragStartEvent) => {
-    setActiveDragTask(active.id.toString());
+    getActiveTask(active.id.toString());
   };
 
   const handleDragOver = async ({ active, over }: DragOverEvent) => {
@@ -117,37 +123,38 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
             oldList.id
           ),
         ]);
-
         queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
-      } catch (error) {
-        console.error(error);
+      } catch (error: any) {
         queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
+        throw new Error(error);
       }
     }
   };
 
   const handleDragEnd = async ({ active, over }: DragEndEvent) => {
     if (!over || !lists || !active.data.current || !over.data.current) {
-      setActiveDragTask(null);
+      setActiveTask(null);
       return;
     }
 
-    setActiveDragTask(null);
     const initialContainer = active.data.current.sortable?.containerId;
     const targetContainer = over.data.current.sortable?.containerId;
 
     if (active.id === over.id || initialContainer !== targetContainer) {
-      setActiveDragTask(null);
+      setActiveTask(null);
       return;
     }
 
-    const targetIndex = over.data.current?.sortable?.index;
+    setActiveTask(null);
 
+    const targetIndex = over.data.current?.sortable?.index;
     const listToUpdate = lists.find((list) => list.id === initialContainer);
 
     if (listToUpdate) {
       // Mise à jour optimiste
-      const sortedTask = listToUpdate.tasks.filter((id) => id !== active.id);
+      const sortedTask = [
+        ...listToUpdate.tasks.filter((id) => id !== active.id),
+      ];
       sortedTask.splice(targetIndex, 0, active.id.toString());
 
       // Mettre à jour directement le cache
@@ -156,9 +163,13 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
         (oldLists: ListType[] | undefined) => {
           if (!oldLists) return oldLists;
 
-          return oldLists.map((list) =>
-            list.id === listToUpdate.id ? { ...list, tasks: sortedTask } : list
-          );
+          const newList = oldLists.map((list) => {
+            if (list.id === listToUpdate.id) {
+              return { ...list, tasks: sortedTask };
+            }
+            return list;
+          });
+          return newList;
         }
       );
 
@@ -168,15 +179,17 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
           { tasks: sortedTask },
           listToUpdate.id
         );
-
         queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
-      } catch (error) {
-        console.error("Erreur lors de la mise à jour des tâches :", error);
-
+      } catch (error: any) {
         queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
+        throw new Error(error);
       }
     }
   };
+
+  if(!isFetched) {
+    return <ListSectionSkeleton />
+  }
 
   return (
     <DndContext
@@ -187,7 +200,7 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
       sensors={sensors}
     >
       <section
-        className="overflow-x-auto flex-1 flex flex-col w-full no-scrollbar animate-fade-in"
+        className="overflow-x-auto flex-1 flex flex-col w-full no-scrollbar"
         ref={sliderRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -195,26 +208,24 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
         onMouseUp={handleMouseLeaveOrUp}
       >
         <section className="flex items-start flex-nowrap mt-10 gap-8 flex-1 w-full">
-          {lists &&
-            isFetched &&
-            lists
-              .sort((a, b) => a.createdAt - b.createdAt)
-              .map((list) => (
-                <SortableContext
-                  key={list.id}
-                  items={list.tasks}
-                  id={list.id}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <ListCard list={list} boardId={boardId} />
-                </SortableContext>
-              ))}
+          {lists && isFetched && lists
+            .sort((a, b) => a.createdAt - b.createdAt)
+            .map((list) => (
+              <SortableContext
+                key={list.id}
+                items={list.tasks}
+                id={list.id}
+                strategy={verticalListSortingStrategy}
+              >
+                <ListCard list={list} boardId={boardId} />
+              </SortableContext>
+            ))}
         </section>
       </section>
       <DragOverlay>
-        {activeDragTask && activeTask.data ? (
+        {activeTask ? (
           <Card className="py-6 px-2 min-h-13 cursor-pointer shadow-none border-none">
-            {activeTask.data.title}
+            {activeTask.title}
           </Card>
         ) : null}
       </DragOverlay>

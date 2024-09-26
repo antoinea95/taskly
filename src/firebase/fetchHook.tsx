@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import FirestoreApi from "./FirestoreApi";
 import { BoardType, ListType, TaskType } from "@/utils/types";
-import { query, where } from "firebase/firestore";
+import { documentId, query, where } from "firebase/firestore";
 
-export const useGetBoards = (userId?: string) => {
+export const useGetBoards = (userId: string) => {
   return useQuery({
     queryKey: ["boards", userId], // Ajoute userId dans la clé de la requête pour éviter des doublons
     queryFn: () => {
@@ -24,7 +24,6 @@ export const useGetBoards = (userId?: string) => {
       });
     },
     staleTime: Infinity,
-    enabled: !!userId,
   });
 };
 
@@ -47,12 +46,41 @@ export const useGetLists = (boardId?: string) => {
       });
     },
     staleTime: Infinity,
-    enabled: !!boardId
+  });
+};
+
+export const useGetTasks = (taskIds: string[], listId: string) => {
+  return useQuery({
+    queryKey: ["tasks", listId],
+    queryFn: () => {
+      return new Promise<ListType[]>((resolve) => {
+        if (taskIds.length === 0) {
+          resolve([]);
+          return;
+        }
+
+        const unsubscribe = FirestoreApi.subscribeToCollection<ListType>({
+          collectionName: "tasks",
+          queryFn: (colRef) => query(colRef, where(documentId(), "in", taskIds)),
+          callback: (lists) => resolve(lists),
+          errorMessage: "Error while getting tasks",
+        });
+
+        return () => unsubscribe;
+      });
+    },
+    staleTime: Infinity,
   });
 };
 
 export const useGetTask = (taskId: string) => {
-  return useQuery({
+
+  // Vérification que taskId est valide
+  if (!taskId) {
+    throw new Error("Invalid task ID provided"); // Lance une erreur si l'ID de la tâche est manquant
+  }
+
+  return useQuery<TaskType>({
     queryKey: ["tasks", taskId],
     queryFn: () =>
       new Promise<TaskType>((resolve, reject) => {
@@ -74,16 +102,19 @@ export const useGetTask = (taskId: string) => {
   });
 };
 
-export const useGetDoc = <T,>(collectionName: string, id?: string) => {
-  return useQuery<T | null>({
+export const useGetDoc = <T,>(collectionName: string, id: string) => {
+  return useQuery<T>({
     queryKey: [collectionName.endsWith('s') ? collectionName.slice(0, -1) : collectionName, id],
     queryFn: async () => {
       if (!id) {
-        return null; // Retourne `null` si l'ID est absent
+        throw new Error("Document ID must be provided"); // Lance une erreur si l'ID est absent
       }
-      return FirestoreApi.fetchDoc({ collectionName, documentId: id });
+      const doc : Awaited<T> | null = await FirestoreApi.fetchDoc({ collectionName, documentId: id });
+      if (!doc) {
+        throw new Error(`Document with ID ${id} not found`); // Lance une erreur si le document n'existe pas
+      }
+      return doc; // Retourne le document
     },
     staleTime: Infinity,
-    enabled: !!id // Exécute la requête uniquement si l'ID est présent
   });
 };

@@ -7,7 +7,6 @@ import { useGetTask } from "@/firebase/fetchHook";
 
 export const TaskCard = ({ taskId }: { taskId: string }) => {
   const [isTaskOpen, setIsTaskOpen] = useState(false);
-
   const { data: task, isFetched } = useGetTask(taskId);
 
   const {
@@ -22,21 +21,20 @@ export const TaskCard = ({ taskId }: { taskId: string }) => {
     data: { type: "task" },
   });
 
-  if (!isFetched) {
+  if(!isFetched) {
     return null;
   }
 
   return (
     <div  ref={setNodeRef}>
-      {task && (
-        <>
+        {task && <>
           <Modal
             dialogName={task.title}
             setIsModalOpen={setIsTaskOpen}
             isModalOpen={isTaskOpen}
           >
             <Card
-              className="border-none shadow-none rounded-xl px-3 pb-6 animate-fade-in"
+              className="border-none shadow-none rounded-xl px-3 pb-6"
               style={{
                 transform: CSS.Transform.toString(transform),
                 transition,
@@ -51,8 +49,7 @@ export const TaskCard = ({ taskId }: { taskId: string }) => {
             </Card>
             <div>Super</div>
           </Modal>
-        </>
-      )}
+        </>}
     </div>
   );
 };
