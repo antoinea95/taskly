@@ -9,6 +9,20 @@ export type UserType = {
   photoURL?: string
 }
 
+export type CheckListType = {
+  id: string;
+  title: string;
+  createdAt: number;
+}
+
+export type CheckListItemType = {
+  id: string;
+  title: string;
+  createdAt: number;
+  done: boolean;
+  dueDate?: Date;
+}
+
 export type TaskType = {
     id: string;
     title: string;

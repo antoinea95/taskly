@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import FirestoreApi from "./FirestoreApi";
-import { BoardType, ListType, TaskType } from "@/utils/types";
+import { BoardType, CheckListItemType, CheckListType, ListType, TaskType } from "@/utils/types";
 import { documentId, query, where } from "firebase/firestore";
 
 export const useGetBoards = (userId: string) => {
@@ -64,6 +64,42 @@ export const useGetTasks = (taskIds: string[], listId: string) => {
           queryFn: (colRef) => query(colRef, where(documentId(), "in", taskIds)),
           callback: (lists) => resolve(lists),
           errorMessage: "Error while getting tasks",
+        });
+
+        return () => unsubscribe;
+      });
+    },
+    staleTime: Infinity,
+  });
+};
+
+export const useGetChecklists = (taskId: string) => {
+  return useQuery({
+    queryKey: ["checklists", taskId],
+    queryFn: () => {
+      return new Promise<CheckListType[]>((resolve) => {
+        const unsubscribe = FirestoreApi.subscribeToCollection<CheckListType>({
+          collectionName: `tasks/${taskId}/checklists`,
+          callback: (checklists) => resolve(checklists),
+          errorMessage: "Error while getting checklists",
+        });
+
+        return () => unsubscribe;
+      });
+    },
+    staleTime: Infinity,
+  });
+};
+
+export const useGetChecklistItems = (taskId: string, checklistId: string) => {
+  return useQuery({
+    queryKey: ["checklistItems", checklistId],
+    queryFn: () => {
+      return new Promise<CheckListItemType[]>((resolve) => {
+        const unsubscribe = FirestoreApi.subscribeToCollection<CheckListItemType>({
+          collectionName: `tasks/${taskId}/checklists/${checklistId}/items`,
+          callback: (checklistItems) => resolve(checklistItems),
+          errorMessage: "Error while getting checklists",
         });
 
         return () => unsubscribe;

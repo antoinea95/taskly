@@ -15,8 +15,8 @@ export const AddBoard = ({
   });
 
   const { currentUser } = useAuth();
-  const createBoard = useAddDoc<BoardType>("boards");
-  const createList = useAddDoc<ListType>("lists");
+  const createBoard = useAddDoc<BoardType>("boards", "boards");
+  const createList = useAddDoc<ListType>("boards", "lists");
 
   const onSubmit = async (data: z.infer<typeof BoardSchema>) => {
     if (currentUser) {

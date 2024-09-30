@@ -4,8 +4,16 @@ import { Card, CardHeader, CardTitle } from "../ui/card";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useGetTask } from "@/firebase/fetchHook";
+import { TaskDetails } from "./TaskDetails";
+import { ListType } from "@/utils/types";
 
-export const TaskCard = ({ taskId }: { taskId: string }) => {
+export const TaskCard = ({
+  taskId,
+  list,
+}: {
+  taskId: string;
+  list: ListType;
+}) => {
   const [isTaskOpen, setIsTaskOpen] = useState(false);
   const { data: task, isFetched } = useGetTask(taskId);
 
@@ -21,15 +29,17 @@ export const TaskCard = ({ taskId }: { taskId: string }) => {
     data: { type: "task" },
   });
 
-  if(!isFetched) {
+  if (!isFetched) {
     return null;
   }
 
   return (
-    <div  ref={setNodeRef}>
-        {task && <>
+    <div ref={setNodeRef}>
+      {task && (
+        <>
           <Modal
-            dialogName={task.title}
+            title={task.title}
+            subtitle={`in list: ${list.title}`}
             setIsModalOpen={setIsTaskOpen}
             isModalOpen={isTaskOpen}
           >
@@ -39,17 +49,25 @@ export const TaskCard = ({ taskId }: { taskId: string }) => {
                 transform: CSS.Transform.toString(transform),
                 transition,
                 opacity: isDragging ? 0.3 : 1,
+                cursor: "grab",
               }}
               {...attributes}
               {...listeners}
             >
               <CardHeader className="px-0 pt-3 pb-0">
-                <CardTitle className="w-fit text-lg font-normal">{task.title}</CardTitle>
+                <CardTitle className="w-fit text-lg font-normal">
+                  {task.title}
+                </CardTitle>
               </CardHeader>
             </Card>
-            <div>Super</div>
+            <TaskDetails
+              task={task}
+              setIsTaskOpen={setIsTaskOpen}
+              list={list}
+            />
           </Modal>
-        </>}
+        </>
+      )}
     </div>
   );
 };

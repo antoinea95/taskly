@@ -22,11 +22,14 @@ import { ListType, TaskType } from "@/utils/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDragMouse } from "@/utils/useDragMouse";
 import { ListSectionSkeleton } from "../skeletons";
+import { AddItem } from "../Form/AddItem";
+import { useAddDoc } from "@/firebase/mutateHook";
 
 export const ListsSection = ({ boardId }: { boardId: string }) => {
   const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } =
     useDragMouse();
   const { data: lists, isFetched } = useGetLists(boardId);
+  const [isAddList, setIsAddList] = useState(false);
 
   const [activeTask, setActiveTask] = useState<TaskType | null>(null);
   const queryClient = useQueryClient();
@@ -187,6 +190,24 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
     }
   };
 
+  const createList = useAddDoc<ListType>("lists", "lists", boardId);
+
+  const onSubmit = async (data: {title: string}) => {
+    createList.mutate(
+      {
+        ...data,
+        createdAt: Date.now(),
+        tasks: [],
+        boardId: boardId,
+      },
+      {
+        onSuccess: () => {
+          setIsAddList(false);
+        },
+      }
+    );
+  };
+
   if(!isFetched) {
     return <ListSectionSkeleton />
   }
@@ -220,11 +241,21 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
                 <ListCard list={list} boardId={boardId} />
               </SortableContext>
             ))}
+            <div className="mt-12 justify-end min-w-72">
+            <AddItem 
+            type="List"
+            onSubmit={onSubmit}
+            query={createList}
+            isOpen={isAddList}
+            setIsOpen={setIsAddList}
+            />
+            </div>
+            
         </section>
       </section>
       <DragOverlay>
         {activeTask ? (
-          <Card className="py-6 px-2 min-h-13 cursor-pointer shadow-none border-none">
+          <Card className="py-6 px-2 min-h-13 shadow-none border-none cursor-grabbing">
             {activeTask.title}
           </Card>
         ) : null}

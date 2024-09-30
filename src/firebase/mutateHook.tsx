@@ -18,8 +18,8 @@ export const useFirestoreMutation = <T,>(
 };
 
 // Hook pour ajouter un document
-export const useAddDoc = <T,>(collectionName: string, parentId?: string) => {
-  const queryKey = parentId ? [collectionName, parentId] : [collectionName];
+export const useAddDoc = <T,>(queryName: string, collectionName: string, parentId?: string) => {
+  const queryKey = parentId ? [queryName, parentId] : [queryName];
 
   return useFirestoreMutation<WhitoutId<T>>(
     (data: WhitoutId<T>) => FirestoreApi.createDocument<T>(collectionName, data),
@@ -29,11 +29,12 @@ export const useAddDoc = <T,>(collectionName: string, parentId?: string) => {
 
 // Hook pour mettre à jour un document
 export const useUpdateDoc = <T,>(
+  queryName: string,
   collectionName: string,
   documentId: string,
   parentId?: string
 ) => {
-  const queryKey = parentId ? [collectionName, parentId] : [collectionName, documentId];
+  const queryKey = parentId ? [queryName, parentId] : [queryName, documentId];
 
   return useFirestoreMutation<Partial<T>>(
     (data: Partial<T>) => FirestoreApi.updateDocument<T>(collectionName, data, documentId),
@@ -43,14 +44,15 @@ export const useUpdateDoc = <T,>(
 
 // Hook pour supprimer un document
 export const useDeleteDoc = (
+  queryName: string,
   collectionName: string,
   id: string,
   parentId?: string
 ) => {
-  const queryKey = parentId ? [collectionName, parentId] : [collectionName];
+  const queryKey = parentId ? [queryName, parentId] : [queryName];
 
-  return useFirestoreMutation(
-    () => FirestoreApi.deleteDocument(collectionName, id),
+  return useFirestoreMutation<string[] | undefined>(
+    (subCollections:string[] = []) => FirestoreApi.deleteDocument(collectionName, id, subCollections),
     queryKey,
   );
 };

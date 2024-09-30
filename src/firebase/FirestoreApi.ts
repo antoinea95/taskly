@@ -18,12 +18,17 @@ import {
   collection,
   addDoc,
   updateDoc,
-  deleteDoc,
   onSnapshot,
   QuerySnapshot,
   doc,
   getDoc,
   setDoc,
+  writeBatch,
+  getDocs,
+  DocumentReference,
+  WriteBatch,
+  query,
+  where,
 } from "firebase/firestore";
 
 const app = initializeApp({
@@ -55,8 +60,9 @@ export class FirestoreApi {
   private async addUserToFirestore(user: User): Promise<void> {
     const docRef = doc(this.firebaseFirestore, "users", user.uid);
 
-    const displayName = user.displayName || (user.email ? user.email.split('@')[0] : "Unknown user");
-
+    const displayName =
+      user.displayName ||
+      (user.email ? user.email.split("@")[0] : "Unknown user");
 
     try {
       await setDoc(
@@ -128,7 +134,7 @@ export class FirestoreApi {
       const existingUser = await this.fetchDoc({
         collectionName: "users",
         documentId: user.uid,
-      })
+      });
 
       console.log(existingUser);
 
@@ -195,13 +201,102 @@ export class FirestoreApi {
     }
   }
 
+  public async deleteBoard(boardId: string): Promise<void> {
+    try {
+      const batch = writeBatch(this.firebaseFirestore);
+      const boardRef = doc(this.firebaseFirestore, "boards", boardId);
+
+      // Étape 1: Récupérer les listes associées au board
+      const listsCollectionRef = collection(this.firebaseFirestore, "lists");
+      const listsQuery = query(
+        listsCollectionRef,
+        where("boardId", "==", boardId)
+      );
+      const listsSnapshot = await getDocs(listsQuery);
+
+      // Étape 2: Supprimer les tâches pour chaque liste
+      for (const listDoc of listsSnapshot.docs) {
+        const listData = listDoc.data();
+        const taskIds = listData.tasks || [];
+
+        for (const taskId of taskIds) {
+          const taskRef = doc(this.firebaseFirestore, "tasks", taskId);
+          // Supprimer les sous-collections de la tâche
+          await this.deleteSubCollections(taskRef, batch, [
+            "items",
+            "checklists",
+          ]);
+          batch.delete(taskRef); // Ajoutez la suppression de la tâche au batch ici
+        }
+
+        batch.delete(listDoc.ref); // Ajoutez la suppression de la liste au batch
+      }
+
+      // Étape 3: Supprimer le board
+      batch.delete(boardRef);
+      await batch.commit();
+    } catch (error: any) {
+      console.error("Error deleting board:", error);
+      throw new Error("Failed to delete board");
+    }
+  }
+
+  public async deleteList(listId: string): Promise<void> {
+    try {
+      const batch = writeBatch(this.firebaseFirestore);
+      const listsCollectionRef = doc(this.firebaseFirestore, "lists", listId);
+      const listDoc = await getDoc(listsCollectionRef);
+      const taskIds = listDoc.data()?.tasks || [];
+
+      for (const taskId of taskIds) {
+        const taskRef = doc(this.firebaseFirestore, "tasks", taskId);
+
+        await this.deleteSubCollections(taskRef, batch, [
+          "items",
+          "checklists",
+        ]);
+        batch.delete(taskRef);
+      }
+
+      batch.delete(listDoc.ref);
+      await batch.commit();
+
+    } catch (error: any) {
+      console.error("Error deleting list:", error);
+      throw new Error("Failed to delete list");
+    }
+  }
+
+  private async deleteSubCollections(
+    parentRef: DocumentReference,
+    batch: WriteBatch,
+    subCollections: string[]
+  ): Promise<void> {
+    for (const sub of subCollections) {
+      const subCollectionRef = collection(parentRef, sub);
+      const subDocs = await getDocs(subCollectionRef);
+
+      for (const item of subDocs.docs) {
+        await this.deleteSubCollections(item.ref, batch, subCollections); // Appel récursif
+        batch.delete(item.ref); // Ajoutez la suppression de l'item au batch ici
+      }
+    }
+  }
+
   public async deleteDocument(
     collectionName: string,
-    id: string
+    id: string,
+    subCollections: string[]
   ): Promise<void> {
     try {
+      const batch = writeBatch(this.firebaseFirestore);
       const docRef = doc(this.firebaseFirestore, collectionName, id);
-      await deleteDoc(docRef);
+
+      if (subCollections.length > 0) {
+        await this.deleteSubCollections(docRef, batch, subCollections);
+      }
+      batch.delete(docRef);
+      await batch.commit();
     } catch (error: any) {
       console.error("Error deleting document:", error);
       if (error.code === "not-found") {

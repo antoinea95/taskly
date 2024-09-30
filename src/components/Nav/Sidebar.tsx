@@ -12,7 +12,8 @@ import { AddBoard } from "../Board/AddBoard";
 
 export const Sidebar = () => {
   const { currentUser } = useAuth();
-  const { data: boards, isLoading } = useGetBoards(currentUser?.id);
+  const userId = currentUser?.id
+  const { data: boards, isLoading } = useGetBoards(userId ?? "");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -57,7 +58,7 @@ export const Sidebar = () => {
                 </NavLink>
               ))}
               <Modal
-                dialogName="Add a new board"
+                title="Add a new board"
                 setIsModalOpen={setIsModalOpen}
                 isModalOpen={isModalOpen}
               >

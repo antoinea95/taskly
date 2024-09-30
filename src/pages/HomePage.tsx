@@ -3,7 +3,7 @@ import { Modal } from "@/components/ui/Modal";
 import { AddBoard } from "@/components/Board/AddBoard";
 import { ClipboardList } from "lucide-react";
 import { useAuth } from "@/firebase/authHook";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useGetBoards } from "@/firebase/fetchHook";
 import { Header } from "@/components/Nav/Header";
@@ -27,7 +27,7 @@ export const HomePage = () => {
       <section className="flex justify-between items-center mt-10">
         <h1 className="text-5xl uppercase">Your boards</h1>
         <Modal
-          dialogName="Add a new board"
+          title="Add a new board"
           setIsModalOpen={setIsModalOpen}
           isModalOpen={isModalOpen}
         >
