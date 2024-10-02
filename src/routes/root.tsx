@@ -10,7 +10,7 @@ export const Root = () => {
         <h2 className="font-extrabold uppercase text-xl mb-3 px-2">Taskly</h2>
         <Sidebar />
       </nav>
-      <section className="w-5/6 pt-5 px-10 flex flex-col bg-gray-100">
+      <section className="w-5/6 pt-5 px-10 flex flex-col bg-gray-50">
         <Outlet />
       </section>
     </main>

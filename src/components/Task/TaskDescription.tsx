@@ -57,11 +57,11 @@ export const TaskDescription = ({
         Description
       </h3>
       {!isUpdate ? (
-        <p onClick={() => setIsUpdate(true)} className="cursor-pointer bg-gray-100 px-2 py-3 rounded-xl hover:bg-gray-300">{description}</p>
+        <p onClick={() => setIsUpdate(true)} className="cursor-pointer bg-gray-50 px-2 py-3 rounded-xl hover:bg-gray-100">{description}</p>
       ) : (
         <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
           <Textarea
-            className="min-h-24 resize-none border-black rounded-xl flex flex-start items-start"
+            className="min-h-24 resize-none border-none bg-gray-100 rounded-xl flex flex-start items-start px-4 py-3 ml-0.5"
             placeholder="Your description..."
             defaultValue={description}
             {...register("description")}
@@ -71,16 +71,16 @@ export const TaskDescription = ({
               {(errors.description as { message?: string }).message || "Error"}
             </p>
           )}
-          <div className="flex items-center gap-2">
-          <Button className="w-fit min-w-32 rounded-xl flex items-center justify-center" type="submit">
+          <div className="flex items-center justify-between gap-2">
+          <Button className="flex-1 min-w-32 rounded-xl flex items-center justify-center" type="submit">
             {updateTask.isPending ? (
               <Loader data={{ color: "white", size: "1rem" }} />
             ) : (
               "Save"
             )}
           </Button>
-          <Button className="w-fit flex items-center justify-center rounded-xl" type="button" onClick={() => setIsUpdate(false)}>
-            <X />
+          <Button className="w-fit p-3 flex items-center justify-center rounded-xl bg-transparent shadow-none border-none text-black hover:bg-gray-200" type="button" onClick={() => setIsUpdate(false)}>
+            <X size={16}/>
           </Button>
           </div>
 

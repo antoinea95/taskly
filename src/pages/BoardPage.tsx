@@ -45,7 +45,7 @@ export const BoardPage = () => {
         <>
           <header className="flex justify-between items-center">
             <h1 className="text-5xl uppercase">{board?.title}</h1>
-            <DeleteItem name="board" handleDelete={handleDelete} isText={true} />
+            <DeleteItem name="board" handleDelete={handleDelete} isText={false} isPending={deleteBoard.isPending} />
             </header>
           <ListsSection boardId={boardId} />
         </>

@@ -4,10 +4,17 @@ import { ZodType } from "zod";
 import { Input } from "../ui/input";
 import { Loader } from "../ui/loader";
 import { Button } from "../ui/button";
-import { Label } from "../ui/label";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FormContent } from "@/utils/types";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 
 type CreateFormProps<T extends FieldValues> = {
   schema: ZodType<Partial<T>>;
@@ -24,12 +31,7 @@ export const CreateForm = <T extends FieldValues>({
   buttonName,
   query,
 }: CreateFormProps<T>) => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<T>({
+  const form = useForm<T>({
     mode: "onSubmit",
     resolver: zodResolver(schema),
   });
@@ -37,66 +39,62 @@ export const CreateForm = <T extends FieldValues>({
   const { isError, error, isPending, isSuccess } = query;
 
   useEffect(() => {
-    reset();
-  }, [formContent, reset]);
+    form.reset();
+  }, [formContent, form.reset, form]);
 
   useEffect(() => {
     if (isSuccess) {
-      reset();
+      form.reset();
     }
-  }, [isSuccess, reset]);
+  }, [isSuccess, form]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full gap-4 h-fit">
-      {formContent.map((item, index) => (
-        <div
-          key={index}
-          className={`w-full flex flex-col gap-2 transition-height transition-opacity duration-300 ease-in-out ${
-            item.hidden ? "opacity-0 max-h-0 overflow-hidden" : "max-h-full opacity-100"
-          }`}
-        >
-          {item.label && (
-            <Label
-              htmlFor={item.name}
-              className="text-lg uppercase font-extrabold"
-            >
-              {item.label}
-            </Label>
-          )}
-          <Input
-            type={item.type}
-            id={item.name}
-            {...register(item.name as Path<T>)}
-            placeholder={item.placeholder}
-            autoComplete="on"
-            style={{
-              borderColor: errors[item.name] ? "red" : "black",
-            }}
-            className="rounded-xl text-base font-outfit w-full"
-          />
-          {errors[item.name] && (
-            <p className="text-xs font-bold  border w-fit rounded-xl  text-white p-2 uppercase text-center">
-              {(errors[item.name] as { message?: string }).message || "Error"}
-            </p>
-          )}
-        </div>
-      ))}
-      <Button
-        type="submit"
-        disabled={isPending}
-        className="uppercase py-6 rounded-xl w-full"
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col w-full gap-4 h-fit"
       >
-        {isPending ? (
-          <Loader data={{ color: "white", size: "1rem" }} />
-        ) : (
-          buttonName
+        {formContent.map((item, index) => {
+          if (item.hidden) return;
+          return (
+            <FormField
+              key={index}
+              control={form.control}
+              name={item.name as Path<T>}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{item.label}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={item.placeholder}
+                      {...field}
+                      type={item.type}
+                      className="h-10 rounded-xl bg-gray-200 border-none shadow-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          );
+        })}
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="uppercase py-6 rounded-xl w-full"
+        >
+          {isPending ? (
+            <Loader data={{ color: "white", size: "1rem" }} />
+          ) : (
+            buttonName
+          )}
+        </Button>
+        {isError && (
+          <p className="text-sm font-bold w-fit text-red-500 self-center">
+            {error instanceof Error && error?.message}
+          </p>
         )}
-      </Button>
-      {isError && (
-        <p className="text-xs font-bold  border w-fit rounded bg-red-500 text-white py-2 px-3 uppercase self-center text-center">
-          {error instanceof Error && error?.message}
-        </p>
-      )}
-    </form>
+      </form>
+    </Form>
   );
 };

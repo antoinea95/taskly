@@ -15,7 +15,7 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
 
   return (
     <Card
-      className="w-64 h-32 flex flex-col justify-between shadow-none bg-gray-100 overflow-hidden rounded-xl pt-3 pb-2 px-3 cursor-pointer hover:bg-gray-200 border-black"
+      className="w-64 h-32 flex flex-col justify-between shadow-none bg-white border-2 border-transparent overflow-hidden rounded-xl pt-3 pb-2 px-3 cursor-pointer hover:border-gray-200"
       onClick={() => navigate(`/${board?.id}`)}
     >
       <CardHeader className="flex-1 p-0">

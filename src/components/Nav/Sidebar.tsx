@@ -31,7 +31,7 @@ export const Sidebar = () => {
     <li>
         <Link
           to={"/"}
-          className="flex items-center gap-2 w-full p-2 rounded hover:bg-gray-200 cursor-pointer"
+          className="flex items-center gap-2 w-full p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
         >
           <House /> Home
         </Link>
@@ -39,7 +39,7 @@ export const Sidebar = () => {
       <li>
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="boards">
-            <AccordionTrigger className="flex items-center gap-2 w-full p-2 rounded hover:bg-gray-200 hover:no-underline cursor-pointer">
+            <AccordionTrigger className="flex items-center gap-2 w-full p-2 rounded-xl hover:bg-gray-200 hover:no-underline cursor-pointer">
               <p className="flex items-center gap-2 w-full text-base font-normal">
                 <ClipboardList />
                 Boards
@@ -51,7 +51,7 @@ export const Sidebar = () => {
                  key={board.id}
                   to={`/${board.id}`}
                   className={({ isActive }) =>
-                    `text-base text-gray-500 border-black rounded  w-full flex items-center gap-2 p-2 my-2 hover:bg-gray-200 ${isActive ? "text-black border border-black" : ""}`
+                    ` text-base rounded-xl  w-full flex items-center gap-2 p-2 my-2 hover:bg-gray-200 ${isActive ? "bg-gray-200" : ""}`
                   }
                 >
                   <Circle size={8} strokeWidth={4} /> {board.title}
@@ -62,7 +62,7 @@ export const Sidebar = () => {
                 setIsModalOpen={setIsModalOpen}
                 isModalOpen={isModalOpen}
               >
-                <Button onClick={() => setIsModalOpen(true)} className="flex justify-start items-center gap-2 py-5 px-2 w-full rounded text-base text-white bg-black mt-2">
+                <Button onClick={() => setIsModalOpen(true)} className="flex justify-start items-center gap-2 py-5 px-2 w-full rounded-xl text-base text-white bg-black mt-2">
                   <Plus
                   color="white"
                     size={10}
@@ -79,14 +79,14 @@ export const Sidebar = () => {
       <li>
         <Link
           to={"/profile"}
-          className="flex items-center gap-2 w-full p-2 rounded hover:bg-gray-200 cursor-pointer"
+          className="flex items-center gap-2 w-full p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
         >
           <User /> Profile
         </Link>
       </li>
       <li className="mt-auto mb-0">
         <button
-          className="flex items-center gap-2 w-full p-2 rounded hover:bg-gray-200"
+          className="flex items-center gap-2 w-full p-2 rounded-xl hover:bg-gray-200"
           onClick={handleLogOut}
         >
           <LogOut /> Log out

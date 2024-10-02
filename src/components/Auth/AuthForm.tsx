@@ -88,14 +88,15 @@ export const AuthForm = () => {
           </button>
         </div>
       </section>
-      <CreateForm
-        schema={UserSchema}
-        onSubmit={onSubmit}
-        formContent={formContent}
-        buttonName={isLogin ? "Log in" : "Create an account"}
-        query={sign}
-      />
-
+      <section className="w-3/4">
+        <CreateForm
+          schema={UserSchema}
+          onSubmit={onSubmit}
+          formContent={formContent}
+          buttonName={isLogin ? "Log in" : "Create an account"}
+          query={sign}
+        />
+      </section>
       <section className="w-3/4 mt-6 flex flex-col items-center gap-4">
         <p className="uppercase flex items-center justify-between text-gray-400 w-full">
           <span className="border border-gray-400 inline-block w-1/3"></span> Or

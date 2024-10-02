@@ -23,11 +23,17 @@ export type CheckListItemType = {
   dueDate?: Date;
 }
 
+export type DateRange = {
+  completed: boolean,
+  from: string | null,
+  to: string,
+}
+
 export type TaskType = {
     id: string;
     title: string;
     description?: string;
-    dueDate?: Date;
+    dueDate?: DateRange;
     labels?: string[];
     comments?: Comment[];
     assignedTo?: string[];
