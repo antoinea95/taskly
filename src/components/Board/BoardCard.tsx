@@ -1,7 +1,7 @@
 import { BoardType } from "../../utils/types";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { BoardCardFooter } from "./BoardCardFooter";
+import { Members} from "./Members";
 
 
 export const BoardCard = ({ board }: { board: BoardType }) => {
@@ -25,9 +25,10 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
       <CardFooter className="flex justify-end p-0">
         <div className="flex justify-end -space-x-3">
           {board.members.slice(0, 5).map((member) => (
-            <BoardCardFooter
+            <Members
               key={member} 
               userId={member}
+              type="avatar"
             />
           ))}
           {board.members.length > 5 && (

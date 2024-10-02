@@ -51,13 +51,13 @@ export const TaskDescription = ({
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <h3 className="flex items-center gap-2 font-medium text-xl">
+    <div className="flex flex-col gap-3 my-2">
+      <h3 className="flex items-center gap-2 font-medium">
         <PenLine />
         Description
       </h3>
       {!isUpdate ? (
-        <p onClick={() => setIsUpdate(true)} className="cursor-pointer bg-gray-50 px-2 py-3 rounded-xl hover:bg-gray-100">{description}</p>
+        <p onClick={() => setIsUpdate(true)} className="cursor-pointer font-medium bg-gray-50 px-2 py-3 rounded-xl hover:bg-gray-100">{description}</p>
       ) : (
         <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
           <Textarea

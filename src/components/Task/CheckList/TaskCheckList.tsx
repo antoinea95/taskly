@@ -1,18 +1,12 @@
 import { CheckListItemType, CheckListType } from "@/utils/types";
-import { Check, ListCheck } from "lucide-react";
+import { ListCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useGetChecklistItems } from "@/firebase/fetchHook";
 import { TaskCheckListItem } from "./TaskCheckListItem";
 import { AddItem } from "../../Form/AddItem";
-import { useAddDoc, useDeleteDoc } from "@/firebase/mutateHook";
+import { useAddDoc, useDeleteDoc, useUpdateDoc } from "@/firebase/mutateHook";
 import { DeleteItem } from "../../Form/DeleteItem";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../../ui/card";
+import { UpdateTitle } from "@/components/Form/UpdateTitle";
 
 export const TaskCheckList = ({
   taskId,
@@ -31,6 +25,8 @@ export const TaskCheckList = ({
     `tasks/${taskId}/checklists/${checkList.id}/items`,
     checkList.id
   );
+
+  const updateCheckList = useUpdateDoc<CheckListType>("checklists", `tasks/${taskId}/checklists`, checkList.id, taskId);
   const deleteChecklist = useDeleteDoc(
     "checklists",
     `tasks/${taskId}/checklists`,
@@ -73,20 +69,20 @@ export const TaskCheckList = ({
   }, [checklistItems, isFetched]);
 
   return (
-    <Card className="flex flex-col rounded-xl my-4 relative border-none shadow-none ">
-      <CardHeader className="w-full px-0 py-3">
-        <CardTitle className="flex items-center justify-between gap-2 font-medium text-xl w-full">
-          <h3 className="flex items-center gap-1">
+    <div className="flex flex-col gap-3 rounded-xl my-2 relative p-4 border-2 border-gray-200">
+      <div className="w-full">
+        <div className="flex items-center justify-between gap-2 font-medium w-full">
+          <div className="flex items-center gap-1">
             <ListCheck />
-            {checkList.title}
-          </h3>
+            <UpdateTitle name="Checklist" title={checkList.title} query={updateCheckList} headingLevel={"h4"} />
+          </div>
           <DeleteItem
             name="checklist"
             isText={false}
             handleDelete={handleDeleteChecklist}
             isPending={deleteChecklist.isPending}
           />
-        </CardTitle>
+        </div>
         <div className="flex items-center gap-4 w-full">
           <span className="inline-block h-1 flex-1 bg-gray-100 rounded-full relative overflow-hidden">
             <span
@@ -96,9 +92,9 @@ export const TaskCheckList = ({
           </span>
           <p className="pr-2">{completeBarWidth}%</p>
         </div>
-      </CardHeader>
+      </div>
         {checklistItems && checklistItems.length > 0 ? (
-        <CardContent className="bg-gray-50 rounded-xl p-3">
+        <div>
             {checklistItems.map((item) => (
               <TaskCheckListItem
                 key={item.id}
@@ -107,13 +103,13 @@ export const TaskCheckList = ({
                 checklistId={checkList.id}
               />
             ))}
-       </CardContent>
+       </div>
         ) : (
           <p className="text-gray-300 text-center uppercase text-xs">
             No items yet
           </p>
         )}
-      <CardFooter className="flex flex-col items-center justify-center pt-3 px-0">
+      <div className="flex flex-col items-center justify-center pt-3">
         <AddItem
           type="Item"
           onSubmit={onSubmit}
@@ -121,7 +117,7 @@ export const TaskCheckList = ({
           isOpen={isAddItem}
           setIsOpen={setisAddItem}
         />
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };

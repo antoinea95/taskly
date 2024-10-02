@@ -11,6 +11,7 @@ import {
 } from "@/firebase/mutateHook";
 import FirestoreApi from "@/firebase/FirestoreApi";
 import { DeleteItem } from "../Form/DeleteItem";
+import { UpdateTitle } from "../Form/UpdateTitle";
 
 export const ListCard = ({
   list,
@@ -59,12 +60,12 @@ export const ListCard = ({
   };
 
   return (
-    <div ref={setNodeRef} className="h-fit min-w-72 w-fit">
+    <div ref={setNodeRef} className="h-fit min-w-72 w-fit px-3">
       {list && (
         <Card className="shadow-none h-fit border-none bg-transparent min-h-96">
           <CardHeader className="p-0 flex flex-col gap-3">
             <CardTitle className="text-xl font-normal flex items-center justify-between">
-              {list.title}
+              <UpdateTitle name="List" title={list.title} query={updateList} headingLevel={"h3"} />
               <DeleteItem
                 name="list"
                 handleDelete={handleDelete}

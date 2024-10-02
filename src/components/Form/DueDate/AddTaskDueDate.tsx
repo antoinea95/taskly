@@ -30,17 +30,17 @@ export const AddTaskDueDate = ({ task }: { task: TaskType }) => {
   const schema = z
     .object({
       to: z.date().refine((date) => date.getTime() >= today.getTime(), {
-        message: "The due date cannot be in the past.",
+        message: "Deadline cannot be in the past.",
       }),
       from: z
         .date()
         .nullable()
         .refine((date) => !date || date.getTime() >= today.getTime(), {
-          message: "The begin date cannot be in the past.",
+          message: "Start date cannot be in the past.",
         }),
     })
     .refine((data) => !data.from || data.from < data.to, {
-      message: "The begin date must be before the due date.",
+      message: "Start date must be before deadline.",
       path: ["from"], // Cette erreur sera associée au champ 'from'
     });
 
@@ -94,11 +94,11 @@ export const AddTaskDueDate = ({ task }: { task: TaskType }) => {
                 htmlFor="begin"
                 className="text-sm font-medium flex-1 pl-1 cursor-pointer"
               >
-                Add a begin date?
+                Start date?
               </label>
             </div>
             <div className="flex items-center gap-2">
-              <SubmitButton isLoading={false}>Add due date</SubmitButton>
+              <SubmitButton isLoading={false}>Add deadline</SubmitButton>
               <CloseButton setIsOpen={setIsAddDate}>
                 <X size={16} />
               </CloseButton>
@@ -108,7 +108,7 @@ export const AddTaskDueDate = ({ task }: { task: TaskType }) => {
       ) : (
         <ToggleButton setIsOpen={setIsAddDate}>
           <Calendar size={16} />
-          Add a due date
+          {task.dueDate ? "Update" : "Add"} deadline
         </ToggleButton>
       )}
     </>

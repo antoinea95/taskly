@@ -2,7 +2,7 @@ import { DateRange, TaskType } from "@/utils/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useUpdateDoc } from "@/firebase/mutateHook";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import { CalendarIcon, Check, CheckCheck, OctagonAlert, TriangleAlert } from "lucide-react";
+import { CalendarIcon, Check, OctagonAlert, TriangleAlert } from "lucide-react";
 import { format } from "date-fns";
 import { Tag } from "./Tag";
 
@@ -67,19 +67,19 @@ export const TaskDueDate = ({
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <h3 className="flex items-center gap-2 font-medium text-xl">
-        <CalendarIcon /> Due Date
+    <div className="flex flex-col px-3 gap-1">
+         <h3 className="flex items-center gap-2 font-medium text-sm">
+        <CalendarIcon size={14} /> Deadline
       </h3>
-
-      <div className="flex items-center justify-between bg-gray-200 rounded-xl w-fit space-x-10 px-3 py-3">
-        <div className="flex items-center">
-          <Checkbox
+      <div className="flex items-center justify-between bg-gray-50 rounded-xl w-fit p-3 hover:bg-gray-100">
+      <Checkbox
             id="completed"
             defaultChecked={dueDate.completed}
             onCheckedChange={handleCheckedChange}
+            className="border-2 shadow-none flex items-center justify-center"
           />
-          <label htmlFor="completed" className="pl-3 cursor-pointer text-sm font-bold">
+        <div className="flex items-center">
+          <label htmlFor="completed" className="pl-3 cursor-pointer text-sm font-medium mr-4">
            {dueDate.from && `${formatDate(dueDate.from)} - `}{formatDate(dueDate.to)}
           </label>
         </div>

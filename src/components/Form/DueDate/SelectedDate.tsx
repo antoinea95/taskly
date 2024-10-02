@@ -10,6 +10,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { UseFormReturn } from "react-hook-form";
 import { Calendar } from "@/components/ui/calendar";
+import { useState } from "react";
 
 export const SelectedDate = ({
   form,
@@ -18,7 +19,9 @@ export const SelectedDate = ({
   form: UseFormReturn<{ to: Date; from: Date | null }, any, undefined>;
   name: "to" | "from";
 }) => {
-    
+  // État pour contrôler l'ouverture/fermeture du Popover
+  const [isOpen, setIsOpen] = useState(false);
+
   const handleDisabledDate = (date: Date) => {
     const today = new Date();
     const to = form.getValues().to?.getTime();
@@ -36,17 +39,24 @@ export const SelectedDate = ({
     return false;
   };
 
+  const handleDateSelect = (date: Date | undefined) => {
+    if(date) {
+      form.setValue(name, date);
+      setIsOpen(false);
+    }
+  };
+
   return (
     <FormField
       control={form.control}
       name={name}
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>{name === "to" ? "Due date" : "Begin Date"}</FormLabel>
-          <Popover>
+          <FormLabel>{name === "to" ? "Deadline" : "Start date"}</FormLabel>
+          <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
               <FormControl>
-                <Button variant={"outline"}>
+                <Button variant={"outline"} onClick={() => setIsOpen(!isOpen)}>
                   <span>
                     {field.value ? field.value.toDateString() : "Select a date"}
                   </span>
@@ -57,9 +67,10 @@ export const SelectedDate = ({
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                onSelect={field.onChange}
+                onSelect={handleDateSelect}
                 selected={field.value ? field.value : undefined}
                 disabled={handleDisabledDate}
+                initialFocus
               />
             </PopoverContent>
           </Popover>

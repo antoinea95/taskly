@@ -27,7 +27,6 @@ export const HomePage = () => {
       <section className="flex justify-between items-center mt-10">
         <h1 className="text-5xl uppercase">Your boards</h1>
         <Modal
-          title="Add a new board"
           setIsModalOpen={setIsModalOpen}
           isModalOpen={isModalOpen}
         >

@@ -24,6 +24,7 @@ export const AddBoard = ({
         {
           ...data,
           members: [currentUser.id],
+          creator: currentUser.id,
           createdAt: Date.now(),
         },
         {
