@@ -36,7 +36,7 @@ export type TaskType = {
     dueDate?: DateRange;
     labels?: string[];
     comments?: Comment[];
-    assignedTo?: string[];
+    members?: string[];
     createdAt: number;
   };
   

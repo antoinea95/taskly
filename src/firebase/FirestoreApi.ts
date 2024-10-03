@@ -329,6 +329,32 @@ export class FirestoreApi {
     }
   }
 
+  public async fetchDocs<T>({
+    collectionName,
+    firestoreFilterFn,
+  }: {
+    collectionName: string;
+    firestoreFilterFn: (colRef: CollectionReference) => any;
+  }): Promise<T[]> { // Changer le type de retour à T[]
+    try {
+      const colRef = collection(this.firebaseFirestore, collectionName);
+      const q = firestoreFilterFn ? firestoreFilterFn(colRef) : colRef;
+  
+      const docSnap = await getDocs(q);      
+      if (docSnap.empty) {
+        return []; // Si la collection est vide, retourne un tableau vide
+      }
+  
+      return docSnap.docs.map((doc) => ({
+        ...doc.data() as T,
+        id: doc.id,
+      })) as T[];
+    } catch (error) {
+      console.error("Error fetching documents", error);
+      throw new Error("Failed to fetch data");
+    }
+  }
+
   public subscribeToDocument<T>({
     collectionName,
     documentId,

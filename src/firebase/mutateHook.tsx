@@ -12,7 +12,7 @@ export const useFirestoreMutation = <T,>(
   return useMutation({
     mutationFn,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
+        queryClient.invalidateQueries({ queryKey });
     },
   });
 };
@@ -32,7 +32,7 @@ export const useUpdateDoc = <T,>(
   queryName: string,
   collectionName: string,
   documentId: string,
-  parentId?: string
+  parentId?: string,
 ) => {
   const queryKey = parentId ? [queryName, parentId] : [queryName, documentId];
 

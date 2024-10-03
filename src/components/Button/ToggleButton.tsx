@@ -8,7 +8,7 @@ export const ToggleButton = ({
   return (
     <Button
       onClick={() => setIsOpen(true)}
-      className="w-full py-6 rounded-xl bg-gray-100 text-black flex gap-2 shadow-none border-none hover:bg-black hover:text-white"
+      className="w-full py-6 rounded-xl bg-gray-100 text-black flex gap-2 shadow-none border-none hover:bg-black hover:text-white animate-fade-in"
     >
       {children}
     </Button>

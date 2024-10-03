@@ -1,13 +1,13 @@
 import { PenLine, X } from "lucide-react";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
+import { Textarea } from "../../ui/textarea";
+import { Button } from "../../ui/button";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateDoc } from "@/firebase/mutateHook";
 import { TaskType } from "@/utils/types";
-import { Loader } from "../ui/loader";
+import { Loader } from "../../ui/loader";
 
 export const TaskDescription = ({
   taskId,

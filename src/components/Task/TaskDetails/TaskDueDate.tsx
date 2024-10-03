@@ -4,7 +4,7 @@ import { useUpdateDoc } from "@/firebase/mutateHook";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { CalendarIcon, Check, OctagonAlert, TriangleAlert } from "lucide-react";
 import { format } from "date-fns";
-import { Tag } from "./Tag";
+import { Tag } from "../Tag";
 
 export const TaskDueDate = ({
   taskId,
@@ -48,7 +48,7 @@ export const TaskDueDate = ({
 
       if (diffDays < 0) {
         return (
-          <Tag color="red">
+          <Tag color="orange">
             <OctagonAlert size={14} />
             Late
           </Tag>

@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle } from "../ui/card";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useGetTask } from "@/firebase/fetchHook";
-import { TaskDetails } from "./TaskDetails";
+import { TaskDetails } from "./TaskDetails/TaskDetails";
 import { ListType } from "@/utils/types";
 
 export const TaskCard = ({

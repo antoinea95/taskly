@@ -20,7 +20,7 @@ export const DeleteItem = ({
   return (
     <Modal isModalOpen={confirm} setIsModalOpen={setConfirm}>
       <Button
-        className={`w-fit h-fit px-3 rounded-xl bg-transparent text-black flex gap-2 shadow-none border-none hover:bg-red-500 hover:text-white ${isText ? "w-full max-w-66 bg-red-50 py-3" : ""}`}
+        className={`min-w-12 w-fit h-10 px-3 rounded-xl bg-red-50 text-black flex gap-2 shadow-none border-none hover:bg-red-500 hover:text-white ${isText ? "w-full max-w-66 bg-red-50 py-3" : ""}`}
       >
         <Trash size={16} /> {isText ? `Delete ${name}` : null}
       </Button>

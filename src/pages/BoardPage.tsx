@@ -7,10 +7,13 @@ import { useFirestoreMutation, useUpdateDoc } from "@/firebase/mutateHook";
 import FirestoreApi from "@/firebase/FirestoreApi";
 import { DeleteItem } from "@/components/Form/DeleteItem";
 import { UpdateTitle } from "@/components/Form/UpdateTitle";
-import { BoardMembers } from "@/components/Board/BoardMembers";
+import { AddMember } from "@/components/Members/AddMember";
+import { useAuth } from "@/firebase/authHook";
+import { MembersDetails } from "@/components/Members/MembersDetails";
 
 export const BoardPage = () => {
   const { boardId } = useParams<{ boardId?: string }>();
+  const {currentUser} = useAuth()
   const naviagate = useNavigate();
   const { data: board, isFetched } = useGetDoc<BoardType>(
     "boards",
@@ -45,8 +48,9 @@ export const BoardPage = () => {
               query={updateBoard}
               headingLevel={"h1"}
             />
-            <div className="flex items-center gap-2">
-              <BoardMembers board={board} />
+            <div className="flex items-start gap-3 h-10">
+              <MembersDetails members={board.members} creator={board.creator} query={updateBoard} isBoard />
+              {board.creator === currentUser?.id && <AddMember queryName="boards" queryId={board.creator} query={updateBoard} members={board.members}/>}
               <DeleteItem
                 name="board"
                 handleDelete={handleDelete}

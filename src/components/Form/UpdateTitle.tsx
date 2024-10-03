@@ -5,7 +5,6 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem } from "../ui/form";
 import { Input } from "../ui/input";
 import { UseMutationResult } from "@tanstack/react-query";
-import { Skeleton } from "../ui/skeleton";
 
 interface UpdateTitleProps<T extends { title: string }> {
   name: string;
@@ -75,32 +74,17 @@ export const UpdateTitle = <T extends { title: string }>({
         ? "h-14 text-4xl"
         : Heading === "h3" ? "h-11 text-xl" : "h-11 text-lg";
 
-  const skeletonSize =
-    Heading === "h1"
-      ? "w-60 h-14"
-      : Heading === "h2"
-        ? "w-60 h-14"
-        : "w-36 h-11";
-
-  if (query.isPending) {
-    return (
-      <div>
-        <Skeleton className={`rounded-xl ${skeletonSize}`} />
-      </div>
-    );
-  }
-
   return (
     <div onClick={() => setIsUpdate(true)} ref={divRef}>
       {!isUpdate ? (
         <Heading
-          className={`px-3 py-2 cursor-text rounded-xl hover:bg-gray-200 ${headingSizeClass}`}
+          className={`px-3 py-2 cursor-text rounded-xl hover:bg-gray-200 animate-fade-in ${headingSizeClass}`}
         >
           {title}
         </Heading>
       ) : (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="animate-fade-in">
             <FormField
               control={form.control}
               name={"title"}

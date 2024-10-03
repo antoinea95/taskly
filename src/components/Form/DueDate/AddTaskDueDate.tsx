@@ -77,7 +77,7 @@ export const AddTaskDueDate = ({ task }: { task: TaskType }) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-3 bg-gray-100 p-5 rounded-xl"
+            className="space-y-3 bg-gray-100 p-5 rounded-xl animate-fade-in"
           >
             <SelectedDate form={form} name="to" />
             {isBeginDate && <SelectedDate form={form} name="from" />}

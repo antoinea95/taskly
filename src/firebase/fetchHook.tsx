@@ -1,7 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
 import FirestoreApi from "./FirestoreApi";
-import { BoardType, CheckListItemType, CheckListType, ListType, TaskType } from "@/utils/types";
+import { BoardType, CheckListItemType, CheckListType, ListType, TaskType, UserType } from "@/utils/types";
 import { documentId, query, where } from "firebase/firestore";
+
+
+export const useGetUsers = () => {
+  return useQuery({
+    queryKey: ["users"], // Ajoute userId dans la clé de la requête pour éviter des doublons
+    queryFn: () => {
+
+      return new Promise<UserType[]>((resolve) => {
+        const unsubscribe = FirestoreApi.subscribeToCollection<UserType>({
+          collectionName: "users",
+          callback: (users) => resolve(users),
+          errorMessage: "Error while getting users",
+        });
+
+        return () => unsubscribe;
+      });
+    },
+    staleTime: Infinity,
+  });
+};
 
 export const useGetBoards = (userId: string) => {
   return useQuery({
@@ -53,13 +73,13 @@ export const useGetTasks = (taskIds: string[], listId: string) => {
   return useQuery({
     queryKey: ["tasks", listId],
     queryFn: () => {
-      return new Promise<ListType[]>((resolve) => {
+      return new Promise<TaskType[]>((resolve) => {
         if (taskIds.length === 0) {
           resolve([]);
           return;
         }
 
-        const unsubscribe = FirestoreApi.subscribeToCollection<ListType>({
+        const unsubscribe = FirestoreApi.subscribeToCollection<TaskType>({
           collectionName: "tasks",
           queryFn: (colRef) => query(colRef, where(documentId(), "in", taskIds)),
           callback: (lists) => resolve(lists),

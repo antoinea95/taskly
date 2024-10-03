@@ -53,7 +53,7 @@ export const AddItem = <T extends FieldValues>({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={` flex flex-col gap-2 w-full p-3 rounded-xl ${type === "Checklist" ? "bg-gray-50" : "bg-white"}`}
+            className={` flex flex-col gap-2 w-full p-3 rounded-xl animate-fade-in ${type === "Checklist" ? "bg-gray-50" : "bg-white"}`}
           >
             <FormField
               control={form.control}

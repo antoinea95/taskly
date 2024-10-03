@@ -1,7 +1,8 @@
 import { BoardType } from "../../utils/types";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Members} from "./Members";
+import { Member} from "../Members/Member";
+import { MembersAvatarList } from "../Members/MembersAvatarList";
 
 
 export const BoardCard = ({ board }: { board: BoardType }) => {
@@ -23,20 +24,15 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
         <CardTitle className="uppercase text-3xl tracking-normal font-light leading-none">{board?.title}</CardTitle>
       </CardHeader>
       <CardFooter className="flex justify-end p-0">
-        <div className="flex justify-end -space-x-3">
+        <MembersAvatarList members={board.members}>
           {board.members.slice(0, 5).map((member) => (
-            <Members
+            <Member
               key={member} 
               userId={member}
               type="avatar"
             />
           ))}
-          {board.members.length > 5 && (
-            <div className="w-8 h-8 rounded-full bg-black text-gray-700 flex items-center justify-center text-sm font-semibold">
-              +{board.members.length - 5}
-            </div>
-          )}
-        </div>
+        </MembersAvatarList>
       </CardFooter>
     </Card>
   );

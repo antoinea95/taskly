@@ -69,8 +69,8 @@ export const TaskCheckList = ({
   }, [checklistItems, isFetched]);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl my-2 relative p-4 border-2 border-gray-200">
-      <div className="w-full">
+    <div className="space-y-3 rounded-xl my-2 relative p-4 border-2 border-gray-200">
+      <div className="w-full space-y-3">
         <div className="flex items-center justify-between gap-2 font-medium w-full">
           <div className="flex items-center gap-1">
             <ListCheck />
@@ -109,7 +109,6 @@ export const TaskCheckList = ({
             No items yet
           </p>
         )}
-      <div className="flex flex-col items-center justify-center pt-3">
         <AddItem
           type="Item"
           onSubmit={onSubmit}
@@ -117,7 +116,6 @@ export const TaskCheckList = ({
           isOpen={isAddItem}
           setIsOpen={setisAddItem}
         />
-      </div>
     </div>
   );
 };
