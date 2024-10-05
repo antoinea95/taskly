@@ -3,8 +3,7 @@ import { BoardType } from "@/utils/types";
 import { useNavigate, useParams } from "react-router-dom";
 import { ListsSection } from "../components/List/ListsSection";
 import { BoardPageSkeleton } from "@/components/skeletons";
-import { useFirestoreMutation, useUpdateDoc } from "@/firebase/mutateHook";
-import FirestoreApi from "@/firebase/FirestoreApi";
+import { useDeleteDoc, useUpdateDoc } from "@/firebase/mutateHook";
 import { DeleteItem } from "@/components/Form/DeleteItem";
 import { UpdateTitle } from "@/components/Form/UpdateTitle";
 import { AddMember } from "@/components/Members/AddMember";
@@ -15,16 +14,10 @@ export const BoardPage = () => {
   const { boardId } = useParams<{ boardId?: string }>();
   const {currentUser} = useAuth()
   const naviagate = useNavigate();
-  const { data: board, isFetched } = useGetDoc<BoardType>(
-    "boards",
-    boardId ?? ""
-  );
 
-  const deleteBoard = useFirestoreMutation<string[]>(
-    () => FirestoreApi.deleteBoard(boardId ?? ""),
-    ["boards"]
-  );
-
+  
+  const { data: board, isFetched } = useGetDoc<BoardType>("boards", boardId);
+  const deleteBoard = useDeleteDoc("boards", "boards", boardId)
   const updateBoard = useUpdateDoc<BoardType>("board", "boards", boardId ?? "");
 
   if (!boardId || !isFetched) {

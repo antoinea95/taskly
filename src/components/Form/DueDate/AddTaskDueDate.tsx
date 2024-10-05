@@ -8,18 +8,22 @@ import { Form } from "../../ui/form";
 import { SubmitButton } from "../../Button/SubmitButton";
 import { CloseButton } from "../../Button/CloseButton";
 import { ToggleButton } from "../../Button/ToggleButton";
-import { useUpdateDoc } from "@/firebase/mutateHook";
 import { TaskType } from "@/utils/types";
 import { SelectedDate } from "./SelectedDate";
+import { UseMutationResult } from "@tanstack/react-query";
 
-export const AddTaskDueDate = ({ task }: { task: TaskType }) => {
+export const AddTaskDueDate = ({
+  task,
+  query,
+}: {
+  task: TaskType;
+  query: UseMutationResult<any, unknown, Partial<TaskType>>;
+}) => {
   const [isAddDate, setIsAddDate] = useState(false);
   const [isBeginDate, setIsBeginDate] = useState(false);
-  const updateTask = useUpdateDoc<TaskType>("tasks", "tasks", task.id);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
 
   useEffect(() => {
     if (task.dueDate && task.dueDate.from) {
@@ -56,7 +60,7 @@ export const AddTaskDueDate = ({ task }: { task: TaskType }) => {
 
   const onSubmit = (values: z.infer<typeof schema>) => {
     console.log(values);
-    updateTask.mutate(
+    query.mutate(
       {
         dueDate: {
           completed: false,
@@ -69,7 +73,6 @@ export const AddTaskDueDate = ({ task }: { task: TaskType }) => {
       }
     );
   };
-
 
   return (
     <>

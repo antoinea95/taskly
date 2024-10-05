@@ -18,7 +18,7 @@ export const DeleteItem = ({
   const [confirm, setConfirm] = useState(false);
 
   return (
-    <Modal isModalOpen={confirm} setIsModalOpen={setConfirm}>
+    <Modal title={`Delete ${name}`}isModalOpen={confirm} setIsModalOpen={setConfirm}>
       <Button
         className={`min-w-12 w-fit h-10 px-3 rounded-xl bg-red-50 text-black flex gap-2 shadow-none border-none hover:bg-red-500 hover:text-white ${isText ? "w-full max-w-66 bg-red-50 py-3" : ""}`}
       >

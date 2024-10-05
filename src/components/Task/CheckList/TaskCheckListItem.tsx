@@ -44,6 +44,7 @@ export const TaskCheckListItem = ({
     deleteCheckListItem.mutate([]);
   }
 
+
   return (
     <div className="flex justify-between items-center py-2 rounded-xl hover:bg-gray-100">
       <div className="flex items-center w-full">

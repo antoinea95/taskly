@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FieldValues, Path, useForm } from "react-hook-form";
+import { FieldValues, useForm } from "react-hook-form";
 import { Input } from "../ui/input";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { z } from "zod";
@@ -18,7 +18,7 @@ import { ToggleButton } from "../Button/ToggleButton";
 
 type AddItemProps<T extends FieldValues> = {
   type: "Board"| "Task" | "List" | "Checklist" | "Item";
-  onSubmit: (data: T) => Promise<void>;
+  onSubmit: (data: {title: string}) => Promise<void>;
   query: UseMutationResult<any, Error | unknown, T>;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -35,9 +35,12 @@ export const AddItem = <T extends FieldValues>({
     title: z.string().min(2),
   });
 
-  const form = useForm<T>({
+  const form = useForm({
     mode: "onSubmit",
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+    }
   });
   const { isSuccess, isPending, isError, error } = query;
 
@@ -57,7 +60,7 @@ export const AddItem = <T extends FieldValues>({
           >
             <FormField
               control={form.control}
-              name={"title" as Path<T>}
+              name="title"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>

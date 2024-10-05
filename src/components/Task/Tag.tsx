@@ -11,7 +11,7 @@ export const Tag = ({
       : color === "green"
         ? "bg-green-300 text-green-800"
         : color === "orange"
-          ? "bg-red-300 text-red-800"
+          ? "bg-orange-300 text-orange-800"
           : "bg-gray-300 text-gray-800";
 
   return (

@@ -69,11 +69,11 @@ export const AddMember = ({
                   <Button
                     key={user.id}
                     onClick={() => handleSelectUser(user.id)}
-                    className="bg-transparent text-black justify-between w-full max-w-72 px-3 text-left h-15 shadow-none hover:bg-gray-200 gap-3"
+                    className=" relative bg-transparent text-black justify-between w-64 px-3 text-left h-15 shadow-none hover:bg-gray-200 gap-3"
                   >
                     <Member userId={user.id} type="list" />
                     {selectedUserIds.includes(user.id) && (
-                      <CircleCheck size={16} className="text-green-500" />
+                      <CircleCheck size={16} className="text-green-500 absolute right-2 -translate-y-1/2 top-1/2 z-10" />
                     )}
                   </Button>
                 ))}

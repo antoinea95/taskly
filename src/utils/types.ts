@@ -13,6 +13,7 @@ export type CheckListType = {
   id: string;
   title: string;
   createdAt: number;
+  items?: CheckListItemType[];
 }
 
 export type CheckListItemType = {

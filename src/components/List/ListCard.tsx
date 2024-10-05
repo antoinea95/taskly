@@ -6,10 +6,9 @@ import { TaskCard } from "../Task/TaskCard";
 import { AddItem } from "../Form/AddItem";
 import {
   useAddDoc,
-  useFirestoreMutation,
+  useDeleteDoc,
   useUpdateDoc,
 } from "@/firebase/mutateHook";
-import FirestoreApi from "@/firebase/FirestoreApi";
 import { DeleteItem } from "../Form/DeleteItem";
 import { UpdateTitle } from "../Form/UpdateTitle";
 
@@ -21,7 +20,6 @@ export const ListCard = ({
   boardId: string;
 }) => {
   const [isAddTask, setIsAddTask] = useState(false);
-
   const { setNodeRef } = useDroppable({ id: list.id, data: { type: "list" } });
 
   const memoizedTasks = useMemo(() => {
@@ -32,11 +30,7 @@ export const ListCard = ({
 
   const createTask = useAddDoc<TaskType>("tasks", "tasks", list.id);
   const updateList = useUpdateDoc<ListType>("lists", "lists", list.id, boardId);
-
-  const deleteList = useFirestoreMutation(
-    () => FirestoreApi.deleteList(list.id),
-    ["lists", boardId]
-  );
+  const deleteList = useDeleteDoc("lists", "lists", list.id, boardId);
 
   const onSubmit = async (data: { title: string }) => {
     createTask.mutate(

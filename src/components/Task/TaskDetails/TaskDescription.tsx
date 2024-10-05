@@ -5,16 +5,17 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useUpdateDoc } from "@/firebase/mutateHook";
 import { TaskType } from "@/utils/types";
 import { Loader } from "../../ui/loader";
+import { UseMutationResult } from "@tanstack/react-query";
 
 export const TaskDescription = ({
-  taskId,
   description,
+  query,
 }: {
-  taskId: string;
+  query: UseMutationResult<any, unknown, Partial<TaskType>>
   description?: string;
+  
 }) => {
   const [isUpdate, setIsUpdate] = useState(false);
   const schema = z.object({
@@ -37,10 +38,9 @@ export const TaskDescription = ({
     resolver: zodResolver(schema),
   });
 
-  const updateTask = useUpdateDoc<TaskType>("tasks","tasks", taskId);
 
   const onSubmit =  (data: Partial<TaskType>) => {
-    updateTask.mutate({
+    query.mutate({
       description: data.description,
     }, {
         onSuccess: () => {
@@ -73,7 +73,7 @@ export const TaskDescription = ({
           )}
           <div className="flex items-center justify-between gap-2">
           <Button className="flex-1 min-w-32 rounded-xl flex items-center justify-center" type="submit">
-            {updateTask.isPending ? (
+            {query.isPending ? (
               <Loader data={{ color: "white", size: "1rem" }} />
             ) : (
               "Save"

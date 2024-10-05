@@ -1,176 +1,131 @@
 import { useQuery } from "@tanstack/react-query";
 import FirestoreApi from "./FirestoreApi";
-import { BoardType, CheckListItemType, CheckListType, ListType, TaskType, UserType } from "@/utils/types";
-import { documentId, query, where } from "firebase/firestore";
+import {
+  BoardType,
+  CheckListItemType,
+  CheckListType,
+  ListType,
+  TaskType,
+  UserType,
+} from "@/utils/types";
+import {
+  CollectionReference,
+  documentId,
+  where,
+  query as firestoreQuery,
+} from "firebase/firestore";
 
+interface FirestoreQueryParams<T> {
+  collectionName: string;
+  queryKey: any[];
+  queryFn?: (colRef: CollectionReference) => any;
+  documentId?: string;
+  transformFn?: (data: T[]) => T[]; // Optionnel, pour transformer les données si besoin
+  enabled?: boolean;
+}
 
-export const useGetUsers = () => {
+export const useFirestoreQuery = <T,>({
+  collectionName,
+  queryKey,
+  queryFn,
+  documentId,
+  transformFn,
+  enabled = true,
+}: FirestoreQueryParams<T>) => {
+  const cacheKey = queryKey;
+
   return useQuery({
-    queryKey: ["users"], // Ajoute userId dans la clé de la requête pour éviter des doublons
-    queryFn: () => {
-
-      return new Promise<UserType[]>((resolve) => {
-        const unsubscribe = FirestoreApi.subscribeToCollection<UserType>({
-          collectionName: "users",
-          callback: (users) => resolve(users),
-          errorMessage: "Error while getting users",
+    queryKey: cacheKey,
+    queryFn: async () => {
+      if (documentId) {
+        const doc = await FirestoreApi.fetchDoc<T>({
+          collectionName,
+          documentId,
         });
+        if (!doc) {
+          throw new Error(`Document with ID ${documentId} not found`);
+        }
+        return doc as T;
+      } else {
+        // Sinon, on fait une requête sur la collection
+        return new Promise<T>((resolve) => {
+          const unsubscribe = FirestoreApi.subscribeToCollection<T>({
+            collectionName,
+            queryFn: queryFn
+              ? (colRef) => firestoreQuery(colRef, ...queryFn(colRef))
+              : undefined,
+            callback: (data) => resolve(transformFn ? transformFn(data) as T : data as T),
+            errorMessage: `Error while getting data from ${collectionName}`,
+          });
 
-        return () => unsubscribe;
-      });
+          return () => unsubscribe;
+        });
+      }
     },
     staleTime: Infinity,
+    enabled, // Permet de conditionner l'exécution (utile pour les ID optionnels)
   });
 };
 
-export const useGetBoards = (userId: string) => {
-  return useQuery({
-    queryKey: ["boards", userId], // Ajoute userId dans la clé de la requête pour éviter des doublons
-    queryFn: () => {
-      if (!userId) {
-        return Promise.resolve([]); // Si userId est indéfini ou null, retourne un tableau vide
-      }
+export const useGetUsers = () => {
+  return useFirestoreQuery<UserType>({
+    collectionName: "users",
+    queryKey: ["users"],
+  });
+};
 
-      return new Promise<BoardType[]>((resolve) => {
-        const unsubscribe = FirestoreApi.subscribeToCollection<BoardType>({
-          collectionName: "boards",
-          queryFn: (colRef) =>
-            query(colRef, where("members", "array-contains", userId)),
-          callback: (boards) => resolve(boards),
-          errorMessage: "Error while getting boards",
-        });
-
-        return () => unsubscribe;
-      });
-    },
-    staleTime: Infinity,
+export const useGetBoards = (userId?: string) => {
+  return useFirestoreQuery<BoardType[]>({
+    collectionName: "boards",
+    queryKey: ["boards", userId],
+    queryFn: () => [where("members", "array-contains", userId)],
+    enabled: !!userId, // Ne fait la requête que si userId est défini
   });
 };
 
 export const useGetLists = (boardId?: string) => {
-  return useQuery({
+  return useFirestoreQuery<ListType[]>({
+    collectionName: "lists",
     queryKey: ["lists", boardId],
-    queryFn: () => {
-      if (!boardId) {
-        return Promise.resolve([]);
-      }
-      return new Promise<ListType[]>((resolve) => {
-        const unsubscribe = FirestoreApi.subscribeToCollection<ListType>({
-          collectionName: "lists",
-          queryFn: (colRef) => query(colRef, where("boardId", "==", boardId)),
-          callback: (lists) => resolve(lists),
-          errorMessage: "Error while getting lists",
-        });
-
-        return () => unsubscribe;
-      });
-    },
-    staleTime: Infinity,
-  });
-};
-
-export const useGetTasks = (taskIds: string[], listId: string) => {
-  return useQuery({
-    queryKey: ["tasks", listId],
-    queryFn: () => {
-      return new Promise<TaskType[]>((resolve) => {
-        if (taskIds.length === 0) {
-          resolve([]);
-          return;
-        }
-
-        const unsubscribe = FirestoreApi.subscribeToCollection<TaskType>({
-          collectionName: "tasks",
-          queryFn: (colRef) => query(colRef, where(documentId(), "in", taskIds)),
-          callback: (lists) => resolve(lists),
-          errorMessage: "Error while getting tasks",
-        });
-
-        return () => unsubscribe;
-      });
-    },
-    staleTime: Infinity,
+    queryFn: () => [where("boardId", "==", boardId)],
+    enabled: !!boardId,
   });
 };
 
 export const useGetChecklists = (taskId: string) => {
-  return useQuery({
+  return useFirestoreQuery<CheckListType[]>({
+    collectionName: `tasks/${taskId}/checklists`,
     queryKey: ["checklists", taskId],
-    queryFn: () => {
-      return new Promise<CheckListType[]>((resolve) => {
-        const unsubscribe = FirestoreApi.subscribeToCollection<CheckListType>({
-          collectionName: `tasks/${taskId}/checklists`,
-          callback: (checklists) => resolve(checklists),
-          errorMessage: "Error while getting checklists",
-        });
-
-        return () => unsubscribe;
-      });
-    },
-    staleTime: Infinity,
+    enabled: !!taskId,
   });
 };
 
 export const useGetChecklistItems = (taskId: string, checklistId: string) => {
-  return useQuery({
+  return useFirestoreQuery<CheckListItemType[]>({
+    collectionName: `tasks/${taskId}/checklists/${checklistId}/items`,
     queryKey: ["checklistItems", checklistId],
-    queryFn: () => {
-      return new Promise<CheckListItemType[]>((resolve) => {
-        const unsubscribe = FirestoreApi.subscribeToCollection<CheckListItemType>({
-          collectionName: `tasks/${taskId}/checklists/${checklistId}/items`,
-          callback: (checklistItems) => resolve(checklistItems),
-          errorMessage: "Error while getting checklists",
-        });
-
-        return () => unsubscribe;
-      });
-    },
-    staleTime: Infinity,
+    enabled: !!taskId,
   });
 };
 
-export const useGetTask = (taskId: string) => {
-
-  // Vérification que taskId est valide
-  if (!taskId) {
-    throw new Error("Invalid task ID provided"); // Lance une erreur si l'ID de la tâche est manquant
-  }
-
-  return useQuery<TaskType>({
-    queryKey: ["tasks", taskId],
-    queryFn: () =>
-      new Promise<TaskType>((resolve, reject) => {
-        const unsubscribe = FirestoreApi.subscribeToDocument<TaskType>({
-          collectionName: "tasks",
-          documentId: taskId,
-          callback: (task) => {
-            if (task) {
-              resolve(task);
-            } else {
-              reject(new Error(`Task with ID ${taskId} not found`));
-            }
-          },
-          errorMessage: "Error getting task",
-        });
-        return () => unsubscribe;
-      }),
-    staleTime: Infinity,
+export const useGetTasks = (taskIds: string[], listId: string) => {
+  return useFirestoreQuery<TaskType[]>({
+    collectionName: "tasks",
+    queryKey: ["tasks", listId],
+    queryFn: () => [where(documentId(), "in", taskIds)],
   });
 };
 
-export const useGetDoc = <T,>(collectionName: string, id: string) => {
-  return useQuery<T>({
-    queryKey: [collectionName.endsWith('s') ? collectionName.slice(0, -1) : collectionName, id],
-    queryFn: async () => {
-      if (!id) {
-        throw new Error("Document ID must be provided"); // Lance une erreur si l'ID est absent
-      }
-      const doc : Awaited<T> | null = await FirestoreApi.fetchDoc({ collectionName, documentId: id });
-      if (!doc) {
-        throw new Error(`Document with ID ${id} not found`); // Lance une erreur si le document n'existe pas
-      }
-      return doc; // Retourne le document
-    },
-    staleTime: Infinity,
+export const useGetDoc = <T,>(collectionName: string, id?: string) => {
+  return useFirestoreQuery<T>({
+    collectionName: collectionName,
+    documentId: id,
+    queryKey: [
+      collectionName.endsWith("s")
+        ? collectionName.slice(0, -1)
+        : collectionName,
+      id,
+    ],
+    enabled: !!id,
   });
 };

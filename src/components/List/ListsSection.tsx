@@ -22,9 +22,9 @@ import { useAddDoc } from "@/firebase/mutateHook";
 import { useDragAndDropZone } from "./useDragAndDropZone";
 
 export const ListsSection = ({ boardId }: { boardId: string }) => {
-  const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } =
-    useDragMouse();
+  const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } = useDragMouse();
   const { data: lists, isFetched } = useGetLists(boardId);
+  const createList = useAddDoc<ListType>("lists", "lists", boardId);
   const [isAddList, setIsAddList] = useState(false);
   const {handleDragStart, handleDragOver, handleDragEnd, activeTask} = useDragAndDropZone({lists: lists, boardId: boardId})
 
@@ -36,7 +36,6 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
     })
   );
   
-  const createList = useAddDoc<ListType>("lists", "lists", boardId);
 
   const onSubmit = async (data: {title: string}) => {
     createList.mutate(

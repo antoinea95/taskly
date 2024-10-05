@@ -334,7 +334,7 @@ export class FirestoreApi {
     firestoreFilterFn,
   }: {
     collectionName: string;
-    firestoreFilterFn: (colRef: CollectionReference) => any;
+    firestoreFilterFn?: (colRef: CollectionReference) => any;
   }): Promise<T[]> { // Changer le type de retour à T[]
     try {
       const colRef = collection(this.firebaseFirestore, collectionName);

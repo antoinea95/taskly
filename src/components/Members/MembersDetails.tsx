@@ -17,8 +17,8 @@ export const MembersDetails = ({
   isBoard
 }: {
   members: string[];
-  creator: string;
   query: UseMutationResult<any, unknown, Partial<BoardType | TaskType>>;
+  creator?: string;
   isBoard?: boolean
 }) => {
 
@@ -65,7 +65,7 @@ export const MembersDetails = ({
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <div>
+        <div className="h-10 flex items-center">
           <MembersAvatarList members={members}>
             {members.slice(0, 5).map((member) => (
               <Member key={member} userId={member} type="avatar" />
@@ -82,6 +82,7 @@ export const MembersDetails = ({
               type="list"
               creator={creator}
               handleDeleteMember={handleDeleteMember}
+              isTaskView={!isBoard}
             />
         ))}
         </div>

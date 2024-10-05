@@ -11,6 +11,7 @@ import { UpdateTitle } from "@/components/Form/UpdateTitle";
 export const TaskCheckList = ({
   taskId,
   checkList,
+
 }: {
   taskId: string;
   checkList: CheckListType;
@@ -20,6 +21,7 @@ export const TaskCheckList = ({
     checkList.id
   );
   const [completeBarWidth, setCompleteBarWidth] = useState<number | null>(null);
+  
   const addCheckListItems = useAddDoc<CheckListItemType>(
     "checklistItems",
     `tasks/${taskId}/checklists/${checkList.id}/items`,
@@ -53,6 +55,7 @@ export const TaskCheckList = ({
     deleteChecklist.mutate(["items"]);
   };
 
+
   useEffect(() => {
     if (checklistItems && isFetched) {
       if (checklistItems.length === 0) {
@@ -67,6 +70,7 @@ export const TaskCheckList = ({
       }
     }
   }, [checklistItems, isFetched]);
+
 
   return (
     <div className="space-y-3 rounded-xl my-2 relative p-4 border-2 border-gray-200">

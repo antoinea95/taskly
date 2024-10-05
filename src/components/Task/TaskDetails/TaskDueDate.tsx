@@ -9,11 +9,13 @@ import { Tag } from "../Tag";
 export const TaskDueDate = ({
   taskId,
   dueDate,
+  isCard,
 }: {
   taskId: string;
   dueDate: DateRange;
+  isCard?: boolean;
 }) => {
-  const updateTask = useUpdateDoc<TaskType>("tasks", "tasks", taskId);
+  const updateTask = useUpdateDoc<TaskType>("task", "tasks", taskId);
 
   const handleCheckedChange = async (checked: CheckedState) => {
     updateTask.mutate({
@@ -35,7 +37,7 @@ export const TaskDueDate = ({
     if (dueDate.completed) {
       return (
         <Tag color="green">
-            <Check size={14} />
+          <Check size={14} />
           Completed
         </Tag>
       );
@@ -45,42 +47,53 @@ export const TaskDueDate = ({
       const diffDays = Math.floor(
         (dueDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
       );
+      const formatDueDate = format(dueDateObj, "dd MMM.")
 
       if (diffDays < 0) {
         return (
-          <Tag color="orange">
+          <Tag color="red">
             <OctagonAlert size={14} />
-            Late
+            {isCard ? formatDueDate : "Late"}
           </Tag>
         );
       } else if (diffDays <= 3) {
         return (
           <Tag color="orange">
             <TriangleAlert size={14} />
-            Urgent
+            {isCard ? formatDueDate : "Urgent"}
           </Tag>
         );
       } else {
-        return null;
+        return isCard ? (
+          <Tag color="gray">{formatDueDate} </Tag>
+        ) : null;
       }
     }
   };
 
+  if (isCard) {
+    return <div className="flex items-center">{getTag()}</div>;
+  }
+
   return (
     <div className="flex flex-col px-3 gap-1">
-         <h3 className="flex items-center gap-2 font-medium text-sm">
+      <h3 className="flex items-center gap-2 font-medium text-sm">
         <CalendarIcon size={14} /> Deadline
       </h3>
       <div className="flex items-center justify-between bg-gray-50 rounded-xl w-fit p-3 hover:bg-gray-100">
-      <Checkbox
-            id="completed"
-            defaultChecked={dueDate.completed}
-            onCheckedChange={handleCheckedChange}
-            className="border-2 shadow-none flex items-center justify-center"
-          />
+        <Checkbox
+          id="completed"
+          defaultChecked={dueDate.completed}
+          onCheckedChange={handleCheckedChange}
+          className="border-2 shadow-none flex items-center justify-center"
+        />
         <div className="flex items-center">
-          <label htmlFor="completed" className="pl-3 cursor-pointer text-sm font-medium mr-4">
-           {dueDate.from && `${formatDate(dueDate.from)} - `}{formatDate(dueDate.to)}
+          <label
+            htmlFor="completed"
+            className="pl-3 cursor-pointer text-sm font-medium mr-4"
+          >
+            {dueDate.from && `${formatDate(dueDate.from)} - `}
+            {formatDate(dueDate.to)}
           </label>
         </div>
         {getTag()}
