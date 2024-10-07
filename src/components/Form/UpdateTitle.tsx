@@ -66,13 +66,13 @@ export const UpdateTitle = <T extends { title: string }>({
 
   // Définir la taille en fonction du headingLevel
   const headingSizeClass =
-    Heading === "h1" ? "text-4xl uppercase" : Heading === "h2" ? "text-4xl w-fit" : Heading === "h3" ? "text-xl" : "text-lg";
+    Heading === "h1" ? "text-4xl uppercase" : Heading === "h2" ? "text-4xl w-fit" : Heading === "h3" ? "text-normal" : "text-sm";
   const inputSizeClass =
     Heading === "h1"
       ? "h-14 text-4xl"
       : Heading === "h2"
         ? "h-14 text-4xl"
-        : Heading === "h3" ? "h-11 text-xl" : "h-11 text-lg";
+        : Heading === "h3" ? "h-11 text-normal" : "h-11 text-sm";
 
   return (
     <div onClick={() => setIsUpdate(true)} ref={divRef}>

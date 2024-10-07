@@ -1,4 +1,4 @@
-import { Calendar, X } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Checkbox } from "../../ui/checkbox";
 import { useForm } from "react-hook-form";
@@ -102,9 +102,7 @@ export const AddTaskDueDate = ({
             </div>
             <div className="flex items-center gap-2">
               <SubmitButton isLoading={false}>Add deadline</SubmitButton>
-              <CloseButton setIsOpen={setIsAddDate}>
-                <X size={16} />
-              </CloseButton>
+              <CloseButton setIsOpen={setIsAddDate} />
             </div>
           </form>
         </Form>

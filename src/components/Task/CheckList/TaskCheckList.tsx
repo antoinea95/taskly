@@ -75,10 +75,10 @@ export const TaskCheckList = ({
   return (
     <div className="space-y-3 rounded-xl my-2 relative p-4 border-2 border-gray-200">
       <div className="w-full space-y-3">
-        <div className="flex items-center justify-between gap-2 font-medium w-full">
+        <div className="flex items-center justify-between font-medium w-full">
           <div className="flex items-center gap-1">
-            <ListCheck />
-            <UpdateTitle name="Checklist" title={checkList.title} query={updateCheckList} headingLevel={"h4"} />
+            <ListCheck size={20} />
+            <UpdateTitle name="Checklist" title={checkList.title} query={updateCheckList} headingLevel={"h3"} />
           </div>
           <DeleteItem
             name="checklist"

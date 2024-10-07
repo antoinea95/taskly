@@ -1,6 +1,6 @@
 import { BoardType, TaskType } from "@/utils/types";
 import { useState } from "react";
-import { CircleCheck, X } from "lucide-react";
+import { CircleCheck } from "lucide-react";
 import { Input } from "../ui/input";
 import { Member } from "./Member";
 import { Button } from "../ui/button";
@@ -82,7 +82,7 @@ export const AddMember = ({
           <div className="flex items-center space-x-2">
             <Button
               onClick={handleAddMembers}
-              className="w-full"
+              className="w-full rounded-xl"
               disabled={selectedUserIds.length === 0}
             >
               {query.isPending ? (
@@ -93,9 +93,7 @@ export const AddMember = ({
                 "Select members"
               )}
             </Button>
-            <CloseButton setIsOpen={setIsOpen}>
-              <X size={16} />
-            </CloseButton>
+            <CloseButton setIsOpen={setIsOpen} />
           </div>
         </div>
       )}

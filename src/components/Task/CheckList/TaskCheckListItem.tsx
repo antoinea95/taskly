@@ -46,7 +46,7 @@ export const TaskCheckListItem = ({
 
 
   return (
-    <div className="flex justify-between items-center py-2 rounded-xl hover:bg-gray-100">
+    <div className="flex justify-between items-center p-2 rounded-xl hover:bg-gray-100">
       <div className="flex items-center w-full">
         <Checkbox
           id={item.title}

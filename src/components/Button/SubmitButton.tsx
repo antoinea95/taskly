@@ -10,7 +10,7 @@ export const SubmitButton = ({
     <Button
       type="submit"
       disabled={isLoading}
-      className="px-3 rounded-xl flex-1 h-10"
+      className="px-3 rounded-xl w-fit h-10"
     >
       {isLoading ? (
         <Loader data={{ color: "white", size: "1rem" }} />

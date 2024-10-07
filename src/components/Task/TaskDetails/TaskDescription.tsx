@@ -53,7 +53,7 @@ export const TaskDescription = ({
   return (
     <div className="flex flex-col gap-3 my-2">
       <h3 className="flex items-center gap-2 font-medium">
-        <PenLine />
+        <PenLine size={20} />
         Description
       </h3>
       {!isUpdate ? (

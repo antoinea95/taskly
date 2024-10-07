@@ -33,7 +33,7 @@ export const useFirestoreQuery = <T,>({
   enabled = true,
 }: FirestoreQueryParams<T>) => {
   const cacheKey = queryKey;
-
+  
   return useQuery({
     queryKey: cacheKey,
     queryFn: async () => {

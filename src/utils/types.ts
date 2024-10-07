@@ -9,6 +9,17 @@ export type UserType = {
   photoURL?: string
 }
 
+export type TaskTagType = {
+  name: string,
+  color: string
+}
+
+export type TaskCommentType = {
+  userId: string,
+  title: string,
+  createdAt: number
+}
+
 export type CheckListType = {
   id: string;
   title: string;
@@ -35,8 +46,8 @@ export type TaskType = {
     title: string;
     description?: string;
     dueDate?: DateRange;
-    labels?: string[];
-    comments?: Comment[];
+    labels?: TaskTagType[];
+    comments?: TaskCommentType[];
     members?: string[];
     createdAt: number;
   };

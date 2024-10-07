@@ -27,7 +27,9 @@ export const TaskCheckListSection = ({
       queryKey: ["checklistItems", checklist.id],
       queryFn: () => fetchChecklistItems(checklist.id),
       staleTime: Infinity,
-    })),
+    }),
+    
+  ),
   });
 
   const itemsData = fetchedItemsData.flatMap((result) => result.data || []);
