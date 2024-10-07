@@ -5,18 +5,13 @@ export const Tag = ({
   color,
 }: PropsWithChildren<{ color: string }>) => {
 
-  const colorClass =
-    color === "red"
-      ? "bg-red-300 text-red-800"
-      : color === "green"
-        ? "bg-green-300 text-green-800"
-        : color === "orange"
-          ? "bg-orange-300 text-orange-800"
-          : "bg-gray-300 text-gray-800";
-
+  
   return (
     <span
-      className={`uppercase font-bold px-2 py-1 rounded-lg text-xs flex items-center gap-1 ${colorClass}`}
+      className={`uppercase font-bold px-2 py-1 rounded-lg text-[10px] flex items-center gap-1`}
+      style={{
+        backgroundColor: color
+      }}
     >
       {children}
     </span>

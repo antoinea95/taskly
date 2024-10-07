@@ -2,9 +2,16 @@ import { DateRange, TaskType } from "@/utils/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useUpdateDoc } from "@/firebase/mutateHook";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import { CalendarIcon, Check, OctagonAlert, TriangleAlert } from "lucide-react";
+import {
+  CalendarIcon,
+  Check,
+  Clock,
+  OctagonAlert,
+  TriangleAlert,
+} from "lucide-react";
 import { format } from "date-fns";
 import { Tag } from "../Tag";
+import { TaskHeaderItem } from "../TaskHeaderItem";
 
 export const TaskDueDate = ({
   taskId,
@@ -36,7 +43,7 @@ export const TaskDueDate = ({
   const getTag = () => {
     if (dueDate.completed) {
       return (
-        <Tag color="green">
+        <Tag color="#4ade80">
           <Check size={14} />
           Completed
         </Tag>
@@ -47,25 +54,28 @@ export const TaskDueDate = ({
       const diffDays = Math.floor(
         (dueDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
       );
-      const formatDueDate = format(dueDateObj, "dd MMM.")
+      const formatDueDate = format(dueDateObj, "dd MMM.");
 
       if (diffDays < 0) {
         return (
-          <Tag color="red">
-            <OctagonAlert size={14} />
+          <Tag color="#f87171">
+            <OctagonAlert size={12} />
             {isCard ? formatDueDate : "Late"}
           </Tag>
         );
       } else if (diffDays <= 3) {
         return (
-          <Tag color="orange">
-            <TriangleAlert size={14} />
+          <Tag color="#fb923c">
+            <TriangleAlert size={12} />
             {isCard ? formatDueDate : "Urgent"}
           </Tag>
         );
       } else {
         return isCard ? (
-          <Tag color="gray">{formatDueDate} </Tag>
+          <Tag color="#9ca3af">
+            <Clock size={12} />
+            {formatDueDate}
+          </Tag>
         ) : null;
       }
     }
@@ -76,28 +86,23 @@ export const TaskDueDate = ({
   }
 
   return (
-    <div className="flex flex-col px-3 gap-1">
-      <h3 className="flex items-center gap-2 font-medium text-sm">
-        <CalendarIcon size={14} /> Deadline
-      </h3>
-      <div className="flex items-center justify-between bg-gray-50 rounded-xl w-fit p-3 hover:bg-gray-100">
-        <Checkbox
-          id="completed"
-          defaultChecked={dueDate.completed}
-          onCheckedChange={handleCheckedChange}
-          className="border-2 shadow-none flex items-center justify-center"
-        />
-        <div className="flex items-center">
-          <label
-            htmlFor="completed"
-            className="pl-3 cursor-pointer text-sm font-medium mr-4"
-          >
-            {dueDate.from && `${formatDate(dueDate.from)} - `}
-            {formatDate(dueDate.to)}
-          </label>
-        </div>
-        {getTag()}
+    <TaskHeaderItem title="Deadline" icon={CalendarIcon} isAction>
+      <Checkbox
+        id="completed"
+        defaultChecked={dueDate.completed}
+        onCheckedChange={handleCheckedChange}
+        className="border-2 shadow-none flex items-center justify-center"
+      />
+      <div className="flex items-center">
+        <label
+          htmlFor="completed"
+          className="pl-1 cursor-pointer text-xs font-medium mr-1"
+        >
+          {dueDate.from && `${formatDate(dueDate.from)} - `}
+          {formatDate(dueDate.to)}
+        </label>
       </div>
-    </div>
+      {getTag()}
+    </TaskHeaderItem>
   );
 };

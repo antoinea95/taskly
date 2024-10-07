@@ -65,7 +65,7 @@ export const MembersDetails = ({
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <div className="h-10 flex items-center">
+        <div className="flex items-center">
           <MembersAvatarList members={members}>
             {members.slice(0, 5).map((member) => (
               <Member key={member} userId={member} type="avatar" />

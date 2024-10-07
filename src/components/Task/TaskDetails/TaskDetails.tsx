@@ -9,13 +9,16 @@ import { useParams } from "react-router-dom";
 import { DeleteItem } from "../../Form/DeleteItem";
 import { AddTaskDueDate } from "../../Form/DueDate/AddTaskDueDate";
 import { AddMember } from "../../Members/AddMember";
-import { List, Users } from "lucide-react";
+import { List, Tag, Users } from "lucide-react";
 import { UpdateTitle } from "@/components/Form/UpdateTitle";
 import { TaskDueDate } from "./TaskDueDate";
 import { MembersDetails } from "@/components/Members/MembersDetails";
 import { TaskCheckListSection } from "../CheckList/TaskCheckListSection";
 import { TaskCommentsSection } from "../Comments/TaskCommentsSection";
 import { useAuth } from "@/firebase/authHook";
+import { AddLabel } from "../Label/AddLabel";
+import { Label } from "../Label/Label";
+import { TaskHeaderItem } from "../TaskHeaderItem";
 
 export const TaskDetails = ({
   task,
@@ -26,7 +29,7 @@ export const TaskDetails = ({
   setIsTaskOpen: Dispatch<SetStateAction<boolean>>;
   list: ListType;
 }) => {
-  const {currentUser} = useAuth();
+  const { currentUser } = useAuth();
   const { boardId } = useParams();
   const [isAddCheckList, setIsAddCheckList] = useState(false);
 
@@ -77,28 +80,30 @@ export const TaskDetails = ({
           query={updateTask}
           headingLevel={"h2"}
         />
-        <section className="flex items-center my-2 px-3">
-          <div className="flex flex-col gap-1 w-fit">
-            <p className="flex items-center gap-2 font-medium text-sm">
-              <List size={14} /> List
-            </p>
-            <span className="text-sm font-medium flex items-center justify-between bg-gray-50  rounded-xl w-fit p-3">
-              {list.title}
-            </span>
-          </div>
+        <section className="flex items-start my-2 gap-2">
+          <TaskHeaderItem title="List" icon={List}>
+            <span className="text-sm font-medium">{list.title}</span>
+          </TaskHeaderItem>
           {task.dueDate && (
             <TaskDueDate dueDate={task.dueDate} taskId={task.id} />
           )}
           {task.members && task.members.length > 0 && board.data && (
-            <div className="flex flex-col gap-1 w-fit animate-fade-in">
-              <p className="flex items-center gap-2 font-medium text-sm">
-                <Users size={14} /> Members
-              </p>
-              <div className="bg-gray-50 rounded-xl h-11 flex items-center justify-center p-3">
+            <TaskHeaderItem title="Members" icon={Users}>
               <MembersDetails members={task.members} query={updateTask} />
-              </div>
-            </div>
+            </TaskHeaderItem>
           )}
+          {task.labels && task.labels.length > 0 &&
+          <TaskHeaderItem title="Labels" icon={Tag}>
+                {task.labels.map((label, index) => (
+                  <Label
+                    key={index}
+                    label={label}
+                    labels={task.labels}
+                    query={updateTask}
+                  />
+                ))}
+          </TaskHeaderItem>}
+          
         </section>
       </header>
       <section className="grid grid-cols-5 grid-rows-2 gap-5 px-4 h-fit">
@@ -108,6 +113,7 @@ export const TaskDetails = ({
         </div>
         <div className="h-fit col-span-2 relative">
           <div className="rounded-xl w-full sticky top-0 right-0 flex flex-col gap-3">
+            <AddLabel labels={task.labels} query={updateTask} />
             {board.data && (
               <AddMember
                 members={task.members ? task.members : []}
@@ -133,7 +139,13 @@ export const TaskDetails = ({
             />
           </div>
         </div>
-        {currentUser && <TaskCommentsSection comments={task.comments} query={updateTask} userId={currentUser.id} />}
+        {currentUser && (
+          <TaskCommentsSection
+            comments={task.comments}
+            query={updateTask}
+            userId={currentUser.id}
+          />
+        )}
       </section>
     </ScrollArea>
   );

@@ -10,7 +10,7 @@ export type UserType = {
 }
 
 export type TaskTagType = {
-  name: string,
+  title: string,
   color: string
 }
 

@@ -4,7 +4,7 @@ import { Input } from "../ui/input";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { z } from "zod";
 import { UseMutationResult } from "@tanstack/react-query";
-import { Pen, Plus } from "lucide-react";
+import { Pen, Plus, Tag } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -57,7 +57,7 @@ export const AddItem = <T extends FieldValues>({
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={`flex gap-2 w-full p-3 rounded-xl animate-fade-in 
-          ${setIsOpen ? type === "Checklist" ? "bg-gray-50 flex-col" : "bg-white flex-col" : "flex-row items-center"}
+          ${setIsOpen ? (type === "Checklist" || type === "Label") ? "bg-gray-50 flex-col" : "bg-white flex-col" : "flex-row items-center"}
           `}
       >
         <FormField
@@ -67,7 +67,7 @@ export const AddItem = <T extends FieldValues>({
             <FormItem className="flex-1">
               <FormControl>
                 <Input
-                  placeholder={`${value ? "Update" : "Add"} a ${type.toLowerCase()}`}
+                  placeholder={`${type}`}
                   {...field}
                   type="text"
                   className="h-10 rounded-xl border-none shadow-none bg-gray-200"
@@ -80,7 +80,7 @@ export const AddItem = <T extends FieldValues>({
         <div
           className={`flex items-center gap-2 ${setIsOpen ? "w-full" : "w-fit"}`}
         >
-          <SubmitButton isLoading={isPending}>
+          <SubmitButton isLoading={type === "Comment" ? false : isPending} disabled={form.getValues().title.length === 0}>
             <span className="flex items-center gap-2">
               {value ? <Pen size={16} /> : <Plus size={16} />}
               {value ? "Update" : "Add"} {type.toLowerCase()}
@@ -105,7 +105,7 @@ export const AddItem = <T extends FieldValues>({
       renderForm()
     ) : (
       <ToggleButton setIsOpen={setIsOpen}>
-        <Plus size={16} />
+        {type === "Label" ? <Tag size={16}/> : <Plus size={16} />}
         Add a {type.toLowerCase()}
       </ToggleButton>
     )

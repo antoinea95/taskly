@@ -5,11 +5,12 @@ import { Loader } from "../ui/loader";
 export const SubmitButton = ({
   isLoading,
   children,
-}: PropsWithChildren<{ isLoading: boolean }>) => {
+  disabled
+}: PropsWithChildren<{ isLoading: boolean, disabled: boolean}>) => {
   return (
     <Button
       type="submit"
-      disabled={isLoading}
+      disabled={disabled}
       className="px-3 rounded-xl w-fit h-10"
     >
       {isLoading ? (
