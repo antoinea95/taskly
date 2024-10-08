@@ -50,17 +50,31 @@ export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = FirestoreApi.getAuthInstance().onAuthStateChanged(
+    // Fonction pour souscrire aux changements de l'utilisateur authentifié
+    const unsubscribeAuth = FirestoreApi.getAuthInstance().onAuthStateChanged(
       async (user: User | null) => {
-        if(user) {
-          const fireStoreUser : UserType | null = await FirestoreApi.fetchDoc({collectionName: "users", documentId: user.uid})
-          setCurrentUser(fireStoreUser);
+        if (user) {
+          const unsubscribeUserData = FirestoreApi.subscribeToDocument<UserType>({
+            collectionName: "users",
+            documentId: user.uid,
+            callback: (fireStoreUser) => {
+              setCurrentUser(fireStoreUser);
+              setIsLoading(false);
+            },
+            errorMessage: "Erreur lors de la récupération des données utilisateur.",
+          });
+          return () => {
+            unsubscribeUserData();
+          };
+        } else {
+          setCurrentUser(null);
           setIsLoading(false);
         }
       }
     );
-
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+    };
   }, []);
 
   return { currentUser, isLoading };

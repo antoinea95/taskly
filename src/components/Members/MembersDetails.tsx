@@ -17,7 +17,7 @@ export const MembersDetails = ({
   isBoard
 }: {
   members: string[];
-  query: UseMutationResult<any, unknown, Partial<BoardType | TaskType>>;
+  query: UseMutationResult<any, unknown, Partial<BoardType | TaskType> | undefined>;
   creator?: string;
   isBoard?: boolean
 }) => {

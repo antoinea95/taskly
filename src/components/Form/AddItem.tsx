@@ -20,7 +20,7 @@ type AddItemProps<T extends FieldValues> = {
   type: string;
   value?: string;
   onSubmit: (data: { title: string }) => Promise<void>;
-  query: UseMutationResult<any, Error | unknown, T>;
+  query: UseMutationResult<any, Error | unknown, T | undefined>;
   isOpen?: boolean;
   setIsOpen?: Dispatch<SetStateAction<boolean>>;
 };

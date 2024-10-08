@@ -37,7 +37,7 @@ export const TaskCheckListSection = ({
 
   if (isCard && itemsData.length > 0 && checklists && checklists?.length > 0) {
     return (
-      <Tag color="#9ca3af">
+      <Tag color="#d1d5db">
         <CheckSquare size={12} />
           {itemsData.filter((item) => item.done).length}/{itemsData.length}
       </Tag>

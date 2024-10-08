@@ -86,7 +86,7 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
                 <ListCard list={list} boardId={boardId} />
               </SortableContext>
             ))}
-            <div className="mt-12 justify-end min-w-72">
+            <div className="min-w-72">
             <AddItem 
             type="List"
             onSubmit={onSubmit}
@@ -95,7 +95,6 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
             setIsOpen={setIsAddList}
             />
             </div>
-            
         </section>
       </section>
       <DragOverlay>

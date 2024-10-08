@@ -9,7 +9,7 @@ export const AddLabel = ({
   query,
 }: {
   labels?: TaskTagType[];
-  query: UseMutationResult<any, unknown, Partial<TaskType>>;
+  query: UseMutationResult<any, unknown, Partial<TaskType> | undefined>;
 }) => {
   const [isAddLabel, setIsAddLabel] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);

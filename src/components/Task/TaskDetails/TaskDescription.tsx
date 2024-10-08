@@ -13,7 +13,7 @@ export const TaskDescription = ({
   description,
   query,
 }: {
-  query: UseMutationResult<any, unknown, Partial<TaskType>>
+  query: UseMutationResult<any, unknown, Partial<TaskType> | undefined>
   description?: string;
   
 }) => {

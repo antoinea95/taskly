@@ -9,7 +9,7 @@ export const TaskCommentsSection = ({
   userId,
   query,
 }: {
-  query: UseMutationResult<any, unknown, Partial<TaskType>>;
+  query: UseMutationResult<any, unknown, Partial<TaskType> | undefined>;
   userId: string;
   comments?: TaskCommentType[];
 }) => {

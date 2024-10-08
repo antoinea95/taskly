@@ -91,7 +91,7 @@ export const TaskCard = ({
                 )}
                 <TaskCheckListSection taskId={task.id} isCard={true} />
                 {task.comments && task.comments.length > 0 && (
-                  <Tag color="#9ca3af">
+                  <Tag color="#d1d5db">
                     <MessageSquare size={12} />
                     {task.comments.length}
                   </Tag>

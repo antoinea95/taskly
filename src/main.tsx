@@ -9,6 +9,7 @@ import ErrorPage from "./error-page.tsx";
 import { BoardPage } from "./pages/BoardPage.tsx";
 import { LoginPage } from "./pages/LoginPage.tsx";
 import {HomePage} from "./pages/HomePage.tsx";
+import { ProfilePage } from "./pages/ProfilePage.tsx";
 
 
 const queryClient = new QueryClient({
@@ -40,6 +41,11 @@ const router = createBrowserRouter([
             <BoardPage />
         ),
       },
+      {
+        path: "/profile",
+        element: (
+          <ProfilePage />
+      )},
     ],
   },
   {

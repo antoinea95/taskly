@@ -72,7 +72,7 @@ export const TaskDueDate = ({
         );
       } else {
         return isCard ? (
-          <Tag color="#9ca3af">
+          <Tag color="#d1d5db">
             <Clock size={12} />
             {formatDueDate}
           </Tag>

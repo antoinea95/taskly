@@ -9,7 +9,7 @@ import { UseMutationResult } from "@tanstack/react-query";
 interface UpdateTitleProps<T extends { title: string }> {
   name: string;
   title: string;
-  query: UseMutationResult<any, unknown, Partial<T>>;
+  query: UseMutationResult<any, unknown, Partial<T> | undefined>;
   headingLevel?: ElementType;
 }
 

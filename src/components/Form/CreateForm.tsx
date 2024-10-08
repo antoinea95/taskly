@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FieldValues, Path, useForm } from "react-hook-form";
-import { ZodType } from "zod";
+import {FieldValues, Path, useForm } from "react-hook-form";
+import { z, ZodType } from "zod";
 import { Input } from "../ui/input";
 import { Loader } from "../ui/loader";
 import { Button } from "../ui/button";
@@ -18,10 +18,10 @@ import {
 
 type CreateFormProps<T extends FieldValues> = {
   schema: ZodType<Partial<T>>;
-  onSubmit: (data: T) => Promise<void>;
+  onSubmit: (data: Partial<T>) => Promise<void>;
   formContent: FormContent;
   buttonName: string;
-  query: UseMutationResult<any, Error | unknown, T>;
+  query: UseMutationResult<any, Error | unknown, T | undefined>;
 };
 
 export const CreateForm = <T extends FieldValues>({
@@ -31,7 +31,9 @@ export const CreateForm = <T extends FieldValues>({
   buttonName,
   query,
 }: CreateFormProps<T>) => {
-  const form = useForm<T>({
+  
+  // Utilisation dans `useForm`
+  const form = useForm<z.infer<typeof schema>>({
     mode: "onSubmit",
     resolver: zodResolver(schema),
   });
@@ -60,14 +62,15 @@ export const CreateForm = <T extends FieldValues>({
             <FormField
               key={index}
               control={form.control}
-              name={item.name as Path<T>}
+              name={item.name as Path<Partial<T>>}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{item.label}</FormLabel>
                   <FormControl>
                     <Input
                       placeholder={item.placeholder}
-                      {...field}
+                      onChange={field.onChange}
+                      defaultValue={item.value}
                       type={item.type}
                       className="h-10 rounded-xl bg-gray-200 border-none shadow-none"
                     />
@@ -80,7 +83,7 @@ export const CreateForm = <T extends FieldValues>({
         })}
         <Button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || Object.keys(form.getValues()).length === 0}
           className="uppercase py-6 rounded-xl w-full"
         >
           {isPending ? (

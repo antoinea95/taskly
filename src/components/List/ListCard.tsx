@@ -6,7 +6,7 @@ import { TaskCard } from "../Task/TaskCard";
 import { AddItem } from "../Form/AddItem";
 import {
   useAddDoc,
-  useDeleteDoc,
+  useDeleteList,
   useUpdateDoc,
 } from "@/firebase/mutateHook";
 import { DeleteItem } from "../Form/DeleteItem";
@@ -30,7 +30,7 @@ export const ListCard = ({
 
   const createTask = useAddDoc<TaskType>("tasks", "tasks", list.id);
   const updateList = useUpdateDoc<ListType>("lists", "lists", list.id, boardId);
-  const deleteList = useDeleteDoc("lists", "lists", list.id, boardId);
+  const deleteList = useDeleteList(boardId, list.id);
 
   const onSubmit = async (data: { title: string }) => {
     createTask.mutate(
@@ -50,13 +50,13 @@ export const ListCard = ({
   };
 
   const handleDelete = async () => {
-    deleteList.mutate([]);
+    deleteList.mutate();
   };
 
   return (
     <div ref={setNodeRef} className="h-fit min-w-72 w-fit px-3">
       {list && (
-        <Card className="shadow-none h-fit border-none bg-transparent min-h-96">
+        <Card className="shadow-none h-fit bg-transparent min-h-96 border-none">
           <CardHeader className="p-0 flex flex-col gap-3">
             <CardTitle className="text-xl font-normal flex items-center justify-between">
               <UpdateTitle name="List" title={list.title} query={updateList} headingLevel={"h3"} />

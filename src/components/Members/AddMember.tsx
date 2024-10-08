@@ -23,7 +23,7 @@ export const AddMember = ({
   board?: BoardType
   queryId: string;
   members: string[];
-  query: UseMutationResult<any, unknown, Partial<BoardType | TaskType>>;
+  query: UseMutationResult<any, unknown, Partial<BoardType | TaskType> | undefined>;
 }) => {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);

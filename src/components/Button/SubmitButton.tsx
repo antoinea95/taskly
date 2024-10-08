@@ -6,12 +6,12 @@ export const SubmitButton = ({
   isLoading,
   children,
   disabled
-}: PropsWithChildren<{ isLoading: boolean, disabled: boolean}>) => {
+}: PropsWithChildren<{ isLoading: boolean, disabled?: boolean}>) => {
   return (
     <Button
       type="submit"
       disabled={disabled}
-      className="px-3 rounded-xl w-fit h-10"
+      className="px-3 rounded-xl w-full h-10"
     >
       {isLoading ? (
         <Loader data={{ color: "white", size: "1rem" }} />

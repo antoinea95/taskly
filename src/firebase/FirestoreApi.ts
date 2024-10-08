@@ -1,4 +1,5 @@
 import { getFriendlyErrorMessage } from "@/utils/error";
+import { UserType } from "@/utils/types";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import {
   Auth,
@@ -30,6 +31,8 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import {FirebaseStorage, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+
 
 const app = initializeApp({
   apiKey: `${import.meta.env.VITE_FIREBASE_WEB_API_KEY}`,
@@ -46,11 +49,13 @@ export class FirestoreApi {
   private firebaseApp: FirebaseApp;
   private firebaseAuth: Auth;
   private firebaseFirestore: Firestore;
+  private firebaseStorage: FirebaseStorage;
 
   constructor() {
     this.firebaseApp = app;
     this.firebaseAuth = getAuth(this.firebaseApp);
     this.firebaseFirestore = getFirestore(this.firebaseApp);
+    this.firebaseStorage = getStorage(this.firebaseApp)
   }
 
   public getAuthInstance() {
@@ -129,6 +134,7 @@ export class FirestoreApi {
         this.firebaseAuth,
         googleProvider
       );
+      
       const user = userCredential.user;
 
       const existingUser = await this.fetchDoc({
@@ -136,13 +142,12 @@ export class FirestoreApi {
         documentId: user.uid,
       });
 
-      console.log(existingUser);
-
       if (!existingUser) {
         await this.addUserToFirestore(user);
       }
 
       return user;
+
     } catch (error: any) {
       console.error("Error during Google sign-in:", error);
       const friendlyError = getFriendlyErrorMessage(error.code);
@@ -181,6 +186,24 @@ export class FirestoreApi {
       console.error("Error creating document:", error);
       throw new Error("Failed to create document");
     }
+  }
+
+  public async ImportFile(file: File, userId: string) {
+
+    if(!file) return;
+    const storageRef = ref(this.firebaseStorage, `profile/${userId}/${file.name}`);
+
+    try {
+      await uploadBytes(storageRef, file);
+      const downloadUrl = await getDownloadURL(storageRef);
+      
+      await this.updateDocument<UserType>("users", {
+        photoURL: downloadUrl
+      }, userId);
+    } catch(error){
+      console.error('Error during file upload:', error);
+    }
+
   }
 
   public async updateDocument<T>(
@@ -267,34 +290,69 @@ export class FirestoreApi {
     }
   }
 
+  public async deleteTask(taskId: string): Promise<void> {
+    try {
+      const batch = writeBatch(this.firebaseFirestore);
+      const taskCollectionRef = doc(this.firebaseFirestore, "tasks", taskId);
+      await this.deleteSubCollections(taskCollectionRef, batch, [
+          "items",
+          "checklists",
+        ]);
+        batch.delete(taskCollectionRef);
+
+      await batch.commit();
+
+    } catch (error: any) {
+      console.error("Error deleting task:", error);
+      throw new Error("Failed to delete task");
+    }
+  }
+
+  public async deleteCheckList(checklistId: string, taskId: string): Promise<void> {
+    try {
+      const batch = writeBatch(this.firebaseFirestore);
+      const checklistCollectionRef = doc(this.firebaseFirestore, `tasks/${taskId}/checklists`, checklistId);
+      await this.deleteSubCollections(checklistCollectionRef, batch, [
+          "items",
+        ]);
+        batch.delete(checklistCollectionRef);
+
+      await batch.commit();
+
+    } catch (error: any) {
+      console.error("Error deleting checklist:", error);
+      throw new Error("Failed to delete checklist");
+    }
+  }
+
   private async deleteSubCollections(
     parentRef: DocumentReference,
     batch: WriteBatch,
-    subCollections: string[]
+    subCollections?: string[]
   ): Promise<void> {
-    for (const sub of subCollections) {
-      const subCollectionRef = collection(parentRef, sub);
-      const subDocs = await getDocs(subCollectionRef);
 
-      for (const item of subDocs.docs) {
-        await this.deleteSubCollections(item.ref, batch, subCollections); // Appel récursif
-        batch.delete(item.ref); // Ajoutez la suppression de l'item au batch ici
+    if(subCollections) {
+      for (const sub of subCollections) {
+        const subCollectionRef = collection(parentRef, sub);
+        const subDocs = await getDocs(subCollectionRef);
+        console.log(subCollections)
+  
+        for (const item of subDocs.docs) {
+          await this.deleteSubCollections(item.ref, batch, subCollections); // Appel récursif
+          batch.delete(item.ref); // Ajoutez la suppression de l'item au batch ici
+        }
       }
+
     }
   }
 
   public async deleteDocument(
     collectionName: string,
     id: string,
-    subCollections: string[]
   ): Promise<void> {
     try {
       const batch = writeBatch(this.firebaseFirestore);
       const docRef = doc(this.firebaseFirestore, collectionName, id);
-
-      if (subCollections.length > 0) {
-        await this.deleteSubCollections(docRef, batch, subCollections);
-      }
       batch.delete(docRef);
       await batch.commit();
     } catch (error: any) {

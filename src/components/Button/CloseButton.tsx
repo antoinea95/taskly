@@ -10,7 +10,7 @@ export const CloseButton = ({
   return (
     <Button
       type="button"
-      className={`w-fit h-10 px-3 rounded-xl bg-gray-200 text-black flex gap-2 shadow-none border-none hover:bg-gray-300 `}
+      className={`w-full h-10 px-3 rounded-xl bg-gray-200 text-black flex gap-2 shadow-none border-none hover:bg-gray-300 `}
       onClick={() => setIsOpen(false)}
     >
       <X size={16} /> Cancel

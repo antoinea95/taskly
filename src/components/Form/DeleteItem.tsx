@@ -12,16 +12,10 @@ export const DeleteItem = ({
 }: {
   name: string;
   isText: boolean;
-  handleDelete: () => void;
+  handleDelete: () => Promise<void>;
   isPending: boolean;
 }) => {
   const [confirm, setConfirm] = useState(false);
-
-
-  const deletingItem = () => {
-    handleDelete();
-    setConfirm(false);
-  }
 
   return (
     <Modal title={`Delete ${name}`}isModalOpen={confirm} setIsModalOpen={setConfirm}>
@@ -34,11 +28,11 @@ export const DeleteItem = ({
         <p>Are your sure you want to delete this {name} ?</p>
         <div className="flex w-3/4 m-auto  items-center gap-10">
           <Button
-            onClick={deletingItem}
+            onClick={handleDelete}
             className="rounded-xl border-none shadow-none w-full"
           >
             {isPending ? (
-              <Loader data={{ color: "black", size: "1rem" }} />
+              <Loader data={{ color: "white", size: "1rem" }} />
             ) : (
               "Yes"
             )}

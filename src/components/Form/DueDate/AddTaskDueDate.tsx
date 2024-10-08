@@ -17,7 +17,7 @@ export const AddTaskDueDate = ({
   query,
 }: {
   task: TaskType;
-  query: UseMutationResult<any, unknown, Partial<TaskType>>;
+  query: UseMutationResult<any, unknown, Partial<TaskType> | undefined>;
 }) => {
   const [isAddDate, setIsAddDate] = useState(false);
   const [isBeginDate, setIsBeginDate] = useState(false);

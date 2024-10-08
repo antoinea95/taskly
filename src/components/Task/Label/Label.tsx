@@ -11,7 +11,7 @@ export const Label = ({
 }: {
   labels?: TaskTagType[];
   label: TaskTagType;
-  query?: UseMutationResult<any, unknown, Partial<TaskType>>;
+  query?: UseMutationResult<any, unknown, Partial<TaskType> | undefined>;
 }) => {
   const handleDelete = () => {
     if (labels && query) {

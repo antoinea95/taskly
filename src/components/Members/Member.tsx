@@ -66,7 +66,7 @@ export const Member = ({
               {((isTaskView || isCurrentUserCreator) && !isCreator && handleDeleteMember) && (
                 <Button
                   onClick={() => handleDeleteMember(member.id)}
-                  className="absolute right-0 top-0 bg-red-50 w-fit h-fit py-2 gap-2 text-black border-none shadow-none hover:bg-red-500 hover:text-white text-[10px] px-3"
+                  className="absolute right-0 top-0 bg-gray-50 w-fit h-fit py-2 gap-2 text-black border-none shadow-none hover:bg-gray-300 text-[10px] px-3"
                 >
                   <UserMinus size={16} />
                 </Button>

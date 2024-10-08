@@ -77,4 +77,5 @@ export type FormContent = {
   placeholder: string, 
   label?: string;
   hidden?: boolean;
+  value?: string
 }[]

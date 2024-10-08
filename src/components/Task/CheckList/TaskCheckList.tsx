@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useGetChecklistItems } from "@/firebase/fetchHook";
 import { TaskCheckListItem } from "./TaskCheckListItem";
 import { AddItem } from "../../Form/AddItem";
-import { useAddDoc, useDeleteDoc, useUpdateDoc } from "@/firebase/mutateHook";
+import { useAddDoc, useDeleteChecklist, useUpdateDoc } from "@/firebase/mutateHook";
 import { DeleteItem } from "../../Form/DeleteItem";
 import { UpdateTitle } from "@/components/Form/UpdateTitle";
 
@@ -29,12 +29,7 @@ export const TaskCheckList = ({
   );
 
   const updateCheckList = useUpdateDoc<CheckListType>("checklists", `tasks/${taskId}/checklists`, checkList.id, taskId);
-  const deleteChecklist = useDeleteDoc(
-    "checklists",
-    `tasks/${taskId}/checklists`,
-    checkList.id,
-    taskId
-  );
+  const deleteChecklist = useDeleteChecklist(taskId, checkList.id);
 
   const [isAddItem, setisAddItem] = useState(false);
 
@@ -52,7 +47,7 @@ export const TaskCheckList = ({
   };
 
   const handleDeleteChecklist = async () => {
-    deleteChecklist.mutate(["items"]);
+    deleteChecklist.mutate();
   };
 
 

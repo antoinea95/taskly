@@ -17,7 +17,7 @@ export const TaskComment = ({
   comment: TaskCommentType;
   comments: TaskCommentType[];
   userId: string;
-  query: UseMutationResult<any, unknown, Partial<TaskType>>;
+  query: UseMutationResult<any, unknown, Partial<TaskType> | undefined>;
 }) => {
   const { data: user, isFetched } = useGetDoc<UserType>(
     "users",

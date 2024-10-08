@@ -1,24 +1,17 @@
-import { z } from "zod";
-import { CreateForm } from "../Form/CreateForm";
-import { BoardType, FormContent, ListType } from "@/utils/types";
+import { BoardType, ListType } from "@/utils/types";
 import { useAuth } from "@/firebase/authHook";
-import { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 import { useAddDoc } from "@/firebase/mutateHook";
+import { AddItem } from "../Form/AddItem";
 
-export const AddBoard = ({
-  setIsModalOpen,
-}: {
-  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
-}) => {
-  const BoardSchema = z.object({
-    title: z.string().min(2, "Please provide a title with at least 2 characters"),
-  });
+export const AddBoard = () => {
 
   const { currentUser } = useAuth();
   const createBoard = useAddDoc<BoardType>("boards", "boards");
   const createList = useAddDoc<ListType>("boards", "lists");
+  const [isAddBoard, setIsAddBoard] = useState(false);
 
-  const onSubmit = async (data: z.infer<typeof BoardSchema>) => {
+  const onSubmit = async (data: {title: string}) => {
     if (currentUser) {
       createBoard.mutate(
         {
@@ -29,7 +22,7 @@ export const AddBoard = ({
         },
         {
           onSuccess: async (boardId) => {
-            setIsModalOpen(false);
+            setIsAddBoard(false);
             const now = Date.now();
             const defaultLists: Omit<ListType, "id">[] = [
               { title: "To do", createdAt: now, boardId: boardId, tasks: [] },
@@ -55,19 +48,13 @@ export const AddBoard = ({
     }
   };
 
-  const formContent: FormContent = [
-    { name: "title", type: "text", placeholder: "Board title" },
-  ];
-
   return (
-    <div className="flex items-center justify-center py-10">
-      <CreateForm
-        schema={BoardSchema}
+      <AddItem
+        type="Board"
         onSubmit={onSubmit}
-        formContent={formContent}
-        buttonName="Create"
         query={createBoard}
+        isOpen={isAddBoard}
+        setIsOpen={setIsAddBoard}
       />
-    </div>
   );
 };

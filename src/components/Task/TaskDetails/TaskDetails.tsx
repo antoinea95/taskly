@@ -1,6 +1,6 @@
 import { BoardType, CheckListType, ListType, TaskType } from "@/utils/types";
 import { TaskDescription } from "./TaskDescription";
-import { useAddDoc, useDeleteDoc, useUpdateDoc } from "@/firebase/mutateHook";
+import { useAddDoc, useDeleteTask, useUpdateDoc } from "@/firebase/mutateHook";
 import { AddItem } from "../../Form/AddItem";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useGetDoc } from "@/firebase/fetchHook";
@@ -42,7 +42,7 @@ export const TaskDetails = ({
     `tasks/${task.id}/checklists`,
     task.id
   );
-  const deleteTask = useDeleteDoc("task", "tasks", task.id);
+  const deleteTask = useDeleteTask(task.id);
   const updateList = useUpdateDoc<ListType>("lists", "lists", list.id, boardId);
   const updateTask = useUpdateDoc<TaskType>("task", "tasks", task.id);
 
@@ -61,14 +61,12 @@ export const TaskDetails = ({
 
   // delete task
   const handleDelete = async () => {
-    deleteTask.mutate(["items", "checklists"], {
-      onSuccess: async () => {
-        updateList.mutate({
-          tasks: list.tasks.filter((taskId) => taskId !== task.id),
-        });
-        setIsTaskOpen(false);
-      },
+    await deleteTask.mutateAsync();
+    await updateList.mutateAsync({
+      tasks: list.tasks.filter((taskId) => taskId !== task.id),
     });
+
+    setIsTaskOpen(false);
   };
 
   return (
