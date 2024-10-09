@@ -5,7 +5,7 @@ import FirestoreApi from "./FirestoreApi";
 import { User } from "firebase/auth";
 import { UserType } from "@/utils/types";
 
-interface SignInData {
+export type SignInData =  {
   email: string;
   password: string;
   name?: string;

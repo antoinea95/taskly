@@ -36,7 +36,7 @@ export const Member = ({
 
   if (!isFetched) {
     if (type === "avatar") {
-      return <Skeleton className="w-10 h-10 rounded-full" />;
+      return <Skeleton className="w-8 h-8 rounded-full" />;
     } else {
       return (
         <div>
@@ -51,7 +51,7 @@ export const Member = ({
       {member && isFetched && (
         <div className="flex items-center gap-2">
           <Avatar className="w-8 h-8 rounded-full border-2">
-            <AvatarImage src={member?.photoURL} />
+            <AvatarImage src={member?.photoURL} className="object-cover w-full h-full bg-white" />
             <AvatarFallback>{fallback}</AvatarFallback>
           </Avatar>
           {type === "list" && (

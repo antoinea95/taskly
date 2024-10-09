@@ -71,8 +71,8 @@ export type BoardType = {
 export type InputType = 'text' | 'email' | 'password' | 'number' | 'textarea';
 
 
-export type FormContent = {
-  name: string, 
+export type FormContent<T extends string = string> = {
+  name: T, 
   type: InputType,
   placeholder: string, 
   label?: string;

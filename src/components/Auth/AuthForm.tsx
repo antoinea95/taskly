@@ -1,33 +1,44 @@
 import { useState } from "react";
 import { z } from "zod";
 import { CreateForm } from "../Form/CreateForm";
-import { useSign } from "@/firebase/authHook";
+import { SignInData, useSign } from "@/firebase/authHook";
 import { FormContent } from "@/utils/types";
 import { Button } from "../ui/button";
 import FirestoreApi from "@/firebase/FirestoreApi";
 import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { useMutation } from "@tanstack/react-query";
+import { StatusMessage } from "../Message/StatusMessage";
 
 export const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
   const sign = useSign();
   const navigate = useNavigate();
 
-  const UserSchema = z.object({
-    name: isLogin
-      ? z.string().optional()
-      : z.string().min(1, "Your name is required"),
-    email: z.string().email("Please provide a valid email"),
-    password: z
-      .string()
-      .min(8, "Your password must contain at least 8 characters"),
-  });
-
-  type UserForm = {
-    name?: string;
-    email: string;
-    password: string;
-  };
+  const UserSchema = z
+    .object({
+      name: isLogin
+        ? z.string().optional()
+        : z.string().min(1, "Your name is required"),
+      email: z.string().email("Please provide a valid email"),
+      password: z
+        .string()
+        .min(8, "Your password must contain at least 8 characters"),
+      confirmPassword: isLogin ? z.string().min(8).optional() : z.string().min(8),
+    })
+    .refine(
+      (data) => {
+        if (data.password && data.confirmPassword) {
+          return data.password === data.confirmPassword;
+        }
+        return true;
+      },
+      {
+        message: "Passwords don't match",
+        path: ["confirmPassword"],
+      }
+    );
 
   const authFormContent: FormContent = [
     { name: "name", type: "text", placeholder: "John Doe", label: "Name" },
@@ -38,24 +49,36 @@ export const AuthForm = () => {
       label: "Email",
     },
     { name: "password", type: "password", placeholder: "", label: "Password" },
+    {
+      name: "confirmPassword",
+      type: "password",
+      placeholder: "",
+      label: "Confirm your Password",
+    },
   ];
 
   const formContent = authFormContent.map((item) => {
-    if (item.name === "name" && isLogin) {
+    if ((item.name === "name" || item.name === "confirmPassword") && isLogin) {
       return { ...item, hidden: true };
     }
     return item;
   });
 
-  const onSubmit = async (values: UserForm) => {
-    if (isLogin) {
-      sign.mutate({ email: values.email, password: values.password });
+  const onSubmit = async (data: Partial<SignInData>) => {
+    const { email, password, name } = data;
+
+    if (email && password) {
+      if (isLogin) {
+        sign.mutate({ email, password });
+      } else {
+        sign.mutate({
+          email,
+          password,
+          name: name ?? "",
+        });
+      }
     } else {
-      sign.mutate({
-        email: values.email,
-        password: values.password,
-        name: values.name as string,
-      });
+      console.error("Email and password are required");
     }
   };
 
@@ -65,6 +88,29 @@ export const AuthForm = () => {
       navigate("/");
     } catch (error: any) {
       throw new Error(error);
+    }
+  };
+
+  const { mutateAsync, isSuccess, isError, error } = useMutation({
+    mutationFn: async (variables: { email: string }) => {
+      if (variables.email) {
+        try {
+          await sendPasswordResetEmail(getAuth(), variables.email);
+        } catch(error) {
+          console.error(error)
+          throw new Error("Email does not exist")
+        }
+      } else {
+        throw new Error("Please enter your email");
+      }
+    },
+  });
+
+  const resetPassword = async (email: string) => {
+    try {
+      await mutateAsync({ email: email });
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -88,14 +134,26 @@ export const AuthForm = () => {
           </button>
         </div>
       </section>
-      <section className="w-3/4">
-        <CreateForm
+      <section className="w-3/4 space-y-3 flex flex-col items-end">
+        <CreateForm<SignInData>
           schema={UserSchema}
           onSubmit={onSubmit}
           formContent={formContent}
           buttonName={isLogin ? "Log in" : "Create an account"}
           query={sign}
+          resetPassword={isLogin ? resetPassword : undefined}
         />
+        <StatusMessage
+          isError={isError}
+          isSucess={isSuccess}
+          content={
+            isSuccess
+              ? "Email sended"
+              : isError && error instanceof Error
+                ? error?.message
+                : ""
+          }
+        ></StatusMessage>
       </section>
       <section className="w-3/4 mt-6 flex flex-col items-center gap-4">
         <p className="uppercase flex items-center justify-between text-gray-400 w-full">

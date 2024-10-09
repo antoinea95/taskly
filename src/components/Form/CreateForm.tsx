@@ -1,9 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {FieldValues, Path, useForm } from "react-hook-form";
+import { FieldValues, Path, useForm } from "react-hook-form";
 import { z, ZodType } from "zod";
 import { Input } from "../ui/input";
-import { Loader } from "../ui/loader";
-import { Button } from "../ui/button";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FormContent } from "@/utils/types";
@@ -15,13 +13,17 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
+import { SubmitButton } from "../Button/SubmitButton";
+import { Button } from "../ui/button";
+import { StatusMessage } from "../Message/StatusMessage";
 
 type CreateFormProps<T extends FieldValues> = {
   schema: ZodType<Partial<T>>;
   onSubmit: (data: Partial<T>) => Promise<void>;
   formContent: FormContent;
   buttonName: string;
-  query: UseMutationResult<any, Error | unknown, T | undefined>;
+  query: UseMutationResult<any, Error | unknown, any>;
+  resetPassword?: (email: string) => Promise<void>;
 };
 
 export const CreateForm = <T extends FieldValues>({
@@ -30,8 +32,8 @@ export const CreateForm = <T extends FieldValues>({
   formContent,
   buttonName,
   query,
+  resetPassword,
 }: CreateFormProps<T>) => {
-  
   // Utilisation dans `useForm`
   const form = useForm<z.infer<typeof schema>>({
     mode: "onSubmit",
@@ -63,39 +65,59 @@ export const CreateForm = <T extends FieldValues>({
               key={index}
               control={form.control}
               name={item.name as Path<Partial<T>>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{item.label}</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={item.placeholder}
-                      onChange={field.onChange}
-                      defaultValue={item.value}
-                      type={item.type}
-                      className="h-10 rounded-xl bg-gray-200 border-none shadow-none"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                    <FormLabel>{item.label}</FormLabel>
+                    {resetPassword && item.name === "password" && (
+                        <Button
+                          className="rounded-xl border-none shadow-none w-fit h-fit p-0 bg-transparent underline text-black hover:bg-transparent"
+                          type="button"
+                          onClick={() =>
+                            resetPassword(form.getValues().email as string)
+                          }
+                        >
+                          Forgot your password ?
+                        </Button>
+                    )}
+                    </div>
+               
+                    <FormControl>
+                      <Input
+                        placeholder={item.placeholder}
+                        onChange={field.onChange}
+                        defaultValue={item.value}
+                        type={item.type}
+                        className="h-10 rounded-xl bg-gray-200 border-none shadow-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
           );
         })}
-        <Button
-          type="submit"
+        <SubmitButton
+          isLoading={query.isPending}
           disabled={isPending || Object.keys(form.getValues()).length === 0}
-          className="uppercase py-6 rounded-xl w-full"
         >
-          {isPending ? (
-            <Loader data={{ color: "white", size: "1rem" }} />
-          ) : (
-            buttonName
-          )}
-        </Button>
+          {buttonName}
+        </SubmitButton>
+        <StatusMessage
+          isError={isError}
+          isSucess={isSuccess}
+          content={
+            isError && error instanceof Error
+              ? error?.message
+              : isSuccess
+                ? ""
+                : ""
+          }
+        />
         {isError && (
-          <p className="text-sm font-bold w-fit text-red-500 self-center">
-            {error instanceof Error && error?.message}
-          </p>
+          <p className="text-sm font-bold w-fit text-red-500 self-center"></p>
         )}
       </form>
     </Form>
