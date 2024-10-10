@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { ListType, TaskType } from "@/utils/types";
 import { useDroppable } from "@dnd-kit/core";
 import { TaskCard } from "../Task/TaskCard";
-import { AddItem } from "../Form/AddItem";
+import { AddItem } from "../Form/AddForm";
 import {
   useAddDoc,
   useDeleteList,

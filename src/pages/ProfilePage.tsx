@@ -1,5 +1,5 @@
 import { reauthenticateUser } from "@/components/Auth/ReauthUser";
-import { CreateForm } from "@/components/Form/CreateForm";
+import { CreateForm } from "@/components/Form/FormContainer";
 import { DeleteItem } from "@/components/Form/DeleteItem";
 import { UpdatePassword } from "@/components/Form/Profile/UpdatePassword";
 import { UpdatePicture } from "@/components/Form/Profile/UpdatePicture";
@@ -9,7 +9,8 @@ import { useAuth } from "@/firebase/authHook";
 import { useGetBoards } from "@/firebase/fetchHook";
 import FirestoreApi from "@/firebase/FirestoreApi";
 import { useDeleteDoc, useUpdateDoc } from "@/firebase/mutateHook";
-import { BoardType, FormContent, UserType } from "@/utils/types";
+import { useDeleteAccount } from "@/utils/hooks/FirestoreHooks/auth/useDeleteAccount";
+import { FormContent, UserType } from "@/utils/types";
 import { useMutation } from "@tanstack/react-query";
 import { getAuth, updateEmail, User } from "firebase/auth";
 import { useEffect, useState } from "react";
@@ -29,10 +30,11 @@ export const ProfilePage = () => {
     currentUser?.id
   );
 
-  const deleteUser = useDeleteDoc("user", "users", currentUser?.id);
   const isGoogle = user?.providerData.some((item) => item.providerId === "google.com");
+  const deleteAccount = useDeleteAccount(currentUser.id, () => {
+    navigate("/login");
+  });
 
-  const boards = useGetBoards(currentUser?.id);
 
   const userSchema = z.object({
     name: z.string().min(2).optional(),
@@ -118,37 +120,6 @@ export const ProfilePage = () => {
     }
   }, [currentUser, isGoogle, isNeedPassword, isSuccess]);
   
-
-  const handleDeleteAccount = async () => {
-    if (!user) return;
-
-    try {
-      if (boards.isFetched && boards.data) {
-        await Promise.all(
-          boards.data.map(async (board) => {
-            if (board.creator === user.uid) {
-              await FirestoreApi.deleteBoard(board.id);
-            } else {
-              await FirestoreApi.updateDocument<BoardType>(
-                "boards",
-                {
-                  members: board.members.filter(
-                    (member) => member !== user.uid
-                  ),
-                },
-                board.id
-              );
-            }
-          })
-        );
-      }
-      await deleteUser.mutateAsync();
-      await user.delete();
-      navigate("/login");
-    } catch (error) {
-      console.error("Error deleting account:", error);
-    }
-  };
   return (
     <>
       {currentUser ? (
@@ -182,8 +153,8 @@ export const ProfilePage = () => {
               <DeleteItem
                 name="account"
                 isText
-                handleDelete={handleDeleteAccount}
-                isPending={deleteUser.isPending}
+                handleDelete={deleteAccount.mutateAsync}
+                isPending={deleteAccount.isPending}
                 isGoogle={isGoogle}
               />
             </div>

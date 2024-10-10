@@ -17,7 +17,7 @@ import { Card } from "../ui/card";
 import { ListType } from "@/utils/types";
 import { useDragMouse } from "@/utils/useDragMouse";
 import { ListSectionSkeleton } from "../skeletons";
-import { AddItem } from "../Form/AddItem";
+import { AddItem } from "../Form/AddForm";
 import { useAddDoc } from "@/firebase/mutateHook";
 import { useDragAndDropZone } from "./useDragAndDropZone";
 

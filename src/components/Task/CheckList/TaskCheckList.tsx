@@ -3,7 +3,7 @@ import { ListCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useGetChecklistItems } from "@/firebase/fetchHook";
 import { TaskCheckListItem } from "./TaskCheckListItem";
-import { AddItem } from "../../Form/AddItem";
+import { AddItem } from "../../Form/AddForm";
 import { useAddDoc, useDeleteChecklist, useUpdateDoc } from "@/firebase/mutateHook";
 import { DeleteItem } from "../../Form/DeleteItem";
 import { UpdateTitle } from "@/components/Form/UpdateTitle";

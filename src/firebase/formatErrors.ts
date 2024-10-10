@@ -3,15 +3,15 @@ export const getFriendlyErrorMessage = (errorCode: string) => {
     case "auth/invalid-credential":
       return "Your email or password is incorrect. If you have previously signed up with Google, please try signing in with your Google account.";
     case "auth/user-disabled":
-      return "Ce compte a été désactivé. Veuillez contacter le support.";
+      return "This account has been disabled";
     case "auth/user-not-found":
-      return "Aucun compte trouvé avec cette adresse e-mail.";
+      return "No account found with this email address.";
     case "auth/wrong-password":
-      return "Le mot de passe est incorrect. Veuillez réessayer.";
+      return "The password is incorrect. Please try again.";
     case "auth/internal-error":
-      return "The authentication server encountered an unexpected error, retry later";
+      return "The authentication server encountered an unexpected error, please retry later.";
     case "auth/email-already-in-use":
-      return "This email is already in use by another account";
+      return "This email is already in use by another account.";
     case "firestore/permission-denied":
       return "You do not have the necessary permission to perform this action.";
     case "firestore/not-found":
@@ -21,6 +21,6 @@ export const getFriendlyErrorMessage = (errorCode: string) => {
     case "network-request-failed":
       return "Network connection failed. Check your Internet connection.";
     default:
-      return `An error has occurred. Please try again = ${errorCode}`;
+      return `An error has occurred. Please try again. Error code: ${errorCode}`;
   }
 };

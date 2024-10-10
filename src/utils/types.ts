@@ -67,15 +67,3 @@ export type BoardType = {
     creator: string;
     createdAt: number;
   };
-
-export type InputType = 'text' | 'email' | 'password' | 'number' | 'textarea';
-
-
-export type FormContent<T extends string = string> = {
-  name: T, 
-  type: InputType,
-  placeholder: string, 
-  label?: string;
-  hidden?: boolean;
-  value?: string
-}[]

@@ -3,16 +3,13 @@ import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Member} from "../Members/Member";
 import { MembersAvatarList } from "../Members/MembersAvatarList";
+import { createdDate } from "@/utils/helpers/createdDate";
 
 
 export const BoardCard = ({ board }: { board: BoardType }) => {
+
   const navigate = useNavigate();
-  const createdDate = () => {
-   const date = new Date(board.createdAt);
-   const timeArray = date.toLocaleTimeString().split(":");
-   const time = `${timeArray[0]}:${timeArray[1]}`
-   return `${date.toLocaleDateString()} at ${time}`
-  }
+
 
   return (
     <Card
@@ -20,7 +17,7 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
       onClick={() => navigate(`/${board?.id}`)}
     >
       <CardHeader className="flex-1 p-0">
-      <small className="text-xs leading-3 "> Created on {createdDate()}</small>
+      <small className="text-xs leading-3 "> Created on {createdDate(board.createdAt)}</small>
         <CardTitle className="uppercase text-3xl tracking-normal font-light leading-none">{board?.title}</CardTitle>
       </CardHeader>
       <CardFooter className="flex justify-end p-0">

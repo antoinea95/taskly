@@ -1,7 +1,7 @@
 import { BoardType, CheckListType, ListType, TaskType } from "@/utils/types";
 import { TaskDescription } from "./TaskDescription";
 import { useAddDoc, useDeleteTask, useUpdateDoc } from "@/firebase/mutateHook";
-import { AddItem } from "../../Form/AddItem";
+import { AddItem } from "../../Form/AddForm";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useGetDoc } from "@/firebase/fetchHook";
 import { ScrollArea } from "../../ui/scroll-area";

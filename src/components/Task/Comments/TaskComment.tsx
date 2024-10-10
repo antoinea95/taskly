@@ -1,4 +1,4 @@
-import { AddItem } from "@/components/Form/AddItem";
+import { AddItem } from "@/components/Form/AddForm";
 import { DeleteItem } from "@/components/Form/DeleteItem";
 import { Member } from "@/components/Members/Member";
 import { useGetDoc } from "@/firebase/fetchHook";

@@ -1,29 +1,38 @@
-import { BoardType, ListType } from "@/utils/types";
-import { useAuth } from "@/firebase/authHook";
+import { BoardType, ListType, UserType } from "@/utils/types";
 import { useState } from "react";
-import { useAddDoc } from "@/firebase/mutateHook";
-import { AddItem } from "../Form/AddItem";
+import { AddForm } from "../Form/AddForm";
+import { FieldValues } from "react-hook-form";
+import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
 
-export const AddBoard = () => {
+export const AddBoard = ({user} : {user: UserType | null}) => {
 
-  const { currentUser } = useAuth();
-  const createBoard = useAddDoc<BoardType>("boards", "boards");
-  const createList = useAddDoc<ListType>("boards", "lists");
+  // Call mutate hooks 
+  const createBoard = useAddDoc<BoardType>(["boards"], "boards");
+  const createList = useAddDoc<ListType>(["lists"], "lists");
+
+  // Toggle state
   const [isAddBoard, setIsAddBoard] = useState(false);
 
-  const onSubmit = async (data: {title: string}) => {
-    if (currentUser) {
+
+  /**
+   * Submit function for react-hook-form
+   * @param data : form value: title input
+   */
+  const onSubmit = async (data: FieldValues) => {
+    const now = Date.now();
+    if (user) {
       createBoard.mutate(
         {
-          ...data,
-          members: [currentUser.id],
-          creator: currentUser.id,
-          createdAt: Date.now(),
+          title: data.title,
+          members: [user.id],
+          creator: user.id,
+          createdAt: now,
         },
         {
           onSuccess: async (boardId) => {
             setIsAddBoard(false);
-            const now = Date.now();
+
+            // Create default list: "To do", "In progress", "Finish"
             const defaultLists: Omit<ListType, "id">[] = [
               { title: "To do", createdAt: now, boardId: boardId, tasks: [] },
               {
@@ -39,8 +48,15 @@ export const AddBoard = () => {
                 tasks: [],
               },
             ];
+
             await Promise.all(
-              defaultLists.map((list) => createList.mutate(list))
+              defaultLists.map((list) =>
+                createList.mutate(list, {
+                  onError: (error) => {
+                    console.error(`Failed to create list ${list.title}:`, error);
+                  },
+                })
+              )
             );
           },
         }
@@ -49,10 +65,10 @@ export const AddBoard = () => {
   };
 
   return (
-      <AddItem
-        type="Board"
+      <AddForm
+        name="Board"
         onSubmit={onSubmit}
-        query={createBoard}
+        mutationQuery={createBoard}
         isOpen={isAddBoard}
         setIsOpen={setIsAddBoard}
       />

@@ -1,4 +1,3 @@
-import { updatePassword, User } from "firebase/auth";
 import { useState } from "react";
 import { ToggleButton } from "@/components/Button/ToggleButton";
 import { FormContent } from "@/utils/types";
@@ -16,11 +15,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/Button/SubmitButton";
 import { CloseButton } from "@/components/Button/CloseButton";
-import { reauthenticateUser } from "@/components/Auth/ReauthUser";
-import { useMutation } from "@tanstack/react-query";
 import { StatusMessage } from "@/components/Message/StatusMessage";
+import { useUpdatePassword } from "@/utils/hooks/FirestoreHooks/auth/updateUser";
 
-export const UpdatePassword = ({ user }: { user: User | null }) => {
+export const UpdatePassword = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const passwordSchema = z
@@ -70,28 +68,13 @@ export const UpdatePassword = ({ user }: { user: User | null }) => {
     },
   ];
 
-  const { mutateAsync, isError, error } = useMutation({
-    mutationFn: async (variables: {
-      data: z.infer<typeof passwordSchema>;
-      user: User;
-    }) => {
-      await reauthenticateUser(variables.data.actualPassword);
-      await updatePassword(variables.user, variables.data.password);
-    },
-    onSuccess: () => {
-      setIsSuccess(true);
-      setIsUpdatePassword(false);
-    },
-  });
+  const { mutateAsync, isError, error } = useUpdatePassword(() => {
+    setIsSuccess(true)
+    setIsUpdatePassword(false);
+  })
 
   const onSubmit = async (data: z.infer<typeof passwordSchema>) => {
-    if (user) {
-      try {
-        await mutateAsync({ data, user });
-      } catch (error) {
-        console.error(error);
-      }
-    }
+      await mutateAsync({ ...data});
   };
 
   return (
