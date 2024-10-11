@@ -1,5 +1,4 @@
 import { ListCard } from "@/components/List/ListCard";
-import { useGetLists } from "@/firebase/fetchHook";
 import {
   DndContext,
   DragOverlay,
@@ -14,20 +13,43 @@ import {
 } from "@dnd-kit/sortable";
 import { useState } from "react";
 import { Card } from "../ui/card";
-import { ListType } from "@/utils/types";
-import { useDragMouse } from "@/utils/useDragMouse";
-import { ListSectionSkeleton } from "../skeletons";
-import { AddItem } from "../Form/AddForm";
-import { useAddDoc } from "@/firebase/mutateHook";
-import { useDragAndDropZone } from "./useDragAndDropZone";
+import { ListType } from "@/components/types/lists.types";
+import { useDragMouse } from "@/utils/helpers/hooks/useDragMouse";
+import { useDragAndDropZone } from "../../utils/helpers/hooks/useDragAndDropZone";
+import { useGetLists } from "@/utils/hooks/FirestoreHooks/queries/useGetLists";
+import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
+import { ListSectionSkeleton } from "../Skeletons/skeletons";
+import { AddForm } from "../Form/AddForm";
+import { FieldValues } from "react-hook-form";
 
+/**
+ * ListsSection component
+ *
+ * This component renders a section containing a sortable, drag-and-drop enabled list of cards (representing lists).
+ * It fetches the lists associated with a specific board, and allows creating new lists.
+ *
+ * @param   props - The props for the component.
+ * @param {string} props.boardId - The ID of the board for which the lists are being displayed.
+ *
+ * @returns A JSX element containing a draggable list of cards, with the ability to add new lists.
+ */
 export const ListsSection = ({ boardId }: { boardId: string }) => {
+  // Setup for drag-and-drop mouse interactions
   const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } = useDragMouse();
-  const { data: lists, isFetched } = useGetLists(boardId);
-  const createList = useAddDoc<ListType>("lists", "lists", boardId);
-  const [isAddList, setIsAddList] = useState(false);
-  const {handleDragStart, handleDragOver, handleDragEnd, activeTask} = useDragAndDropZone({lists: lists, boardId: boardId})
 
+  // Fetch the lists associated with the board
+  const { data: lists, isFetched } = useGetLists(boardId);
+
+  // Mutation to create a new list
+  const createList = useAddDoc<ListType>(["lists", boardId], "lists");
+
+  // State to control whether the "Add List" form is visible
+  const [isAddList, setIsAddList] = useState(false);
+
+  // Drag-and-drop handlers
+  const { handleDragStart, handleDragOver, handleDragEnd, activeTask } = useDragAndDropZone({ lists, boardId });
+
+  // Setup sensors for the drag-and-drop context
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -35,26 +57,31 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
       },
     })
   );
-  
 
-  const onSubmit = async (data: {title: string}) => {
+  /**
+   * Handles the creation of a new list.
+   *
+   * @param {FieldValues} data - The data submitted from the form, containing the title of the new list.
+   */
+  const handleCreateList = async (data: FieldValues) => {
     createList.mutate(
       {
-        ...data,
+        title: data.title,
         createdAt: Date.now(),
         tasks: [],
-        boardId: boardId,
+        boardId,
       },
       {
         onSuccess: () => {
-          setIsAddList(false);
+          setIsAddList(false); // Close the "Add List" form upon success
         },
       }
     );
   };
 
-  if(!isFetched) {
-    return <ListSectionSkeleton />
+  // Display a loading skeleton if the lists are not yet fetched
+  if (!isFetched) {
+    return <ListSectionSkeleton />;
   }
 
   return (
@@ -74,27 +101,29 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
         onMouseUp={handleMouseLeaveOrUp}
       >
         <section className="flex items-start flex-nowrap mt-10 gap-8 flex-1 w-full">
-          {lists && isFetched && lists
-            .sort((a, b) => a.createdAt - b.createdAt)
-            .map((list) => (
-              <SortableContext
-                key={list.id}
-                items={list.tasks}
-                id={list.id}
-                strategy={verticalListSortingStrategy}
-              >
-                <ListCard list={list} boardId={boardId} />
-              </SortableContext>
-            ))}
-            <div className="min-w-72">
-            <AddItem 
-            type="List"
-            onSubmit={onSubmit}
-            query={createList}
-            isOpen={isAddList}
-            setIsOpen={setIsAddList}
+          {lists &&
+            isFetched &&
+            lists
+              .sort((a, b) => a.createdAt - b.createdAt)
+              .map((list) => (
+                <SortableContext
+                  key={list.id}
+                  items={list.tasks}
+                  id={list.id}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <ListCard list={list} boardId={boardId} />
+                </SortableContext>
+              ))}
+          <div className="min-w-72">
+            <AddForm
+              name="List"
+              onSubmit={handleCreateList}
+              mutationQuery={createList}
+              isOpen={isAddList}
+              setIsOpen={setIsAddList}
             />
-            </div>
+          </div>
         </section>
       </section>
       <DragOverlay>

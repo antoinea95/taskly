@@ -1,17 +1,31 @@
-import { CheckListItemType, CheckListType } from "@/utils/types";
+import { CheckListItemType, CheckListType } from "@/components/types/tasks.types";
 import { ListCheck } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useGetChecklistItems } from "@/firebase/fetchHook";
 import { TaskCheckListItem } from "./TaskCheckListItem";
-import { AddItem } from "../../Form/AddForm";
-import { useAddDoc, useDeleteChecklist, useUpdateDoc } from "@/firebase/mutateHook";
-import { DeleteItem } from "../../Form/DeleteItem";
-import { UpdateTitle } from "@/components/Form/UpdateTitle";
+import { useGetChecklistItems } from "@/utils/hooks/FirestoreHooks/queries/useGetChecklists";
+import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
+import { useUpdateDoc } from "@/utils/hooks/FirestoreHooks/mutations/useUpdateDoc";
+import { useDeleteChecklist } from "@/utils/hooks/FirestoreHooks/mutations/useDeletions";
+import { FieldValues } from "react-hook-form";
+import { UpdateTitleForm } from "@/components/Form/UpdateTitleForm";
+import { DeleteButton } from "@/components/Button/DeleteButton";
+import { DeleteConfirmation } from "@/components/Form/actions/DeleteConfirmation";
+import { AddForm } from "@/components/Form/AddForm";
 
+/**
+ * TaskCheckList component renders a checklist for a given task.
+ * It provides functionality for adding, updating, and deleting checklist items.
+ * It also calculates the completion percentage of the checklist.
+ *
+ * @param {Object} props - The properties for the TaskCheckList component.
+ * @param {string} props.taskId - The ID of the task this checklist belongs to.
+ * @param {CheckListType} props.checkList - The checklist object containing details of the checklist.
+ *
+ * @returns - The JSX element representing the TaskCheckList component.
+ */
 export const TaskCheckList = ({
   taskId,
   checkList,
-
 }: {
   taskId: string;
   checkList: CheckListType;
@@ -21,22 +35,30 @@ export const TaskCheckList = ({
     checkList.id
   );
   const [completeBarWidth, setCompleteBarWidth] = useState<number | null>(null);
-  
+
   const addCheckListItems = useAddDoc<CheckListItemType>(
-    "checklistItems",
-    `tasks/${taskId}/checklists/${checkList.id}/items`,
-    checkList.id
+    ["checklistItems", checkList.id],
+    `tasks/${taskId}/checklists/${checkList.id}/items`
   );
 
-  const updateCheckList = useUpdateDoc<CheckListType>("checklists", `tasks/${taskId}/checklists`, checkList.id, taskId);
-  const deleteChecklist = useDeleteChecklist(taskId, checkList.id);
+  const updateCheckList = useUpdateDoc<Partial<CheckListType>>(
+    ["checklists", taskId],
+    `tasks/${taskId}/checklists`,
+    checkList.id
+  );
+  const deleteChecklist = useDeleteChecklist<void>(taskId, checkList.id);
 
   const [isAddItem, setisAddItem] = useState(false);
 
-  const onSubmit = async (data: { title: string }) => {
+  /**
+   * Handles the addition of a new checklist item.
+   *
+   * @param {FieldValues} data - The form data containing the title for the new checklist item.
+   */
+  const handleAddChecklist = async (data: FieldValues) => {
     addCheckListItems.mutate(
       {
-        ...data,
+        title: data.title,
         createdAt: Date.now(),
         done: false,
       },
@@ -46,10 +68,12 @@ export const TaskCheckList = ({
     );
   };
 
+  /**
+   * Handles the deletion of the checklist.
+   */
   const handleDeleteChecklist = async () => {
     deleteChecklist.mutate();
   };
-
 
   useEffect(() => {
     if (checklistItems && isFetched) {
@@ -66,21 +90,29 @@ export const TaskCheckList = ({
     }
   }, [checklistItems, isFetched]);
 
-
   return (
     <div className="space-y-3 rounded-xl my-2 relative p-4 border-2 border-gray-200">
       <div className="w-full space-y-3">
         <div className="flex items-center justify-between font-medium w-full">
           <div className="flex items-center gap-1">
             <ListCheck size={20} />
-            <UpdateTitle name="Checklist" title={checkList.title} query={updateCheckList} headingLevel={"h3"} />
+            <UpdateTitleForm
+              name="Checklist"
+              title={checkList.title}
+              mutationQuery={updateCheckList}
+              headingLevel={"h3"}
+            />
           </div>
-          <DeleteItem
-            name="checklist"
-            isText={false}
-            handleDelete={handleDeleteChecklist}
-            isPending={deleteChecklist.isPending}
-          />
+          <DeleteButton>
+            {({ setIsOpen }) => (
+              <DeleteConfirmation
+                setIsOpen={setIsOpen}
+                actionName="checklist"
+                handleDelete={handleDeleteChecklist}
+                isPending={deleteChecklist.isPending}
+              />
+            )}
+          </DeleteButton>
         </div>
         <div className="flex items-center gap-4 w-full">
           <span className="inline-block h-1 flex-1 bg-gray-100 rounded-full relative overflow-hidden">
@@ -92,29 +124,29 @@ export const TaskCheckList = ({
           <p className="pr-2">{completeBarWidth}%</p>
         </div>
       </div>
-        {checklistItems && checklistItems.length > 0 ? (
+      {checklistItems && checklistItems.length > 0 ? (
         <div>
-            {checklistItems.map((item) => (
-              <TaskCheckListItem
-                key={item.id}
-                item={item}
-                taskId={taskId}
-                checklistId={checkList.id}
-              />
-            ))}
-       </div>
-        ) : (
-          <p className="text-gray-300 text-center uppercase text-xs">
-            No items yet
-          </p>
-        )}
-        <AddItem
-          type="Item"
-          onSubmit={onSubmit}
-          query={addCheckListItems}
-          isOpen={isAddItem}
-          setIsOpen={setisAddItem}
-        />
+          {checklistItems.map((item) => (
+            <TaskCheckListItem
+              key={item.id}
+              item={item}
+              taskId={taskId}
+              checklistId={checkList.id}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-300 text-center uppercase text-xs">
+          No items yet
+        </p>
+      )}
+      <AddForm
+        name="Item"
+        onSubmit={handleAddChecklist}
+        mutationQuery={addCheckListItems}
+        isOpen={isAddItem}
+        setIsOpen={setisAddItem}
+      />
     </div>
   );
 };

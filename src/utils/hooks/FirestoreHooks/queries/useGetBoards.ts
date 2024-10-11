@@ -1,4 +1,4 @@
-import { BoardType } from "@/utils/types";
+import { BoardType } from "@/components/types/types";
 import { useFirestoreQuery } from "./useFirestoreQuery";
 import { where } from "firebase/firestore";
 

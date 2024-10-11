@@ -1,7 +1,9 @@
 import {
   Auth,
   createUserWithEmailAndPassword,
+  EmailAuthProvider,
   GoogleAuthProvider,
+  reauthenticateWithCredential,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -11,12 +13,11 @@ import {
   User,
 } from "firebase/auth";
 import { firebaseAuth, firebaseFirestore } from "../firebaseApp";
-import { getFriendlyErrorMessage } from "@/firebase/formatErrors";
+import { getFriendlyErrorMessage } from "@/utils/helpers/functions/formatErrors";
 import { doc, Firestore, setDoc, where } from "firebase/firestore";
 import { FirestoreService } from "../firestore/firestoreService";
-import { BoardType, UserType } from "@/utils/types";
+import { BoardType, UserType } from "@/components/types/types";
 import { BatchService } from "../firestore/batchService";
-import { reauthenticateUser } from "@/components/Auth/ReauthUser";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -132,6 +133,22 @@ export class AuthService {
     }
   }
 
+  public static async reauthenticateUser(password: string) {
+      const user = firebaseAuth.currentUser;
+    
+      if (user && user.email) {
+        try {
+          const credential = EmailAuthProvider.credential(user.email, password);
+          await reauthenticateWithCredential(user, credential);
+        } catch (error) {
+          console.error(error)
+          throw new Error("You provide a wrong password.");
+        }
+      } else {
+        throw new Error("User not authenticated.");
+      }
+  }
+
   /**
    * Signs out the current authenticated user.
    * @returns A promise that resolves when the user is signed out.
@@ -179,7 +196,7 @@ export class AuthService {
 
     try {
       // First we reauthenticate the user
-      await reauthenticateUser(actualPassword);
+      await this.reauthenticateUser(actualPassword);
       // Then we update his password
       await updatePassword(user, newPassword);
     } catch(error) {

@@ -1,16 +1,19 @@
 import { AuthService } from "@/utils/firebase/auth/authService";
+import { firebaseAuth } from "@/utils/firebase/firebaseApp";
 import { useMutation } from "@tanstack/react-query";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { FieldValues } from "react-hook-form";
 
-type UpdatePasswordData = {
+export type UpdatePasswordData = {
   actualPassword: string;
   password: string;
   confirmPassword: string;
-}
+};
 
-type UpdateEmailData = {
+export type UpdateEmailData = {
   userId: string;
   email: string;
-}
+};
 
 /**
  * Custom hook to update a user's password.
@@ -19,10 +22,12 @@ type UpdateEmailData = {
  * @param  onSuccess - Callback function to execute on successful password update.
  * @returns  React Query mutation object for updating the password.
  */
-export const useUpdatePassword = (onSuccess: () => void) => {
-  return useMutation<void, Error, UpdatePasswordData>({
+export const useUpdatePassword = <T extends FieldValues>(
+  onSuccess: () => void
+) => {
+  return useMutation<void, Error, T>({
     mutationFn: async ({ actualPassword, password }) => {
-      await AuthService.updateUserPassword(actualPassword, password)
+      await AuthService.updateUserPassword(actualPassword, password);
     },
     onSuccess: () => {
       onSuccess();
@@ -32,17 +37,18 @@ export const useUpdatePassword = (onSuccess: () => void) => {
     },
   });
 };
-
 
 /**
  * Custom hook to update a user's email
  * @param  onSuccess - Callback function to execute on successful password update.
  * @returns  React Query mutation object for updating the email.
  */
-export const useUpdateEmail = (onSuccess: () => void) => {
-  return useMutation<void, Error, UpdateEmailData>({
+export const useUpdateEmail = <T extends FieldValues>(
+  onSuccess: () => void
+) => {
+  return useMutation<void, Error, T>({
     mutationFn: async ({ userId, email }) => {
-      await AuthService.updateUserEmail(userId, email)
+      await AuthService.updateUserEmail(userId, email);
     },
     onSuccess: () => {
       onSuccess();
@@ -53,3 +59,22 @@ export const useUpdateEmail = (onSuccess: () => void) => {
   });
 };
 
+export const useResetPassword = <T extends FieldValues>() => {
+  return useMutation<void, Error, T>({
+    mutationFn: async ({ email }) => {
+      if (email) {
+        try {
+          await sendPasswordResetEmail(firebaseAuth, email);
+        } catch (error) {
+          console.error(error);
+          throw new Error("Email does not exist");
+        }
+      } else {
+        throw new Error("Please enter your email");
+      }
+    },
+    onError: (error) => {
+      console.error("Error reseting password:", error);
+    },
+  });
+};

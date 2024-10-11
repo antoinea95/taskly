@@ -1,7 +1,7 @@
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { firebaseStorage } from "../firebaseApp";
 import { FirestoreService } from "../firestore/firestoreService";
-import { UserType } from "@/utils/types";
+import { UserType } from "@/components/types/types";
 
 export class StorageService {
   private static firebaseStorage = firebaseStorage;

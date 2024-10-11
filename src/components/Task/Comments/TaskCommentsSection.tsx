@@ -1,30 +1,42 @@
-import { TaskCommentType, TaskType } from "@/utils/types";
 import { MessageSquare } from "lucide-react";
 import { TaskComment } from "./TaskComment";
-import { AddItem } from "@/components/Form/AddForm";
-import { UseMutationResult } from "@tanstack/react-query";
+import { TaskCommentsSectionProps } from "@/components/types/tasks.types";
+import { FieldValues } from "react-hook-form";
+import { AddForm } from "@/components/Form/AddForm";
 
+/**
+ * TaskCommentsSection component renders the section for task comments, allowing users to add and view comments.
+ *
+ * @param {TaskCommentsSectionProps} props - The properties passed to the component.
+ * @param {Array} props.comments - An array of comments related to the task.
+ * @param {string} props.userId - The ID of the user who is adding or interacting with comments.
+ * @param {Object} props.mutationQuery - The mutation query object used to update the comments in Firestore.
+ *
+ * @returns The TaskCommentsSection component.
+ */
 export const TaskCommentsSection = ({
   comments,
   userId,
-  query,
-}: {
-  query: UseMutationResult<any, unknown, Partial<TaskType> | undefined>;
-  userId: string;
-  comments?: TaskCommentType[];
-}) => {
+  mutationQuery,
+}: TaskCommentsSectionProps) => {
 
-  const onSubmit = async (data: { title: string }) => {
+  /**
+   * Handles the submission of a new comment.
+   *
+   * @param {FieldValues} data - The form data, containing the new comment title.
+   */
+  const handleAddNewComment = async (data: FieldValues) => {
     const newComment = {
       title: data.title,
       createdAt: Date.now(),
       userId: userId,
     };
-    query.mutate({
+
+    // Mutate the comments array to add a new comment
+    mutationQuery.mutate({
       comments: comments ? [...comments, newComment] : [newComment],
     });
   };
-
 
   return (
     <div className="col-span-5 px-3 space-y-1">
@@ -33,10 +45,23 @@ export const TaskCommentsSection = ({
         Comments
       </h3>
       <div className="space-y-3 bg-gray-50 p-3 rounded-xl">
-        <AddItem type="Comment" query={query} onSubmit={onSubmit} />
+        {/* Form for adding a new comment */}
+        <AddForm
+          name="comment"
+          mutationQuery={mutationQuery}
+          onSubmit={handleAddNewComment}
+        />
+
+        {/* Display the list of comments */}
         {comments &&
           comments.map((comment, index) => (
-            <TaskComment key={index} comments={comments} comment={comment} userId={userId} query={query} />
+            <TaskComment
+              key={index}
+              comments={comments}
+              comment={comment}
+              userId={userId}
+              mutationQuery={mutationQuery}
+            />
           ))}
       </div>
     </div>

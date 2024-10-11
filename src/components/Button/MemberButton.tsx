@@ -1,14 +1,26 @@
-import { Dispatch, SetStateAction } from "react";
 import { Button } from "../ui/button";
 import { UserPlus } from "lucide-react";
+import { MemberButtonProps } from "../types/buttons.types";
 
+/**
+ * MemberButton component
+ * 
+ * This component renders a button that allows the user to add or assign a member.
+ * The button's appearance and behavior change based on the `type` prop.
+ * - If `type === "tasks"`, the button will have a full-width style and will display "Assigned to".
+ * - If `type === "boards"`, the button will display a smaller button with a different hover effect.
+ * 
+ * @param {MemberButtonProps} props - The properties for the MemberButton component.
+ * @param {Dispatch<SetStateAction<boolean>>} props.setIsOpen - Function to toggle the open state.
+ * @param {string} props.type - The type of button, determining its appearance and behavior.
+ * 
+ * @returns The rendered button component.
+ */
 export const MemberButton = ({
   setIsOpen,
   type,
-}: {
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
-  type: "tasks" | "boards";
-}) => {
+}: MemberButtonProps) => {
+  // Determine the button's className based on the `type` prop
   const className =
     type === "tasks"
       ? "w-full py-6 rounded-xl bg-gray-100 text-black flex gap-2 shadow-none border-none hover:bg-black hover:text-white"
@@ -16,7 +28,9 @@ export const MemberButton = ({
 
   return (
     <Button onClick={() => setIsOpen(true)} className={`${className} animate-fade-in`}>
+      {/* Render the UserPlus icon */}
       <UserPlus size={18} className={`shrink-0 ${type === "boards" ? "w-12" : ""}`} />
+      {/* Conditionally render the button text based on the `type` prop */}
       {type === "tasks" ? "Assigned to" : "Add a member"}
     </Button>
   );

@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { authenticateUser } from "./authenticateUser";
+import { AuthService } from "@/utils/firebase/auth/authService";
 
 /**
  * Custom hook to handle user sign-in and sign-up.
@@ -20,5 +21,20 @@ export const useSign = () => {
         console.error("Error while signing in:", error);
       },
     });
-  };
+};
+
+
+export const useSignWithGoogle = () => {
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: AuthService.signInWithGoogle,
+    onSuccess: () => {
+      navigate("/")
+    }, 
+    onError: (error) => {
+      console.error("Error while signing in:", error);
+    },
+  })
+}
   

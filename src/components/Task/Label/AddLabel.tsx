@@ -1,20 +1,28 @@
-import { AddItem } from "@/components/Form/AddForm";
-import { TaskTagType, TaskType } from "@/utils/types";
-import { UseMutationResult } from "@tanstack/react-query";
+import { AddForm } from "@/components/Form/AddForm";
+import { MutationResultType } from "@/components/types/form.types";
+import { TaskTagType, TaskType } from "@/components/types/tasks.types";
 import { Check } from "lucide-react";
 import { useState } from "react";
 
+/**
+ * Renders a component to add labels to a task, allowing the user to select a color for the label.
+ *
+ * @param {Object} props - Component props
+ * @param {TaskTagType[]} [props.labels] - Existing labels associated with the task
+ * @param {MutationResultType<string, Partial<TaskType>>} props.mutationQuery - Mutation function for updating the task's labels
+ * @returns The AddLabel component
+ */
 export const AddLabel = ({
   labels,
-  query,
+  mutationQuery,
 }: {
   labels?: TaskTagType[];
-  query: UseMutationResult<any, unknown, Partial<TaskType> | undefined>;
+  mutationQuery: MutationResultType<string, Partial<TaskType>>;
 }) => {
   const [isAddLabel, setIsAddLabel] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
-  // Dictionnaire de couleurs pour l'hexadécimal
+  // List of color options for labels
   const colorOptions = [
     { name: "Red", color: "#fca5a5" },
     { name: "Orange", color: "#fdba74" },
@@ -23,21 +31,37 @@ export const AddLabel = ({
     { name: "Blue", color: "#93c5fd" },
   ];
 
-  const handleChange = (color: string) => {
+  /**
+   * Handles color selection for the label.
+   *
+   * @param {string} color - The selected color in hexadecimal format
+   */
+  const handleChangeColor = (color: string) => {
     setSelectedColor(color);
   };
 
-  const onSubmit = async (data: { title: string }) => {
+  /**
+   * Handles the addition of a new label to the task.
+   *
+   * @param {Partial<TaskType>} data - The task data, including the title of the new label
+   */
+  const handleAddLabel = async (data: Partial<TaskType>) => {
     const newLabel = {
       title: data.title,
-      color: selectedColor ? selectedColor : "#e5e7eb",
+      color: selectedColor ? selectedColor : "#e5e7eb", // Default color if none is selected
     };
 
-    query.mutate({
-      labels: labels ? [...labels, newLabel] : [newLabel],
-    }, {
-        onSuccess: () => {setIsAddLabel(false); setSelectedColor(null)}
-    });
+    mutationQuery.mutate(
+      {
+        labels: labels ? [...labels, newLabel] : [newLabel],
+      } as Partial<TaskType>,
+      {
+        onSuccess: () => {
+          setIsAddLabel(false);
+          setSelectedColor(null); // Reset color after label is added
+        },
+      }
+    );
   };
 
   return (
@@ -60,7 +84,7 @@ export const AddLabel = ({
                   name="color"
                   value={color.color}
                   className="hidden"
-                  onChange={() => handleChange(color.color)}
+                  onChange={() => handleChangeColor(color.color)}
                 />
                 <div
                   className={`shadow-none rounded-full w-8 h-8 border-2 flex items-center justify-center cursor-pointer border-gray-300`}
@@ -75,10 +99,10 @@ export const AddLabel = ({
           </div>
         </div>
       )}
-      <AddItem
-        type="Label"
-        query={query}
-        onSubmit={onSubmit}
+      <AddForm
+        name="Label"
+        mutationQuery={mutationQuery}
+        onSubmit={handleAddLabel}
         isOpen={isAddLabel}
         setIsOpen={setIsAddLabel}
       />

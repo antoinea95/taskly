@@ -1,21 +1,34 @@
 import { useState } from "react";
 import { z } from "zod";
-import { CreateForm } from "../Form/FormContainer";
-import { SignInData, useSign } from "@/firebase/authHook";
-import { FormContent } from "@/utils/types";
 import { Button } from "../ui/button";
-import FirestoreApi from "@/firebase/FirestoreApi";
 import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
-import { useMutation } from "@tanstack/react-query";
-import { StatusMessage } from "../Message/StatusMessage";
+import { FieldValues } from "react-hook-form";
+import { useResetPassword } from "@/utils/hooks/FirestoreHooks/auth/updateUser";
+import { AuthService } from "@/utils/firebase/auth/authService";
+import { FormFieldItemType } from "../types/form.types";
+import { useSign } from "@/utils/hooks/FirestoreHooks/auth/useSign";
+import { FormContainer } from "../Form/containers/FormContainer";
+import { FormFieldInputItem } from "../Form/fields/FormFieldInputItem";
+import { FormActionsButton } from "../Form/actions/FormActionsButton";
 
+/**
+ * AuthForm component
+ *
+ * This component renders a form for user authentication, allowing login, registration,
+ * and password reset. It also provides an option to sign in with Google.
+ *
+ * @returns The authentication form with input fields, Google sign-in option, and reset password functionality.
+ */
 export const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
   const sign = useSign();
   const navigate = useNavigate();
 
+  /**
+   * User schema validation using Zod
+   * Ensures that form inputs are correctly structured and validates password match.
+   */
   const UserSchema = z
     .object({
       name: isLogin
@@ -40,7 +53,10 @@ export const AuthForm = () => {
       }
     );
 
-  const authFormContent: FormContent = [
+  /**
+   * Form fields configuration based on authentication mode (login or registration).
+   */
+  const authFormContent: FormFieldItemType[] = [
     { name: "name", type: "text", placeholder: "John Doe", label: "Name" },
     {
       name: "email",
@@ -64,7 +80,12 @@ export const AuthForm = () => {
     return item;
   });
 
-  const onSubmit = async (data: Partial<SignInData>) => {
+  /**
+   * Handles form submission for login or registration.
+   * 
+   * @param {FieldValues} data - The form data containing user inputs.
+   */
+  const handleAuth = async (data: FieldValues) => {
     const { email, password, name } = data;
 
     if (email && password) {
@@ -82,33 +103,29 @@ export const AuthForm = () => {
     }
   };
 
+  /**
+   * Handles Google sign-in using Firebase Authentication.
+   * Navigates to the homepage upon successful sign-in.
+   */
   const signinWithGoogle = async () => {
     try {
-      await FirestoreApi.signInWithGoogle();
+      await AuthService.signInWithGoogle();
       navigate("/");
     } catch (error: any) {
       throw new Error(error);
     }
   };
 
-  const { mutateAsync, isSuccess, isError, error } = useMutation({
-    mutationFn: async (variables: { email: string }) => {
-      if (variables.email) {
-        try {
-          await sendPasswordResetEmail(getAuth(), variables.email);
-        } catch(error) {
-          console.error(error)
-          throw new Error("Email does not exist")
-        }
-      } else {
-        throw new Error("Please enter your email");
-      }
-    },
-  });
+  const resetPassword = useResetPassword<{ email: string }>();
 
-  const resetPassword = async (email: string) => {
+  /**
+   * Handles password reset by sending a reset email.
+   *
+   * @param {string} email - The email address for password reset.
+   */
+  const handleResetPassword = async (email: string) => {
     try {
-      await mutateAsync({ email: email });
+      await resetPassword.mutateAsync({ email: email });
     } catch (error) {
       console.error(error);
     }
@@ -135,25 +152,16 @@ export const AuthForm = () => {
         </div>
       </section>
       <section className="w-3/4 space-y-3 flex flex-col items-end">
-        <CreateForm<SignInData>
-          schema={UserSchema}
-          onSubmit={onSubmit}
-          formContent={formContent}
-          buttonName={isLogin ? "Log in" : "Create an account"}
-          query={sign}
-          resetPassword={isLogin ? resetPassword : undefined}
-        />
-        <StatusMessage
-          isError={isError}
-          isSucess={isSuccess}
-          content={
-            isSuccess
-              ? "Email sended"
-              : isError && error instanceof Error
-                ? error?.message
-                : ""
-          }
-        ></StatusMessage>
+        <FormContainer schema={UserSchema} onSubmit={handleAuth} mutationQuery={sign}>
+          {({ form }) => (
+            <>
+              {formContent.map((item) => (
+                <FormFieldInputItem key={item.name} item={item} form={form} />
+              ))}
+              <FormActionsButton actionName={isLogin ? "Log in" : "Create an account"} isPending={sign.isPending} />
+            </>
+          )}
+        </FormContainer>
       </section>
       <section className="w-3/4 mt-6 flex flex-col items-center gap-4">
         <p className="uppercase flex items-center justify-between text-gray-400 w-full">

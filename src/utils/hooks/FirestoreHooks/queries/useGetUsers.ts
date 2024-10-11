@@ -1,4 +1,4 @@
-import { UserType } from "@/utils/types";
+import { UserType } from "@/components/types/auth.types";
 import { useFirestoreQuery } from "./useFirestoreQuery";
 
 /**

@@ -17,7 +17,7 @@ export const useDeleteDoc = (
     id?: string,
   ) => {
   
-    return useFirestoreMutation<void>(() => {
+    return useFirestoreMutation<void, void>(() => {
       if (id) {
         return FirestoreService.deleteDocument(collectionName, id);
       }

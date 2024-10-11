@@ -19,7 +19,7 @@ export const useUpdateDoc = <T,>(
     documentId?: string,
     queryCollection?: string[]
   ) => {
-    return useFirestoreMutation<void, Partial<T>>(
+    return useFirestoreMutation<string, T>(
       (data) => {
         if (documentId && data) {
           return FirestoreService.updateDocument<T>(collectionName, data, documentId);

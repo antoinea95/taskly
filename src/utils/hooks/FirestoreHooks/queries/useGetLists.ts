@@ -1,4 +1,4 @@
-import { ListType } from "@/utils/types";
+import { ListType } from "@/components/types/types";
 import { useFirestoreQuery } from "./useFirestoreQuery";
 import { where } from "firebase/firestore";
 

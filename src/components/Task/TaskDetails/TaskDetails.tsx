@@ -1,25 +1,41 @@
-import { BoardType, CheckListType, ListType, TaskType } from "@/utils/types";
-import { TaskDescription } from "./TaskDescription";
-import { useAddDoc, useDeleteTask, useUpdateDoc } from "@/firebase/mutateHook";
-import { AddItem } from "../../Form/AddForm";
 import { Dispatch, SetStateAction, useState } from "react";
-import { useGetDoc } from "@/firebase/fetchHook";
 import { ScrollArea } from "../../ui/scroll-area";
 import { useParams } from "react-router-dom";
-import { DeleteItem } from "../../Form/DeleteItem";
-import { AddTaskDueDate } from "../../Form/DueDate/AddTaskDueDate";
 import { AddMember } from "../../Members/AddMember";
 import { List, Tag, Users } from "lucide-react";
-import { UpdateTitle } from "@/components/Form/UpdateTitle";
-import { TaskDueDate } from "./TaskDueDate";
 import { MembersDetails } from "@/components/Members/MembersDetails";
 import { TaskCheckListSection } from "../CheckList/TaskCheckListSection";
 import { TaskCommentsSection } from "../Comments/TaskCommentsSection";
-import { useAuth } from "@/firebase/authHook";
 import { AddLabel } from "../Label/AddLabel";
-import { Label } from "../Label/Label";
-import { TaskHeaderItem } from "../TaskHeaderItem";
+import { TaskHeaderItem } from "../Containers/TaskHeaderItem";
+import { CheckListType, TaskType } from "@/components/types/tasks.types";
+import { ListType } from "@/components/types/lists.types";
+import { useAuth } from "@/utils/hooks/FirestoreHooks/auth/useAuth";
+import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
+import { BoardType } from "@/components/types/boards.types";
+import { useDeleteTask } from "@/utils/hooks/FirestoreHooks/mutations/useDeletions";
+import { useUpdateDoc } from "@/utils/hooks/FirestoreHooks/mutations/useUpdateDoc";
+import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
+import { FieldValues } from "react-hook-form";
+import { UpdateTitleForm } from "@/components/Form/UpdateTitleForm";
+import { TaskDeadline } from "../Deadline/TaskDeadline";
+import { TaskLabel } from "../Label/TaskLabel";
+import { TaskDescription } from "../Description/TaskDescription";
+import { AddTaskDeadline } from "../Deadline/AddTaskDeadline";
+import { AddForm } from "@/components/Form/AddForm";
+import { DeleteButton } from "@/components/Button/DeleteButton";
+import { DeleteConfirmation } from "@/components/Form/actions/DeleteConfirmation";
 
+/**
+ * Component to display the details of a task, including the ability to update or delete the task,
+ * add labels, deadlines, members, and manage checklists.
+ *
+ * @param {Object} props - Component props.
+ * @param {TaskType} props.task - The task object containing all task details.
+ * @param {Dispatch<SetStateAction<boolean>>} props.setIsTaskOpen - Function to control the state of task visibility.
+ * @param {ListType} props.list - The list to which the task belongs.
+ * @returns The TaskDetails component.
+ */
 export const TaskDetails = ({
   task,
   setIsTaskOpen,
@@ -36,21 +52,32 @@ export const TaskDetails = ({
   // fetch data
   const board = useGetDoc<BoardType>("boards", boardId);
 
-  // mutate hook
+  // mutate hooks
   const addCheckList = useAddDoc<CheckListType>(
-    "checklists",
-    `tasks/${task.id}/checklists`,
+    ["checklists", task.id],
+    `tasks/${task.id}/checklists`
+  );
+  const deleteTask = useDeleteTask<void>(task.id);
+  const updateList = useUpdateDoc<Partial<ListType>>(
+    ["lists", boardId],
+    "lists",
+    list.id
+  );
+  const updateTask = useUpdateDoc<Partial<TaskType>>(
+    ["task", task.id],
+    "tasks",
     task.id
   );
-  const deleteTask = useDeleteTask(task.id);
-  const updateList = useUpdateDoc<ListType>("lists", "lists", list.id, boardId);
-  const updateTask = useUpdateDoc<TaskType>("task", "tasks", task.id);
 
-  // add a new checklist
-  const onSubmit = async (data: { title: string }) => {
+  /**
+   * Handles adding a new checklist to the task.
+   *
+   * @param {FieldValues} data - The data submitted from the form, including the title of the checklist.
+   */
+  const handleAddChecklist = async (data: FieldValues) => {
     addCheckList.mutate(
       {
-        ...data,
+        title: data.title,
         createdAt: Date.now(),
       },
       {
@@ -59,8 +86,11 @@ export const TaskDetails = ({
     );
   };
 
-  // delete task
-  const handleDelete = async () => {
+  /**
+   * Handles the deletion of the task.
+   * It removes the task from the list and updates the Firestore document.
+   */
+  const handleDeleteTask = async () => {
     await deleteTask.mutateAsync();
     await updateList.mutateAsync({
       tasks: list.tasks.filter((taskId) => taskId !== task.id),
@@ -72,10 +102,10 @@ export const TaskDetails = ({
   return (
     <ScrollArea className="w-[850px] h-[80vh]">
       <header className="mb-3 flex flex-col p-3">
-        <UpdateTitle
+        <UpdateTitleForm
           name="Task"
           title={task.title}
-          query={updateTask}
+          mutationQuery={updateTask}
           headingLevel={"h2"}
         />
         <section className="flex items-start my-2 gap-2">
@@ -83,64 +113,67 @@ export const TaskDetails = ({
             <span className="text-sm font-medium">{list.title}</span>
           </TaskHeaderItem>
           {task.dueDate && (
-            <TaskDueDate dueDate={task.dueDate} taskId={task.id} />
+            <TaskDeadline dueDate={task.dueDate} taskId={task.id} />
           )}
           {task.members && task.members.length > 0 && board.data && (
             <TaskHeaderItem title="Members" icon={Users}>
-              <MembersDetails members={task.members} query={updateTask} />
+              <MembersDetails members={task.members} mutationQuery={updateTask} />
             </TaskHeaderItem>
           )}
-          {task.labels && task.labels.length > 0 &&
-          <TaskHeaderItem title="Labels" icon={Tag}>
-                {task.labels.map((label, index) => (
-                  <Label
-                    key={index}
-                    label={label}
-                    labels={task.labels}
-                    query={updateTask}
-                  />
-                ))}
-          </TaskHeaderItem>}
-          
+          {task.labels && task.labels.length > 0 && (
+            <TaskHeaderItem title="Labels" icon={Tag}>
+              {task.labels.map((label, index) => (
+                <TaskLabel
+                  key={index}
+                  label={label}
+                  labels={task.labels}
+                  mutationQuery={updateTask}
+                />
+              ))}
+            </TaskHeaderItem>
+          )}
         </section>
       </header>
       <section className="grid grid-cols-5 grid-rows-2 gap-5 px-4 h-fit">
         <div className="flex flex-col gap-3 col-span-3 px-3">
-          <TaskDescription query={updateTask} description={task.description} />
+          <TaskDescription mutationQuery={updateTask} description={task.description} />
           <TaskCheckListSection taskId={task.id} />
         </div>
         <div className="h-fit col-span-2 relative">
           <div className="rounded-xl w-full sticky top-0 right-0 flex flex-col gap-3">
-            <AddLabel labels={task.labels} query={updateTask} />
+            <AddLabel labels={task.labels} mutationQuery={updateTask} />
             {board.data && (
               <AddMember
+                queryKey={["tasks", task.id]}
                 members={task.members ? task.members : []}
-                queryName="tasks"
-                queryId={task.id}
-                query={updateTask}
+                mutationQuery={updateTask}
                 board={board.data}
               />
             )}
-            <AddTaskDueDate task={task} query={updateTask} />
-            <AddItem
-              type="Checklist"
-              onSubmit={onSubmit}
-              query={addCheckList}
+            <AddTaskDeadline task={task} mutationQuery={updateTask} />
+            <AddForm
+              name="Checklist"
+              onSubmit={handleAddChecklist}
+              mutationQuery={addCheckList}
               isOpen={isAddCheckList}
               setIsOpen={setIsAddCheckList}
             />
-            <DeleteItem
-              handleDelete={handleDelete}
-              name="task"
-              isText={true}
-              isPending={deleteTask.isPending}
-            />
+            <DeleteButton>
+              {({ setIsOpen }) => (
+                <DeleteConfirmation
+                  handleDelete={handleDeleteTask}
+                  actionName="task"
+                  isPending={deleteTask.isPending}
+                  setIsOpen={setIsOpen}
+                />
+              )}
+            </DeleteButton>
           </div>
         </div>
-        {currentUser && (
+        {currentUser && task.comments && (
           <TaskCommentsSection
             comments={task.comments}
-            query={updateTask}
+            mutationQuery={updateTask}
             userId={currentUser.id}
           />
         )}

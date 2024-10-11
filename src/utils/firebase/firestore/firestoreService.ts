@@ -38,10 +38,11 @@ export class FirestoreService {
     collectionName: string,
     data: Partial<T>,
     id: string
-  ): Promise<void> {
+  ): Promise<string> {
     try {
       const docRef = doc(this.firebaseFirestore, collectionName, id);
       await updateDoc(docRef, data);
+      return id;
     } catch (error: any) {
       console.error("Error updating document:", error);
       if (error.code === "not-found") {

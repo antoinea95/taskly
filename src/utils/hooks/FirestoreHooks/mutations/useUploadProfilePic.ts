@@ -15,7 +15,7 @@ export const useUploadProfilePic = (
     file: File | null,
     documentId?: string
   ) => {
-    return useFirestoreMutation<void>(() => {
+    return useFirestoreMutation<void, void>(() => {
       if (documentId && file) {
         return StorageService.ImportFile(file, documentId);
       }

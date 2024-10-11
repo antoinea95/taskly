@@ -2,8 +2,8 @@ import {
     useMutation,
     useQueryClient,
     MutationFunction,
+    UseMutationResult,
   } from "@tanstack/react-query";
-  import { MutationResultType } from "@/components/Form/form.types";
 
 
 /**
@@ -22,14 +22,14 @@ import {
  */
 export const useFirestoreMutation = <
   TData,
-  TVariables = undefined,
+  TVariables,
   TError = Error,
   TContext = unknown,
 >(
   mutationFn: MutationFunction<TData, TVariables>,
   key: any[],
   queryCollection?: string[]
-): MutationResultType<TData, TError, TVariables, TContext> => {
+): UseMutationResult<TData, TError, TVariables, TContext> => {
   const queryClient = useQueryClient();
 
   return useMutation<TData, TError, TVariables, TContext>({

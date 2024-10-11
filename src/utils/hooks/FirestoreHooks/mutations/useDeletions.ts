@@ -9,8 +9,8 @@ import { BatchService } from "@/utils/firebase/firestore/batchService";
  * @param id The ID of the board to delete.
  * @returns A mutation result object from react-query.
  */
-export const useDeleteBoard = (userId?: string, id?: string) => {
-    return useFirestoreMutation<void>(() => {
+export const useDeleteBoard = <T,>(userId?: string, id?: string) => {
+    return useFirestoreMutation<void, T>(() => {
       if (id) {
         return BatchService.deleteBoard(id);
       }
@@ -26,8 +26,8 @@ export const useDeleteBoard = (userId?: string, id?: string) => {
    * @param id The ID of the list to delete.
    * @returns A mutation result object from react-query.
    */
-  export const useDeleteList = (boardId: string, id?: string) => {
-    return useFirestoreMutation<void>(() => {
+  export const useDeleteList = <T,>(boardId: string, id?: string) => {
+    return useFirestoreMutation<void, T>(() => {
       if (id) {
         return BatchService.deleteList(id);
       }
@@ -42,8 +42,8 @@ export const useDeleteBoard = (userId?: string, id?: string) => {
    * @param id The ID of the task to delete.
    * @returns A mutation result object from react-query.
    */
-  export const useDeleteTask = (id?: string) => {
-    return useFirestoreMutation<void>(() => {
+  export const useDeleteTask = <T,>(id?: string) => {
+    return useFirestoreMutation<void, T>(() => {
       if (id) {
         return BatchService.deleteTask(id);
       }
@@ -59,8 +59,8 @@ export const useDeleteBoard = (userId?: string, id?: string) => {
    * @param id The ID of the checklist to delete.
    * @returns A mutation result object from react-query.
    */
-  export const useDeleteChecklist = (taskId: string, id?: string) => {
-    return useFirestoreMutation<void>(() => {
+  export const useDeleteChecklist = <T,>(taskId: string, id?: string) => {
+    return useFirestoreMutation<void, T>(() => {
       if (id) {
         return BatchService.deleteCheckList(id, taskId);
       }
