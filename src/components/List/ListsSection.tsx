@@ -13,7 +13,7 @@ import {
 } from "@dnd-kit/sortable";
 import { useState } from "react";
 import { Card } from "../ui/card";
-import { ListType } from "@/components/types/lists.types";
+import { ListType } from "@/utils/types/lists.types";
 import { useDragMouse } from "@/utils/helpers/hooks/useDragMouse";
 import { useDragAndDropZone } from "../../utils/helpers/hooks/useDragAndDropZone";
 import { useGetLists } from "@/utils/hooks/FirestoreHooks/queries/useGetLists";

@@ -9,6 +9,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
+    "lib": ["dom", "esnext"],
     "strict": true
   }
 }

@@ -1,10 +1,10 @@
-import { Calendar } from "lucide-react";
+import { Calendar, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FieldValues } from "react-hook-form";
 import { z } from "zod";
 import { ToggleButton } from "../../Button/ToggleButton";
-import { TaskType } from "@/components/types/tasks.types";
-import { MutationResultType } from "@/components/types/form.types";
+import { TaskType } from "@/utils/types/tasks.types";
+import { MutationResultType } from "@/utils/types/form.types";
 import { FormContainer } from "@/components/Form/containers/FormContainer";
 import { FormFieldDateItem } from "@/components/Form/fields/FormFieldDateItem";
 import { FormCheckBoxItem } from "@/components/Form/fields/FormCheckBoxItem";
@@ -92,8 +92,8 @@ export const AddTaskDeadline = ({
         >
           {({ form }) => (
             <>
-              <FormFieldDateItem form={form} key="to" />
-              {isBeginDate && <FormFieldDateItem form={form} key="from" />}
+              <FormFieldDateItem form={form} id="to" />
+              {isBeginDate && <FormFieldDateItem form={form} id="from" />}
               <FormCheckBoxItem
                 id="begin"
                 defaultChecked={task.dueDate?.from ? true : false}
@@ -103,10 +103,13 @@ export const AddTaskDeadline = ({
                 content="Start date?"
               />
               <FormActionsButton
-                actionName={`${task.dueDate ? "Update" : "Add"} deadline`}
                 isPending={mutationQuery.isPending}
                 setIsOpen={setIsAddDate}
-              />
+              >
+                <span className="flex items-center gap-2">
+                <Plus size={16} /> {`${task.dueDate ? "Update" : "Add"} deadline`}
+                </span>
+              </FormActionsButton>
             </>
           )}
         </FormContainer>

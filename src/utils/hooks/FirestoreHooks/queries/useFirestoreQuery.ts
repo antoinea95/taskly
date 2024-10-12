@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   CollectionReference,
   query as firestoreQuery,
+  QueryConstraint,
 } from "firebase/firestore";
 import { UseFirestoreQueryProps } from "../../hooks.types";
 import { FirestoreService } from "@/utils/firebase/firestore/firestoreService";
@@ -30,7 +31,7 @@ import { FirestoreService } from "@/utils/firebase/firestore/firestoreService";
    */
   const fetchCollection = <T,>(
     collectionName: string,
-    filterFn?: (colRef: CollectionReference) => any,
+    filterFn?: (colRef: CollectionReference) => QueryConstraint[],
   ): Promise<T> => {
     return new Promise<T>((resolve) => {
       const unsubscribe = FirestoreService.subscribeToCollection<T>(

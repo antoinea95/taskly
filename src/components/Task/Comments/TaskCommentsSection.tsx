@@ -1,6 +1,6 @@
 import { MessageSquare } from "lucide-react";
 import { TaskComment } from "./TaskComment";
-import { TaskCommentsSectionProps } from "@/components/types/tasks.types";
+import { TaskCommentsSectionProps } from "@/utils/types/tasks.types";
 import { FieldValues } from "react-hook-form";
 import { AddForm } from "@/components/Form/AddForm";
 

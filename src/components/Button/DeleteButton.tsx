@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import { Trash } from "lucide-react";
 import { Modal } from "../ui/Modal";
-import { DeleteButtonProps } from "../types/buttons.types";
+import { DeleteButtonProps } from "../../utils/types/buttons.types";
 
 /**
  * DeleteButton component
@@ -30,7 +30,7 @@ export const DeleteButton = ({
       setIsModalOpen={setIsOpen}
     >
       <Button
-        className="w-fit h-10 px-3 rounded-xl bg-gray-50 text-black flex gap-2 shadow-none border-none hover:bg-gray-300"
+        className="w-fit h-10 px-3 rounded-xl bg-gray-100 text-black flex gap-2 shadow-none border-none hover:bg-gray-300"
         onClick={() => setIsOpen(true)}
       >
         <Trash size={16} /> {content && content}

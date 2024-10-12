@@ -41,7 +41,7 @@ export type FormContainerProps<T extends FieldValues> = {
   mutationQuery: MutationResultType<any, T>;
   children: (props: { form: UseFormReturn<T> }) => ReactNode;
   actionName?: string;
-  defaultValues?: DefaultValues<T>;
+  defaultValues?: DefaultValues<FieldValues>;
 };
 
 // Input field props using the shared form props type
@@ -51,7 +51,7 @@ export type FormFieldInputItemProps<T extends FieldValues> = FormProps<T> & {
 
 // Date field props with shared form props
 export type FormFieldDateItemProps<T extends FieldValues> = FormProps<T> & {
-  key: "to" | "from";
+  id: "to" | "from";
 };
 
 // Checkbox field props
@@ -65,7 +65,6 @@ export type FormCheckBoxItemProps = {
 
 // Actions button props
 export type FormActionsButtonProps = {
-  actionName: string;
   isPending: boolean;
   disabled?: boolean;
   setIsOpen?: Dispatch<SetStateAction<boolean>>;

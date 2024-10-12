@@ -11,14 +11,16 @@ import { StorageService } from "@/utils/firebase/storage/storageService";
  * @returns A mutation result object from react-query.
  */
 export const useUploadProfilePic = (
-    key: any[],
-    file: File | null,
-    documentId?: string
-  ) => {
-    return useFirestoreMutation<void, void>(() => {
-      if (documentId && file) {
-        return StorageService.ImportFile(file, documentId);
-      }
+  key: any[],
+  file: File | null,
+  documentId?: string
+) => {
+  return useFirestoreMutation<void, void>(() => {
+    // Check if both documentId and file are provided
+    if (!documentId) {
       return Promise.reject(new Error("Document ID is not defined"));
-    }, key);
-  };
+    }
+    // Proceed with file upload if both are available
+    return StorageService.ImportFile(file, documentId);
+  }, key);
+};

@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "react";
 import { Button } from "../ui/button";
-import { ToggleButtonProps } from "../types/buttons.types";
+import { ToggleButtonProps } from "../../utils/types/buttons.types";
 
 /**
  * ToggleButton component
@@ -21,7 +21,7 @@ export const ToggleButton = ({
   return (
     <Button
       onClick={() => setIsOpen(true)}
-      className="w-full h-10 px-3 rounded-xl bg-gray-100 text-black flex gap-2 shadow-none border-none hover:bg-black hover:text-white animate-fade-in"
+      className="w-full h-10 px-3 rounded-xl bg-gray-100 text-black flex gap-2 shadow-none border-none hover:bg-black hover:text-white"
     >
       {children}
     </Button>

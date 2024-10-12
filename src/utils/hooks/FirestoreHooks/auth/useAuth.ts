@@ -1,6 +1,6 @@
 import { firebaseAuth } from "@/utils/firebase/firebaseApp";
 import { FirestoreService } from "@/utils/firebase/firestore/firestoreService";
-import { UserType } from "@/components/types/auth.types";
+import { UserType } from "@/utils/types/auth.types";
 import { User } from "firebase/auth";
 import { useCallback, useEffect, useState } from "react";
 

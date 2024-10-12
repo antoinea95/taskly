@@ -1,10 +1,26 @@
-import { addDoc, collection, CollectionReference, deleteDoc, doc, getDoc, getDocs, onSnapshot, QuerySnapshot, updateDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  CollectionReference,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  query,
+  QueryConstraint,
+  QuerySnapshot,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { firebaseFirestore } from "../firebaseApp";
+import { BatchService } from "./batchService";
+import { TaskCommentType, TaskType } from "@/utils/types/tasks.types";
+import { BoardType } from "@/utils/types/boards.types";
 
 export class FirestoreService {
-
-    private static firebaseFirestore = firebaseFirestore
-     /**
+  private static firebaseFirestore = firebaseFirestore;
+  /**
    * Creates a new document in the specified Firestore collection.
    * @param collectionName - The name of the collection where the document will be created.
    * @param data - The data to be stored in the document (excluding the ID).
@@ -19,7 +35,7 @@ export class FirestoreService {
     try {
       const docRef = collection(this.firebaseFirestore, collectionName);
       const snapshot = await addDoc(docRef, data);
-      return snapshot.id
+      return snapshot.id;
     } catch (error) {
       console.error("Error creating document:", error);
       throw new Error("Failed to create document");
@@ -53,31 +69,132 @@ export class FirestoreService {
     }
   }
 
-    /**
+  /**
    * Delete a document in a firestore collection.
    * @param collectionName - The Firestore collection of the document.
    * @param id - The ID of the document to delete
    * @returns A promise that resolves when the document is delete.
    * @throws Throw an error if document is not found.
    */
-    public static async deleteDocument(
-        collectionName: string,
-        id: string
-      ): Promise<void> {
-        try {
-          const docRef = doc(this.firebaseFirestore, collectionName, id);
-          await deleteDoc(docRef)
-        } catch (error: any) {
-          console.error("Error deleting document:", error);
-          if (error.code === "not-found") {
-            throw new Error(`Document with id ${id} not found`);
+  public static async deleteDocument(
+    collectionName: string,
+    id: string
+  ): Promise<void> {
+    try {
+      const docRef = doc(this.firebaseFirestore, collectionName, id);
+      await deleteDoc(docRef);
+    } catch (error: any) {
+      console.error("Error deleting document:", error);
+      if (error.code === "not-found") {
+        throw new Error(`Document with id ${id} not found`);
+      } else {
+        throw new Error("Failed to delete document");
+      }
+    }
+  }
+
+  /**
+   * Removes the user from the members list of documents or deletes the document
+   * if the user is the creator. The function operates on any Firestore collection.
+   *
+   * @template T - The type of document that must include `members`, `id`, and optionally `creator`.
+   * @param {string} collectionName - The name of the Firestore collection (e.g., "boards", "tasks").
+   * @param {string} userId - The ID of the user to remove from the members list.
+   * @returns A promise that resolves when all documents have been updated or deleted.
+   *
+   * @example
+   * // Remove the user from boards or delete the board if they are the creator
+   * await FirestoreService.removeMemberAndDeleteDocument<BoardType>("boards", user.uid);
+   */
+  public static async removeMemberAndDeleteDocument(
+    collectionName: string,
+    userId: string
+  ): Promise<void> {
+    // Fetch documents where the user is a member (for boards)
+    const boards = await FirestoreService.fetchDocs<BoardType>(
+      collectionName,
+      () => [where("members", "array-contains", userId)]
+    );
+
+    // Handle update or deletion of boards
+    if (boards.length) {
+      await Promise.all(
+        boards.map(async (board) => {
+          // If the user is the creator, delete the entire board
+          if (board.creator && board.creator === userId) {
+            await BatchService.deleteBoard(board.id);
           } else {
-            throw new Error("Failed to delete document");
+            // Update members by removing the user from the members list
+            await this.updateMembers(board, userId, collectionName);
           }
-        }
+        })
+      );
     }
 
-     /**
+    // Fetch tasks where the user is mentioned in the comments (but not necessarily a member)
+    const allTasks = await FirestoreService.fetchDocs<TaskType>(collectionName); // Assuming all tasks are in the same collection
+
+    const tasksToRemoveCommentsFrom = allTasks.filter((task) =>
+      task.comments?.some((comment) => comment.userId === userId)
+    );
+
+    // Handle update of tasks
+    if (tasksToRemoveCommentsFrom.length) {
+      await Promise.all(
+        tasksToRemoveCommentsFrom.map(async (task) => {
+          await this.removeUserComments(task, userId, collectionName);
+        })
+      );
+    }
+  }
+
+  /**
+   * Update the members of a document by removing the specified user.
+   *
+   * @param doc - The document to update.
+   * @param userId - The user ID to remove.
+   * @param collectionName - The name of the collection.
+   */
+  private static async updateMembers<
+    T extends { members?: string[]; id: string },
+  >(doc: T, userId: string, collectionName: string): Promise<void> {
+    if (doc.members) {
+      const updatedMembers = doc.members.filter((member) => member !== userId);
+
+      // Update the document with the new members list
+      await FirestoreService.updateDocument<T>(
+        collectionName,
+        { members: updatedMembers } as Partial<T>,
+        doc.id
+      );
+    }
+  }
+
+  /**
+   * Remove the user's comments from a task.
+   *
+   * @param task - The task to update.
+   * @param userId - The user ID to remove.
+   * @param collectionName - The name of the collection.
+   */
+  private static async removeUserComments<
+    T extends { comments?: TaskCommentType[]; id: string },
+  >(task: T, userId: string, collectionName: string): Promise<void> {
+    if (task.comments) {
+      const updatedComments = task.comments.filter(
+        (comment) => comment.userId !== userId
+      );
+
+      // Update the task with the new comments list
+      await FirestoreService.updateDocument<T>(
+        collectionName,
+        { comments: updatedComments } as Partial<T>,
+        task.id
+      );
+    }
+  }
+
+  /**
    * Fetches a document from a specified collection using its ID.
    * @param collectionName - The name of the collection containing the document.
    * @param documentId - The ID of the document to fetch.
@@ -112,11 +229,11 @@ export class FirestoreService {
    */
   public static async fetchDocs<T>(
     collectionName: string,
-    filterFn?: (colRef: CollectionReference) => any
+    filterFn?: (colRef: CollectionReference) => QueryConstraint[]
   ): Promise<T[]> {
     try {
       const colRef = collection(this.firebaseFirestore, collectionName);
-      const q = filterFn ? filterFn(colRef) : colRef;
+      const q = filterFn ? query(colRef, ...filterFn(colRef)) : colRef;
 
       const docSnap = await getDocs(q);
       if (docSnap.empty) {
@@ -159,8 +276,6 @@ export class FirestoreService {
             id: docSnap.id,
           };
           callback(doc as T);
-        } else {
-          throw new Error("Error while subscribing to document");
         }
       },
       (error) => {
@@ -183,29 +298,26 @@ export class FirestoreService {
    */
   public static subscribeToCollection<T>(
     collectionName: string,
-    callback: (data: T[]) => void,
+    callback: (data: T) => void,
     errorMessage: string,
     filterFn?: (colRef: CollectionReference) => any
   ): () => void {
     const colRef = collection(this.firebaseFirestore, collectionName);
     const q = filterFn ? filterFn(colRef) : colRef;
-
     const unsubscribe = onSnapshot(
       q,
       (querySnapshot: QuerySnapshot) => {
         const docs = querySnapshot.docs.map((doc) => ({
           ...doc.data(),
           id: doc.id,
-        })) as T[];
+        })) as T;
         callback(docs);
       },
       (error) => {
         console.error(`${errorMessage}`, error);
-        callback([]);
       }
     );
 
     return unsubscribe;
   }
-    
 }

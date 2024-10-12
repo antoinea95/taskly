@@ -7,10 +7,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Root } from "../src/routes/root.tsx";
 import { BoardPage } from "./pages/BoardPage.tsx";
 import { LoginPage } from "./pages/LoginPage.tsx";
-import {HomePage} from "./pages/HomePage.tsx";
+import { HomePage } from "./pages/HomePage.tsx";
 import { ProfilePage } from "./pages/ProfilePage.tsx";
 import { ErrorPage } from "./pages/ErrorPage.tsx";
-
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,8 +19,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-
 
 const router = createBrowserRouter([
   {
@@ -33,19 +30,16 @@ const router = createBrowserRouter([
         path: "/",
         element: (
           <HomePage />
-      ),
-      },
-      {
-        path: "/:boardId",
-        element: (
-            <BoardPage />
         ),
       },
       {
+        path: "/:boardId",
+        element: <BoardPage />,
+      },
+      {
         path: "/profile",
-        element: (
-          <ProfilePage />
-      )},
+        element: <ProfilePage />,
+      },
     ],
   },
   {

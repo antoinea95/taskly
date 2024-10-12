@@ -1,6 +1,6 @@
 import { Member } from "@/components/Members/Member";
-import { UserType } from "@/components/types/auth.types";
-import { TaskCommentProps } from "@/components/types/tasks.types";
+import { UserType } from "@/utils/types/auth.types";
+import { TaskCommentProps } from "@/utils/types/tasks.types";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
@@ -11,17 +11,19 @@ import { DeleteConfirmation } from "@/components/Form/actions/DeleteConfirmation
 import { FormContainer } from "@/components/Form/containers/FormContainer";
 import { z } from "zod";
 import { FormFieldInputItem } from "@/components/Form/fields/FormFieldInputItem";
+import { FormActionsButton } from "@/components/Form/actions/FormActionsButton";
+import { Plus } from "lucide-react";
 
 /**
  * TaskComment component displays a single comment within a task.
  * It allows the user who made the comment to update or delete it.
- * 
+ *
  * @param {TaskCommentProps} props - The properties passed to the component.
  * @param {Object} props.comment - The comment object containing the comment's data.
  * @param {Array} props.comments - The array of all comments for the task.
  * @param {string} props.userId - The ID of the current user viewing the comment.
  * @param {MutationResultType<string, FieldValues>} props.mutationQuery - The mutation query used for updating or deleting comments.
- * 
+ *
  * @returns The rendered TaskComment component.
  */
 export const TaskComment = ({
@@ -48,18 +50,18 @@ export const TaskComment = ({
 
   /**
    * Finds the current comment from the comments array.
-   * 
+   *
    * @returns The found comment or undefined if not found.
    */
   const findComment = () => {
-    return comments.find(
+    return comments?.find(
       (item) => item.userId === userId && item.title === comment.title
     );
   };
 
   /**
    * Handles updating the comment's title.
-   * 
+   *
    * @param {FieldValues} data - The new data for the comment.
    */
   const handleUpdateComment = async (data: FieldValues) => {
@@ -71,7 +73,7 @@ export const TaskComment = ({
 
       mutationQuery.mutate(
         {
-          comments: comments.map((item) =>
+          comments: comments?.map((item) =>
             item === commentToUpdate ? commentToUpdate : item
           ),
         },
@@ -84,13 +86,13 @@ export const TaskComment = ({
 
   /**
    * Handles deleting the comment.
-   * 
+   *
    */
   const handleDeleteComment = async () => {
     const commentToDelete = findComment();
     mutationQuery.mutate(
       {
-        comments: comments.filter((item) => item !== commentToDelete),
+        comments: comments?.filter((item) => item !== commentToDelete),
       },
       {
         onSuccess: () => setIsCommentUpdate(false),
@@ -99,7 +101,7 @@ export const TaskComment = ({
   };
 
   return (
-    <div className="flex flex-col space-y-2 bg-white rounded-xl p-3">
+    <div className="flex flex-col space-y-3 bg-white rounded-xl p-3">
       <div className="flex items-center gap-2">
         {/* Display the avatar of the comment's author */}
         <Member userId={comment.userId} type="avatar" />
@@ -115,7 +117,7 @@ export const TaskComment = ({
           <div className="flex items-center justify-end flex-1 gap-2">
             <button
               onClick={() => setIsCommentUpdate(true)}
-              className="bg-gray-100 rounded-xl text-xs px-3 h-8 text-gray-500 hover:bg-gray-200"
+              className="bg-gray-100 rounded-xl text-xs px-3 h-10 text-gray-500 hover:bg-gray-200"
             >
               Update
             </button>
@@ -146,14 +148,29 @@ export const TaskComment = ({
           defaultValues={{ title: comment.title }}
         >
           {({ form }) => (
-            <FormFieldInputItem
-              form={form}
-              item={{
-                name: "title",
-                type: "text",
-                placeholder: "Your comment",
-              }}
-            />
+            <>
+              <FormFieldInputItem
+                form={form}
+                item={{
+                  name: "title",
+                  type: "text",
+                  placeholder: "Your comment",
+                }}
+              />
+              <FormActionsButton
+                isPending={mutationQuery.isPending}
+                setIsOpen={setIsCommentUpdate}
+                disabled={
+                  mutationQuery.isPending ||
+                  Object.keys(form.getValues()).length === 0
+                }
+              >
+                <span className="flex items-center gap-2">
+                  <Plus size={16} />
+                  Update comment
+                </span>
+              </FormActionsButton>
+            </>
           )}
         </FormContainer>
       )}

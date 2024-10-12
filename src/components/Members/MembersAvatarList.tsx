@@ -1,5 +1,5 @@
 import { PropsWithChildren, HTMLAttributes } from "react";
-import { MembersAvatarListProps } from "../types/members.type";
+import { MembersAvatarListProps } from "../../utils/types/members.type";
 
 /**
  * MembersAvatarList component

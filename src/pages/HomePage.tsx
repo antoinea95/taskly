@@ -14,6 +14,7 @@ import { useAuth } from "@/utils/hooks/FirestoreHooks/auth/useAuth";
 import { useGetBoards } from "@/utils/hooks/FirestoreHooks/queries/useGetBoards";
 
 export const HomePage = () => {
+
   /**
    * Retrieves current authenticated user's data.
    * @returns {Object} currentUser - The current authenticated user object.
@@ -22,6 +23,7 @@ export const HomePage = () => {
   const { currentUser, isLoading } = useAuth();
   const userId = currentUser?.id;
 
+
   /**
    * Fetches the boards associated with the current user.
    * @returns {Array} boards - The list of board objects fetched from Firestore.
@@ -29,8 +31,9 @@ export const HomePage = () => {
    */
   const { data: boards, isFetched } = useGetBoards(userId);
 
+
   // Show loading state if boards or user data is still being fetched
-  if (!isFetched || isLoading) {
+  if (!isFetched && isLoading) {
     return <HomeSkeleton />;
   }
 

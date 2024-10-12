@@ -189,11 +189,6 @@ export class BatchService {
         const subCollectionRef = collection(parentRef, sub);
         const subDocs = await getDocs(subCollectionRef);
 
-        if (subDocs.empty) {
-            throw new Error(`No documents found in sub-collection ${sub}.`);
-          }
-  
-
         for (const item of subDocs.docs) {
           await this.deleteSubCollections(item.ref, batch, subCollections); // Recursive call
           batch.delete(item.ref); // Add item deletion to batch

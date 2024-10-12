@@ -1,6 +1,6 @@
 import { Button } from "../ui/button";
 import { UserPlus } from "lucide-react";
-import { MemberButtonProps } from "../types/buttons.types";
+import { MemberButtonProps } from "../../utils/types/buttons.types";
 
 /**
  * MemberButton component

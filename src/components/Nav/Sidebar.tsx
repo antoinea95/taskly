@@ -1,5 +1,5 @@
 import { ClipboardList, Dot, LogOut } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { AddBoard } from "../Board/AddBoard";
 import { Skeleton } from "../ui/skeleton";
 import { Member } from "../Members/Member";
@@ -10,14 +10,13 @@ import { useSignOut } from "@/utils/hooks/FirestoreHooks/auth/useSignOut";
 /**
  * Sidebar component displays the user's boards, navigation options, user profile,
  * and logout functionality.
- * 
+ *
  * @returns The sidebar component JSX.
  */
 export const Sidebar = () => {
   const { currentUser } = useAuth(); // Get the current user from auth hook
   const userId = currentUser?.id; // Extract the user ID if user exists
   const { data: boards, isLoading } = useGetBoards(userId); // Fetch boards for the current user
-  const navigate = useNavigate(); // Hook to navigate between pages
   const signOut = useSignOut(); // Hook to sign out the user
 
   /**
@@ -25,15 +24,17 @@ export const Sidebar = () => {
    */
   const handleLogOut = async (): Promise<void> => {
     await signOut.mutateAsync(); // Sign out the user asynchronously
-    navigate("/login"); // Redirect to the login page after logging out
   };
 
   /**
    * If the user is not logged in and loading is finished, redirect to login page.
    */
-  if (!currentUser && !isLoading) {
-    navigate("/login");
-  }
+
+  // useEffect(() => {
+  //   if (!currentUser && !isLoading) {
+  //     navigate("/login");
+  //   }
+  // }, [currentUser, isLoading, navigate]);
 
   return (
     <section className="font-outfit flex-1 flex flex-col pb-2">

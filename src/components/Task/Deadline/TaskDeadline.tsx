@@ -1,4 +1,3 @@
-import { Checkbox } from "@/components/ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import {
   CalendarIcon,
@@ -9,7 +8,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { TaskHeaderItem } from "../Containers/TaskHeaderItem";
-import { DateRange, TaskType } from "@/components/types/tasks.types";
+import { DateRange, TaskType } from "@/utils/types/tasks.types";
 import { useUpdateDoc } from "@/utils/hooks/FirestoreHooks/mutations/useUpdateDoc";
 import { Label } from "@/components/Label/Label";
 import { FormCheckBoxItem } from "@/components/Form/fields/FormCheckBoxItem";
@@ -123,21 +122,6 @@ export const TaskDeadline = ({
         onCheckedChange={handleCheckedChange}
         content={`${dueDate.from ? `${formatDate(dueDate.from)} -` : ""}${formatDate(dueDate.to)}`}
       />
-      <Checkbox
-        id="completed"
-        defaultChecked={dueDate.completed}
-        onCheckedChange={handleCheckedChange}
-        className="border-2 shadow-none flex items-center justify-center"
-      />
-      <div className="flex items-center">
-        <label
-          htmlFor="completed"
-          className="pl-1 cursor-pointer text-xs font-medium mr-1"
-        >
-          {dueDate.from && `${formatDate(dueDate.from)} - `}
-          {formatDate(dueDate.to)}
-        </label>
-      </div>
       {getTag()}
     </TaskHeaderItem>
   );

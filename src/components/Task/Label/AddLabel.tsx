@@ -1,6 +1,6 @@
 import { AddForm } from "@/components/Form/AddForm";
-import { MutationResultType } from "@/components/types/form.types";
-import { TaskTagType, TaskType } from "@/components/types/tasks.types";
+import { MutationResultType } from "@/utils/types/form.types";
+import { TaskTagType, TaskType } from "@/utils/types/tasks.types";
 import { Check } from "lucide-react";
 import { useState } from "react";
 

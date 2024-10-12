@@ -10,7 +10,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { useFilteredUsers } from "../../utils/helpers/hooks/useFilteredUsers";
 import { useSelectedUsers } from "../../utils/helpers/hooks/useSelectedUsers";
 import { MemberButton } from "../Button/MemberButton";
-import { AddMemberProps } from "../types/members.type";
+import { AddMemberProps } from "../../utils/types/members.type";
 
 /**
  * AddMember component

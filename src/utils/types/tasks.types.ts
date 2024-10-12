@@ -35,7 +35,7 @@ export type DateRange = {
 export type TaskCommentsSectionProps = {
   mutationQuery: MutationResultType<string, Partial<TaskType>>;
   userId: string;
-  comments: TaskCommentType[];
+  comments?: TaskCommentType[];
 }
 
 

@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FieldValues, useForm} from "react-hook-form";
+import { DefaultValues, FieldValues, useForm} from "react-hook-form";
 import { useEffect } from "react";
 import { Form } from "../../ui/form";
-import { FormContainerProps } from "../../types/form.types";
+import { FormContainerProps } from "../../../utils/types/form.types";
 import { NotificationBanner } from "../../Notification/NotificationBanner";
 
 /**
@@ -32,7 +32,7 @@ export const FormContainer = <T extends FieldValues>({
   const form = useForm<T>({
     mode: "onSubmit",
     resolver: zodResolver(schema),
-    defaultValues: defaultValues ? defaultValues : undefined
+    defaultValues: defaultValues ? defaultValues as DefaultValues<T> : undefined
   });
 
   const { isError, error, isSuccess } = mutationQuery;
@@ -44,11 +44,13 @@ export const FormContainer = <T extends FieldValues>({
     }
   }, [isSuccess, form]);
 
+
+  
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full gap-4 h-fit"
+        className="flex flex-col w-full h-fit space-y-3 bg-white p-3 rounded-xl"
       >
         {/* If children is a function, pass the form instance to it; otherwise, render it directly */}
         {children && typeof children === "function" ? children({ form }) : children}
@@ -57,6 +59,7 @@ export const FormContainer = <T extends FieldValues>({
         {isError && (
           <NotificationBanner
             isError={isError}
+            isSuccess={isSuccess}
             content={error && error instanceof Error ? error?.message : ""}
           />
         )}

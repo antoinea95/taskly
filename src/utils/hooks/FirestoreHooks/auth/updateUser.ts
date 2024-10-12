@@ -26,8 +26,8 @@ export const useUpdatePassword = <T extends FieldValues>(
   onSuccess: () => void
 ) => {
   return useMutation<void, Error, T>({
-    mutationFn: async ({ actualPassword, password }) => {
-      await AuthService.updateUserPassword(actualPassword, password);
+    mutationFn: async (data) => {
+      await AuthService.updateUserPassword({actualPassword: data.actualPassword, newPassword: data.newPassword});
     },
     onSuccess: () => {
       onSuccess();
@@ -47,8 +47,11 @@ export const useUpdateEmail = <T extends FieldValues>(
   onSuccess: () => void
 ) => {
   return useMutation<void, Error, T>({
-    mutationFn: async ({ userId, email }) => {
-      await AuthService.updateUserEmail(userId, email);
+    mutationFn: async (data) => {
+      if(data.password) {
+        await AuthService.reauthenticateUser({password: data.password})
+      }
+      await AuthService.updateUserEmail(data.email);
     },
     onSuccess: () => {
       onSuccess();
@@ -61,10 +64,10 @@ export const useUpdateEmail = <T extends FieldValues>(
 
 export const useResetPassword = <T extends FieldValues>() => {
   return useMutation<void, Error, T>({
-    mutationFn: async ({ email }) => {
-      if (email) {
+    mutationFn: async (data) => {
+      if (data.email) {
         try {
-          await sendPasswordResetEmail(firebaseAuth, email);
+          await sendPasswordResetEmail(firebaseAuth, data.email);
         } catch (error) {
           console.error(error);
           throw new Error("Email does not exist");

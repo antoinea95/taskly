@@ -1,6 +1,6 @@
-import { BoardType } from "@/components/types/boards.types";
-import { ListType } from "../types/lists.types";
-import { UserType } from "../types/auth.types";
+import { BoardType } from "@/utils/types/boards.types";
+import { ListType } from "../../utils/types/lists.types";
+import { UserType } from "../../utils/types/auth.types";
 import { useState } from "react";
 import { AddForm } from "../Form/AddForm";
 import { FieldValues } from "react-hook-form";

@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
-import { SubmitButtonProps } from "../types/buttons.types";
+import { SubmitButtonProps } from "../../utils/types/buttons.types";
 
 /**
  * SubmitButton component

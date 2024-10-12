@@ -1,8 +1,8 @@
-import { PenLine } from "lucide-react";
+import { MessageSquare, PenLine } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { TaskType } from "@/components/types/tasks.types";
-import { MutationResultType } from "@/components/types/form.types";
+import { TaskType } from "@/utils/types/tasks.types";
+import { MutationResultType } from "@/utils/types/form.types";
 import { FormContainer } from "@/components/Form/containers/FormContainer";
 import { FormFieldInputItem } from "@/components/Form/fields/FormFieldInputItem";
 import { FormActionsButton } from "@/components/Form/actions/FormActionsButton";
@@ -72,6 +72,9 @@ export const TaskDescription = ({
           onSubmit={handleAddDescription}
           schema={descriptionSchema}
           mutationQuery={mutationQuery}
+          defaultValues={{
+            description: description ? description : undefined
+          }}
         >
           {({ form }) => (
             <>
@@ -84,9 +87,13 @@ export const TaskDescription = ({
                 }}
               />
               <FormActionsButton
-                actionName="Save"
                 isPending={mutationQuery.isPending}
-              />
+                setIsOpen={setIsUpdate}
+              >
+                <span className="flex item-center gap-2">
+                  <MessageSquare size={16} /> {`${description ? "Update" : "Add"} description`}
+                </span>
+              </FormActionsButton>
             </>
           )}
         </FormContainer>

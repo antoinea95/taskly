@@ -6,9 +6,9 @@ import {
 } from "../ui/hover-card";
 import { MembersAvatarList } from "./MembersAvatarList";
 import { useQueryClient } from "@tanstack/react-query";
-import { TaskType } from "@/components/types/tasks.types";
-import { query as queryFirebase, where } from "firebase/firestore";
-import { MembersDetailsProps } from "../types/members.type";
+import { TaskType } from "@/utils/types/tasks.types";
+import { where } from "firebase/firestore";
+import { MembersDetailsProps } from "../../utils/types/members.type";
 import { FirestoreService } from "@/utils/firebase/firestore/firestoreService";
 
 /**
@@ -57,9 +57,7 @@ export const MembersDetails = <T,>({
         // Fetch all tasks that include the deleted member
         const tasks: TaskType[] = await FirestoreService.fetchDocs(
           "tasks",
-          (colRef) => {
-            return queryFirebase(colRef, where("members", "array-contains", id));
-          },
+          () => [where("members", "array-contains", id)]
         );
   
         // Update each task to remove the member from the task
@@ -71,7 +69,7 @@ export const MembersDetails = <T,>({
               members: updatedMembers, // Update the task members array
             }, task.id);
   
-            queryClient.invalidateQueries({ queryKey: ["tasks", task.id] }); // Invalidate the query to refetch updated data
+            queryClient.invalidateQueries({ queryKey: ["task", task.id] }); // Invalidate the query to refetch updated data
           })
         );
       }

@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { Label } from "../../Label/Label";
-import { TaskTagType, TaskType } from "@/components/types/tasks.types";
-import { MutationResultType } from "@/components/types/form.types";
+import { TaskTagType, TaskType } from "@/utils/types/tasks.types";
+import { MutationResultType } from "@/utils/types/form.types";
 
 /**
  * Component to display a task label and optionally allow the user to delete the label.

@@ -1,5 +1,5 @@
 import { Checkbox } from "../../ui/checkbox";
-import { FormCheckBoxItemProps } from "../../types/form.types";
+import { FormCheckBoxItemProps } from "../../../utils/types/form.types";
 
 /**
  * FormCheckBoxItem is a reusable component for rendering a checkbox with an associated label.

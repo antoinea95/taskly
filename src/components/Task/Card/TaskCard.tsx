@@ -9,8 +9,8 @@ import {
 } from "../../ui/card";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {TaskType } from "@/components/types/tasks.types";
-import { ListType } from "@/components/types/lists.types";
+import {TaskType } from "@/utils/types/tasks.types";
+import { ListType } from "@/utils/types/lists.types";
 import { MessageSquare } from "lucide-react";
 import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
 import { TaskLabel } from "../Label/TaskLabel";

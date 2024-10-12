@@ -1,4 +1,4 @@
-import { BoardType } from "../types/boards.types";
+import { BoardType } from "../../utils/types/boards.types";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Member } from "../Members/Member";

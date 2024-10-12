@@ -1,5 +1,5 @@
 import { AuthService } from "@/utils/firebase/auth/authService";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 /**
@@ -10,11 +10,15 @@ import { useNavigate } from "react-router-dom";
  */
 export const useSignOut = () => {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+
   
     return useMutation({
       mutationFn: () => AuthService.signOut(),  // Call Firestore's sign-out method
       onSuccess: () => {
         navigate("/login");  // Navigate to the login page upon successful sign-out
+        queryClient.invalidateQueries();
+        queryClient.removeQueries();
       },
       onError: (error) => {
         console.error("Error while signing out", error);

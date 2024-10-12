@@ -1,6 +1,6 @@
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import { Avatar, AvatarImage } from "../ui/avatar";
-import { UserType } from "@/components/types/auth.types";
+import { UserType } from "@/utils/types/auth.types";
 import { HeaderSkeleton } from "../Skeletons/skeletons";
 
 /**

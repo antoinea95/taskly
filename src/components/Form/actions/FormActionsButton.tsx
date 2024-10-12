@@ -1,6 +1,7 @@
 import { CloseButton } from "../../Button/CloseButton";
 import { SubmitButton } from "../../Button/SubmitButton";
-import { FormActionsButtonProps } from "../../types/form.types";
+import { FormActionsButtonProps } from "../../../utils/types/form.types";
+import { PropsWithChildren } from "react";
 
 /**
  * FormActionsButton component
@@ -10,24 +11,25 @@ import { FormActionsButtonProps } from "../../types/form.types";
  * The close button is displayed if a `setIsOpen` function is passed, allowing the user to close the form or modal.
  * 
  * @param {FormActionsButtonProps} props - The properties for the FormActionsButton component.
+ * @param props.children - Content of submit button
  * @param {string} props.actionName - The name or label of the action (e.g., "Submit", "Save").
  * @param {boolean} props.isPending - A boolean indicating whether the submit action is pending.
  * @param {boolean} props.disabled - A boolean indicating whether the submit button should be disabled.
  * @param {function} [props.setIsOpen] - An optional function to close the form or modal, displayed as a close button.
  * 
- * @returns {JSX.Element} The rendered action buttons.
+ * @returns The rendered action buttons.
  */
 export const FormActionsButton = ({
-  actionName,
   isPending,
   disabled,
+  children,
   setIsOpen,
-}: FormActionsButtonProps) => {
+}:  PropsWithChildren<FormActionsButtonProps>) => {
   return (
     <div className="flex items-center gap-2">
       {/* Submit button */}
       <SubmitButton isPending={isPending} disabled={disabled}>
-        {actionName}
+        {children}
       </SubmitButton>
       {/* Close button (optional) */}
       {setIsOpen && <CloseButton setIsOpen={setIsOpen} />}

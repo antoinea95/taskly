@@ -8,12 +8,12 @@ export const useReauthWithPassword = <T extends FieldValues>(
   onSuccess: () => void
 ) => {
   return useMutation<void, Error, T>({
-    mutationFn: async ({ password }) => {
+    mutationFn: async (data) => {
       try {
-        await AuthService.reauthenticateUser(password);
+        await AuthService.reauthenticateUser({password: data.password});
       } catch (error) {
         console.error(error);
-        throw new Error("error");
+        throw new Error("You password is wrong, please retry");
       }
     },
     onSuccess: () => onSuccess(),
@@ -28,7 +28,7 @@ export const useReauthWithGoogle = (onSuccess: () => void) => {
         await reauthenticateWithPopup(firebaseAuth.currentUser!, provider);
       } catch (error) {
         console.error(error);
-        throw new Error("error");
+        throw new Error("Error while logging with google");
       }
     },
     onSuccess: () => onSuccess(),

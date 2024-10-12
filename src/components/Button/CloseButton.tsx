@@ -1,6 +1,6 @@
 import { Button } from "../ui/button";
 import { X } from "lucide-react";
-import { ToggleButtonProps } from "../types/buttons.types";
+import { ToggleButtonProps } from "../../utils/types/buttons.types";
 
 /**
  * CloseButton component

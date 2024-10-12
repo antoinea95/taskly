@@ -8,11 +8,11 @@ import { TaskCheckListSection } from "../CheckList/TaskCheckListSection";
 import { TaskCommentsSection } from "../Comments/TaskCommentsSection";
 import { AddLabel } from "../Label/AddLabel";
 import { TaskHeaderItem } from "../Containers/TaskHeaderItem";
-import { CheckListType, TaskType } from "@/components/types/tasks.types";
-import { ListType } from "@/components/types/lists.types";
+import { CheckListType, TaskType } from "@/utils/types/tasks.types";
+import { ListType } from "@/utils/types/lists.types";
 import { useAuth } from "@/utils/hooks/FirestoreHooks/auth/useAuth";
 import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
-import { BoardType } from "@/components/types/boards.types";
+import { BoardType } from "@/utils/types/boards.types";
 import { useDeleteTask } from "@/utils/hooks/FirestoreHooks/mutations/useDeletions";
 import { useUpdateDoc } from "@/utils/hooks/FirestoreHooks/mutations/useUpdateDoc";
 import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
@@ -101,42 +101,55 @@ export const TaskDetails = ({
 
   return (
     <ScrollArea className="w-[850px] h-[80vh]">
-      <header className="mb-3 flex flex-col p-3">
+      <header className="mb-3 flex justify-between items-center p-3 pt-6">
         <UpdateTitleForm
           name="Task"
           title={task.title}
           mutationQuery={updateTask}
           headingLevel={"h2"}
         />
-        <section className="flex items-start my-2 gap-2">
-          <TaskHeaderItem title="List" icon={List}>
-            <span className="text-sm font-medium">{list.title}</span>
-          </TaskHeaderItem>
-          {task.dueDate && (
-            <TaskDeadline dueDate={task.dueDate} taskId={task.id} />
+        <DeleteButton content="Delete task">
+          {({ setIsOpen }) => (
+            <DeleteConfirmation
+              handleDelete={handleDeleteTask}
+              actionName="task"
+              isPending={deleteTask.isPending}
+              setIsOpen={setIsOpen}
+            />
           )}
-          {task.members && task.members.length > 0 && board.data && (
-            <TaskHeaderItem title="Members" icon={Users}>
-              <MembersDetails members={task.members} mutationQuery={updateTask} />
-            </TaskHeaderItem>
-          )}
-          {task.labels && task.labels.length > 0 && (
-            <TaskHeaderItem title="Labels" icon={Tag}>
-              {task.labels.map((label, index) => (
-                <TaskLabel
-                  key={index}
-                  label={label}
-                  labels={task.labels}
-                  mutationQuery={updateTask}
-                />
-              ))}
-            </TaskHeaderItem>
-          )}
-        </section>
+        </DeleteButton>
       </header>
-      <section className="grid grid-cols-5 grid-rows-2 gap-5 px-4 h-fit">
+      <section className="flex items-start my-2 gap-2 px-3">
+        <TaskHeaderItem title="List" icon={List}>
+          <span className="text-sm font-medium">{list.title}</span>
+        </TaskHeaderItem>
+        {task.dueDate && (
+          <TaskDeadline dueDate={task.dueDate} taskId={task.id} />
+        )}
+        {task.members && task.members.length > 0 && board.data && (
+          <TaskHeaderItem title="Members" icon={Users}>
+            <MembersDetails members={task.members} mutationQuery={updateTask} />
+          </TaskHeaderItem>
+        )}
+        {task.labels && task.labels.length > 0 && (
+          <TaskHeaderItem title="Labels" icon={Tag}>
+            {task.labels.map((label, index) => (
+              <TaskLabel
+                key={index}
+                label={label}
+                labels={task.labels}
+                mutationQuery={updateTask}
+              />
+            ))}
+          </TaskHeaderItem>
+        )}
+      </section>
+      <section className="grid grid-cols-5 grid-rows-2 gap-5 px-4 py-6 h-fit">
         <div className="flex flex-col gap-3 col-span-3 px-3">
-          <TaskDescription mutationQuery={updateTask} description={task.description} />
+          <TaskDescription
+            mutationQuery={updateTask}
+            description={task.description}
+          />
           <TaskCheckListSection taskId={task.id} />
         </div>
         <div className="h-fit col-span-2 relative">
@@ -158,19 +171,9 @@ export const TaskDetails = ({
               isOpen={isAddCheckList}
               setIsOpen={setIsAddCheckList}
             />
-            <DeleteButton>
-              {({ setIsOpen }) => (
-                <DeleteConfirmation
-                  handleDelete={handleDeleteTask}
-                  actionName="task"
-                  isPending={deleteTask.isPending}
-                  setIsOpen={setIsOpen}
-                />
-              )}
-            </DeleteButton>
           </div>
         </div>
-        {currentUser && task.comments && (
+        {currentUser && (
           <TaskCommentsSection
             comments={task.comments}
             mutationQuery={updateTask}

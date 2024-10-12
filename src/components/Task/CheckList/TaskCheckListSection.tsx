@@ -1,5 +1,5 @@
 import { TaskCheckList } from "./TaskCheckList";
-import { CheckListItemType } from "@/components/types/tasks.types";
+import { CheckListItemType } from "@/utils/types/tasks.types";
 import { CheckSquare } from "lucide-react";
 import { useQueries } from "@tanstack/react-query";
 import { useGetChecklists } from "@/utils/hooks/FirestoreHooks/queries/useGetChecklists";

@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { FieldValues, Path, PathValue } from "react-hook-form";
 import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
-import { FormFieldDateItemProps } from "../../types/form.types";
+import { FormFieldDateItemProps } from "../../../utils/types/form.types";
 
 /**
  * FormFieldDateItem component used to display a date picker within a form.
@@ -26,7 +26,7 @@ import { FormFieldDateItemProps } from "../../types/form.types";
  */
 export const FormFieldDateItem = <T extends FieldValues>({
   form,
-  key,
+  id,
 }: FormFieldDateItemProps<T>) => {
   
   // State to control popover open/close state
@@ -46,7 +46,7 @@ export const FormFieldDateItem = <T extends FieldValues>({
     today.setHours(0, 0, 0, 0);
     date.setHours(0, 0, 0, 0);
 
-    if (key === "from" && to && date.getTime() >= to) {
+    if (id === "from" && to && date.getTime() >= to) {
       return true;
     }
 
@@ -65,7 +65,7 @@ export const FormFieldDateItem = <T extends FieldValues>({
   const handleDateSelect = (date: Date | undefined) => {
     if(date) {
       // Set the selected date in the form field
-      form.setValue(key as Path<T>, date as PathValue<T, Path<T>> );
+      form.setValue(id as Path<T>, date as PathValue<T, Path<T>> );
       setIsOpen(false);
     }
   };
@@ -73,10 +73,10 @@ export const FormFieldDateItem = <T extends FieldValues>({
   return (
     <FormField
       control={form.control}
-      name={key as Path<T>}
+      name={id as Path<T>}
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>{key === "to" ? "Deadline" : "Start date"}</FormLabel>
+          <FormLabel>{id === "to" ? "Deadline" : "Start date"}</FormLabel>
           <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
               <FormControl>

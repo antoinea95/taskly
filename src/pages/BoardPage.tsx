@@ -1,4 +1,4 @@
-import { BoardType } from "@/components/types/boards.types";
+import { BoardType } from "@/utils/types/boards.types";
 import { useNavigate, useParams } from "react-router-dom";
 import { ListsSection } from "../components/List/ListsSection";
 import { UpdateTitleForm } from "@/components/Form/UpdateTitleForm";
@@ -28,10 +28,11 @@ export const BoardPage = () => {
   const { data: board, isFetched } = useGetDoc<BoardType>("boards", boardId);
   const deleteBoard = useDeleteBoard<void>(currentUser?.id, boardId);
   const updateBoard = useUpdateDoc<BoardType>(
-    ["board", currentUser?.id],
+    ["board", boardId],
     "boards",
     boardId
   );
+  
 
   /**
    * Handles the deletion of the current board.

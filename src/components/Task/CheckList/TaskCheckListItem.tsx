@@ -1,4 +1,4 @@
-import { CheckListItemType } from "@/components/types/tasks.types";
+import { CheckListItemType } from "@/utils/types/tasks.types";
 import { X } from "lucide-react";
 import { Button } from "../../ui/button";
 import { CheckedState } from "@radix-ui/react-checkbox";

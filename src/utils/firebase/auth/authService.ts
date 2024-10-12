@@ -12,12 +12,16 @@ import {
   updateProfile,
   User,
 } from "firebase/auth";
-import { firebaseAuth, firebaseFirestore } from "../firebaseApp";
+import {
+  firebaseAuth,
+  firebaseFirestore,
+  firebaseStorage,
+} from "../firebaseApp";
 import { getFriendlyErrorMessage } from "@/utils/helpers/functions/formatErrors";
-import { doc, Firestore, setDoc, where } from "firebase/firestore";
+import { doc, Firestore, setDoc } from "firebase/firestore";
 import { FirestoreService } from "../firestore/firestoreService";
-import { BoardType, UserType } from "@/components/types/types";
-import { BatchService } from "../firestore/batchService";
+import { deleteObject, ref } from "firebase/storage";
+import { UserType } from "@/utils/types/auth.types";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -133,20 +137,23 @@ export class AuthService {
     }
   }
 
-  public static async reauthenticateUser(password: string) {
-      const user = firebaseAuth.currentUser;
-    
-      if (user && user.email) {
-        try {
-          const credential = EmailAuthProvider.credential(user.email, password);
-          await reauthenticateWithCredential(user, credential);
-        } catch (error) {
-          console.error(error)
-          throw new Error("You provide a wrong password.");
-        }
-      } else {
-        throw new Error("User not authenticated.");
+  public static async reauthenticateUser(data: { password: string }) {
+    const user = firebaseAuth.currentUser;
+
+    if (user && user.email) {
+      try {
+        const credential = EmailAuthProvider.credential(
+          user.email,
+          data.password
+        );
+        await reauthenticateWithCredential(user, credential);
+      } catch (error) {
+        console.error(error);
+        throw new Error("You provide a wrong password.");
       }
+    } else {
+      throw new Error("User not authenticated.");
+    }
   }
 
   /**
@@ -185,7 +192,10 @@ export class AuthService {
    * @throws an error message if any operation fails during updating.
 
    */
-  public static async updateUserPassword(actualPassword: string, newPassword: string): Promise<void> {
+  public static async updateUserPassword(data: {
+    actualPassword: string;
+    newPassword: string;
+  }): Promise<void> {
     const user = firebaseAuth.currentUser;
 
     // Check if the user is authenticated
@@ -196,25 +206,23 @@ export class AuthService {
 
     try {
       // First we reauthenticate the user
-      await this.reauthenticateUser(actualPassword);
+      await this.reauthenticateUser({ password: data.actualPassword });
       // Then we update his password
-      await updatePassword(user, newPassword);
-    } catch(error) {
-      console.error("Error updating user password",error);
-      throw new Error("Error updating user password")
+      await updatePassword(user, data.newPassword);
+    } catch (error) {
+      console.error("Error updating user password", error);
+      throw new Error("Error updating user password");
     }
   }
 
-
   /**
    * Update user email in Firebase authentification and update user document in firestore
-   * @param userId - Id of the user to update
    * @param email - new email
    * @returns A promise that resolves when the user's email is updated
    * @throws an error message if any operation fails during updating.
 
    */
-  public static async updateUserEmail(userId: string, email: string): Promise<void> {
+  public static async updateUserEmail(email: string): Promise<void> {
     const user = firebaseAuth.currentUser;
 
     // Check if the user is authenticated
@@ -225,12 +233,9 @@ export class AuthService {
 
     try {
       await updateEmail(user, email);
-       await FirestoreService.updateDocument<UserType>("users", {
-        email: email
-       }, userId);
-    } catch(error) {
-      console.error("Error updating user email",error);
-      throw new Error("Error updating user email")
+    } catch (error) {
+      console.error("Error updating user email", error);
+      throw new Error("Error updating user email");
     }
   }
   /**
@@ -243,11 +248,10 @@ export class AuthService {
    * 4. The user's document in the "users" collection is deleted from Firestore.
    * 5. The user's Firebase Authentication account is deleted.
    *
-   * @param   userId - The unique ID of the user to be deleted.
    * @returns A promise that resolves once the user and associated data are deleted.
    * @throws an error message if any operation fails during the deletion process.
    */
-  public static async deleteAccount(userId: string): Promise<void> {
+  public static async deleteAccount(): Promise<void> {
     const user = firebaseAuth.currentUser;
 
     // Check if the user is authenticated
@@ -255,44 +259,35 @@ export class AuthService {
       console.error("User not authenticated.");
       return;
     }
+    const userFromFirestore = await FirestoreService.fetchDoc<UserType>(
+      "users",
+      user.uid
+    );
+    // Check if the user is using Google sign-in
+    const isGoogle = user?.providerData.some(
+      (item) => item.providerId === "google.com"
+    );
+    const profilPictureRef = ref(
+      firebaseStorage,
+      `profile/${user.uid}/${user.uid}`
+    );
 
     try {
-      // Fetch the boards where the user is a member or creator
-      const boards = await FirestoreService.fetchDocs<BoardType>(
-        "boards",
-        () => [where("members", "array-contains", userId)]
-      );
+      await FirestoreService.removeMemberAndDeleteDocument("tasks", user.uid);
+      await FirestoreService.removeMemberAndDeleteDocument("boards", user.uid);
 
-      // Handle deletion or update of boards
-      if (boards?.length) {
-        await Promise.all(
-          boards.map(async (board) => {
-            if (board.creator === userId) {
-              // If the user is the creator, delete the entire board
-              await BatchService.deleteBoard(board.id);
-            } else {
-              // If the user is a member, remove them from the members list
-              const updatedMembers = board.members.filter(
-                (member) => member !== userId
-              );
-              await FirestoreService.updateDocument<BoardType>(
-                "boards",
-                { members: updatedMembers },
-                board.id
-              );
-            }
-          })
-        );
+      if (userFromFirestore && userFromFirestore.photoURL && !isGoogle) {
+        await deleteObject(profilPictureRef);
       }
 
       // Delete user data from Firestore
-      await FirestoreService.deleteDocument("users", userId);
+      await FirestoreService.deleteDocument("users", user.uid);
 
       // Delete the user from Firebase Authentication
       await user.delete();
     } catch (error) {
       console.error("Error deleting account:", error);
-      throw new Error("Error during deleting account")
+      throw new Error("Error during deleting account");
     }
   }
 }

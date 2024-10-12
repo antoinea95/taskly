@@ -1,4 +1,4 @@
-import { CheckListItemType, CheckListType } from "@/components/types/tasks.types";
+import { CheckListItemType, CheckListType } from "@/utils/types/tasks.types";
 import { useFirestoreQuery } from "./useFirestoreQuery";
 
 /**

@@ -6,11 +6,12 @@ import { FcGoogle } from "react-icons/fc";
 import { FieldValues } from "react-hook-form";
 import { useResetPassword } from "@/utils/hooks/FirestoreHooks/auth/updateUser";
 import { AuthService } from "@/utils/firebase/auth/authService";
-import { FormFieldItemType } from "../types/form.types";
+import { FormFieldItemType } from "../../utils/types/form.types";
 import { useSign } from "@/utils/hooks/FirestoreHooks/auth/useSign";
 import { FormContainer } from "../Form/containers/FormContainer";
 import { FormFieldInputItem } from "../Form/fields/FormFieldInputItem";
 import { FormActionsButton } from "../Form/actions/FormActionsButton";
+import { LogIn, UserPlus } from "lucide-react";
 
 /**
  * AuthForm component
@@ -38,7 +39,9 @@ export const AuthForm = () => {
       password: z
         .string()
         .min(8, "Your password must contain at least 8 characters"),
-      confirmPassword: isLogin ? z.string().min(8).optional() : z.string().min(8),
+      confirmPassword: isLogin
+        ? z.string().min(8).optional()
+        : z.string().min(8),
     })
     .refine(
       (data) => {
@@ -82,7 +85,7 @@ export const AuthForm = () => {
 
   /**
    * Handles form submission for login or registration.
-   * 
+   *
    * @param {FieldValues} data - The form data containing user inputs.
    */
   const handleAuth = async (data: FieldValues) => {
@@ -152,26 +155,38 @@ export const AuthForm = () => {
         </div>
       </section>
       <section className="w-3/4 space-y-3 flex flex-col items-end">
-        <FormContainer schema={UserSchema} onSubmit={handleAuth} mutationQuery={sign}>
+        <FormContainer
+          schema={UserSchema}
+          onSubmit={handleAuth}
+          mutationQuery={sign}
+        >
           {({ form }) => (
             <>
-              {formContent.map((item) => (
-                <FormFieldInputItem key={item.name} item={item} form={form} />
-              ))}
-              <FormActionsButton actionName={isLogin ? "Log in" : "Create an account"} isPending={sign.isPending} />
+              {formContent.map((item) => {
+                if (item.hidden) return;
+                return (
+                  <FormFieldInputItem key={item.name} item={item} form={form} />
+                );
+              })}
+              <FormActionsButton isPending={sign.isPending}>
+                  <span className="flex items-center gap-2">
+                    {isLogin ? <LogIn size={16} /> : <UserPlus size={16} />}
+                    {isLogin ? "Log in": "Create an account"}
+                  </span>
+              </FormActionsButton>
             </>
           )}
         </FormContainer>
       </section>
-      <section className="w-3/4 mt-6 flex flex-col items-center gap-4">
-        <p className="uppercase flex items-center justify-between text-gray-400 w-full">
-          <span className="border border-gray-400 inline-block w-1/3"></span> Or
+      <section className="w-3/4 mt-3 flex flex-col items-center gap-3">
+        <p className="uppercase flex items-center justify-between text-gray-300 w-full px-3">
+          <span className="border border-gray-100 inline-block w-1/3"></span> Or
           register with
-          <span className="border border-gray-400 inline-block w-1/3"></span>
+          <span className="border border-gray-100 inline-block w-1/3"></span>
         </p>
         <Button
           onClick={signinWithGoogle}
-          className="uppercase w-full flex items-center py-6 rounded-xl"
+          className="uppercase w-full flex items-center px-3 h-10 rounded-xl"
         >
           <FcGoogle color="white" style={{ marginRight: "6px" }} /> Google
         </Button>

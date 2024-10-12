@@ -1,10 +1,10 @@
-import { UserType } from "@/components/types/auth.types";
+import { UserType } from "@/utils/types/auth.types";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import { UserMinus } from "lucide-react";
-import { MemberProps } from "../types/members.type";
+import { MemberProps } from "../../utils/types/members.type";
 import { useAuth } from "@/utils/hooks/FirestoreHooks/auth/useAuth";
 import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
 

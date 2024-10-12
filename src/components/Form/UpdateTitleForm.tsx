@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { DefaultValues, FieldValues } from "react-hook-form";
+import { FieldValues } from "react-hook-form";
 import { z } from "zod";
-import { FormFieldItemType, UpdateTitleProps } from "../types/form.types";
+import { UpdateTitleProps } from "../../utils/types/form.types";
 import { FormContainer } from "./containers/FormContainer";
 import { FormFieldInputItem } from "./fields/FormFieldInputItem";
 
@@ -32,6 +32,15 @@ export const UpdateTitleForm = <T extends FieldValues>({
   const divRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const headingSizeClass =
+    Heading === "h1"
+      ? "text-4xl uppercase"
+      : Heading === "h2"
+        ? "text-4xl w-fit"
+        : Heading === "h3"
+          ? "text-base"
+          : "text-sm";
+
   /**
    * Handles the click outside of the div to close the update input.
    *
@@ -45,9 +54,6 @@ export const UpdateTitleForm = <T extends FieldValues>({
     };
 
     if (isUpdate) {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -64,27 +70,53 @@ export const UpdateTitleForm = <T extends FieldValues>({
   });
 
   /**
+   * Effect that updates the input's style based on the heading and text.
+   *
+   * This effect runs whenever the values of `Heading`, `title`, or `isUpdate` change.
+   * It adjusts the input's width based on the length of the text and applies a style
+   * corresponding to the given heading. If the heading is unrecognized, a default style is applied.
+   */
+
+  useEffect(() => {
+    const inputStyle = {
+      h1: { height: "56px", fontSize: "36px" },
+      h2: { height: "56px", fontSize: "36px" },
+      h3: { height: "40px", fontSize: "16px" },
+      default: { height: "40px", fontSize: "14px" },
+    } as const;
+
+    if (inputRef.current && isUpdate) {
+      const heading = Heading.toString() as keyof typeof inputStyle;
+
+      inputRef.current.focus();
+      inputRef.current.style.width = `${Math.max(title.length, 8)}ch`;
+
+      // Use a ternary expression to define the style
+      const style = inputStyle[heading]
+        ? inputStyle[heading]
+        : inputStyle.default;
+
+      inputRef.current.style.height = style.height;
+      inputRef.current.style.fontSize = style.fontSize;
+    }
+  }, [Heading, title, isUpdate]);
+
+  /**
    * Handles form submission for updating the title.
    *
    * @param {T} data - The form data to be submitted.
    */
-  const onSubmit = async (data: T) => {
+  const handleUpdateTitle = async (data: T) => {
     mutationQuery.mutate(data, {
       onSuccess: () => setIsUpdate(false),
     });
-  };
-
-  const itemField: FormFieldItemType = {
-    name: "title",
-    type: "text",
-    placeholder: name,
   };
 
   return (
     <div onClick={() => setIsUpdate(true)} ref={divRef}>
       {!isUpdate ? (
         <Heading
-          className={`px-3 py-2 cursor-text rounded-xl hover:bg-gray-200 animate-fade-in`}
+          className={`px-3 py-2 cursor-text rounded-xl hover:bg-gray-200 animate-fade-in ${headingSizeClass}`}
         >
           {title}
         </Heading>
@@ -92,12 +124,16 @@ export const UpdateTitleForm = <T extends FieldValues>({
         <FormContainer
           schema={titleSchema}
           mutationQuery={mutationQuery}
-          onSubmit={onSubmit}
-          defaultValues={{ title: title } as unknown as DefaultValues<T>}
+          onSubmit={handleUpdateTitle}
+          defaultValues={{ title: title }}
         >
           {({ form }) => (
             <>
-              <FormFieldInputItem form={form} item={itemField} />
+              <FormFieldInputItem
+                form={form}
+                item={{ name: "title", type: "text", placeholder: name }}
+                ref={inputRef}
+              />
             </>
           )}
         </FormContainer>

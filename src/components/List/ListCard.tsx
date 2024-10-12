@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { useMemo, useState } from "react";
-import { ListType} from "@/components/types/lists.types";
-import { TaskType } from "../types/tasks.types";
+import { ListType} from "@/utils/types/lists.types";
+import { TaskType } from "../../utils/types/tasks.types";
 import { useDroppable } from "@dnd-kit/core";
 import { TaskCard } from "../Task/Card/TaskCard";
 import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
