@@ -12,6 +12,7 @@ import { FormContainer } from "../Form/containers/FormContainer";
 import { FormFieldInputItem } from "../Form/fields/FormFieldInputItem";
 import { FormActionsButton } from "../Form/actions/FormActionsButton";
 import { LogIn, UserPlus } from "lucide-react";
+import { NotificationBanner } from "../Notification/NotificationBanner";
 
 /**
  * AuthForm component
@@ -165,15 +166,36 @@ export const AuthForm = () => {
               {formContent.map((item) => {
                 if (item.hidden) return;
                 return (
-                  <FormFieldInputItem key={item.name} item={item} form={form} />
+                  <div className="relative">
+                    <FormFieldInputItem
+                      key={item.name}
+                      item={item}
+                      form={form}
+                    />
+                    {item.name === "password" && isLogin && (
+                      <Button
+                        type="button"
+                        onClick={() =>
+                          handleResetPassword(form.getValues().email as string)
+                        }
+                        className="absolute right-2 top-1 text-xs w-fit h-fit p-0 bg-transparent hover:bg-transparent text-black underline shadow-none border-none"
+                      >
+                        Forgot your password ?
+                      </Button>
+                    )}
+                  </div>
                 );
               })}
               <FormActionsButton isPending={sign.isPending}>
-                  <span className="flex items-center gap-2">
-                    {isLogin ? <LogIn size={16} /> : <UserPlus size={16} />}
-                    {isLogin ? "Log in": "Create an account"}
-                  </span>
+                <span className="flex items-center gap-2">
+                  {isLogin ? <LogIn size={16} /> : <UserPlus size={16} />}
+                  {isLogin ? "Log in" : "Create an account"}
+                </span>
               </FormActionsButton>
+              <NotificationBanner
+                isError={resetPassword.isError}
+                content={resetPassword.error ? resetPassword.error.message : ""}
+              />
             </>
           )}
         </FormContainer>

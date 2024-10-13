@@ -94,9 +94,6 @@ export const TaskComment = ({
       {
         comments: comments?.filter((item) => item !== commentToDelete),
       },
-      {
-        onSuccess: () => setIsCommentUpdate(false),
-      }
     );
   };
 

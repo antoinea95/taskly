@@ -59,8 +59,6 @@ export type FormCheckBoxItemProps = {
   id: string;
   defaultChecked: boolean;
   onCheckedChange: (checked: CheckedState) => void;
-  content: string;
-  isDone?: boolean
 };
 
 // Actions button props
@@ -85,4 +83,5 @@ export type UpdateTitleProps<T extends FieldValues> = {
   title: string;
   mutationQuery: MutationResultType<string, T>
   headingLevel?: ElementType;
+  isDone?:boolean;
 };

@@ -50,19 +50,21 @@ export const AddForm = <T extends FieldValues>({
       mutationQuery={mutationQuery}
     >
       {({ form }) => (
-        <div className={`${name === "comment" ? "flex items-center gap-2 w-full" : "space-y-3"}`}>
+        <div className="space-y-3">
           <FormFieldInputItem
             form={form}
-            item={{ name: "title", type: "text", placeholder: `Add your ${name}` }}
+            item={{
+              name: "title",
+              type: "text",
+              placeholder: `Add your ${name}`,
+            }}
           />
           <FormActionsButton
             isPending={mutationQuery.isPending}
             setIsOpen={setIsOpen}
             disabled={
-              name === "comment"
-                ? false
-                : mutationQuery.isPending ||
-                  Object.keys(form.getValues()).length === 0
+              mutationQuery.isPending ||
+              Object.keys(form.getValues()).length === 0
             }
           >
             <span className="flex items-center gap-2">

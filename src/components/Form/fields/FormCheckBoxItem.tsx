@@ -1,5 +1,6 @@
 import { Checkbox } from "../../ui/checkbox";
 import { FormCheckBoxItemProps } from "../../../utils/types/form.types";
+import { PropsWithChildren } from "react";
 
 /**
  * FormCheckBoxItem is a reusable component for rendering a checkbox with an associated label.
@@ -17,9 +18,8 @@ export const FormCheckBoxItem = ({
   id,
   defaultChecked,
   onCheckedChange,
-  content,
-  isDone,
-}: FormCheckBoxItemProps) => {
+  children,
+}: PropsWithChildren<FormCheckBoxItemProps>) => {
   return (
     <div className="flex items-center gap-2">
       <Checkbox
@@ -28,12 +28,7 @@ export const FormCheckBoxItem = ({
         onCheckedChange={onCheckedChange}
         className="border-2 shadow-none flex items-center justify-center"
       />
-      <label
-        htmlFor={id}
-        className={`pl-1 cursor-pointer text-xs font-medium mr-1 ${isDone ? "line-through" : ""}`}
-      >
-        {content}
-      </label>
+      {children}
     </div>
   );
 };

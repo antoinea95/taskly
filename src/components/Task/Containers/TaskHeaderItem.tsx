@@ -32,7 +32,7 @@ export const TaskHeaderItem = ({
         {title}
       </h3>
       <div
-        className={`flex items-center flex-wrap gap-2 max-w-72 bg-gray-50 rounded-xl w-fit px-3 py-2 min-h-12 ${isAction ? "hover:bg-gray-200" : ""}`}
+        className={`flex items-center flex-wrap gap-2 max-w-96 bg-gray-50 rounded-xl w-fit px-3 py-2 min-h-12 ${isAction ? "hover:bg-gray-200" : ""}`}
       >
         {children}
       </div>

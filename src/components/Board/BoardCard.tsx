@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Member } from "../Members/Member";
 import { MembersAvatarList } from "../Members/MembersAvatarList";
 import { createdDate } from "@/utils/helpers/functions/createdDate";
+import { Label } from "../Label/Label";
 
 /**
  * BoardCard component displays a card that represents a board.
@@ -26,14 +27,14 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
       onClick={() => navigate(`/${board?.id}`)}
     >
       <CardHeader className="flex-1 p-0">
-        <small className="text-xs leading-3 ">
-          Created on {createdDate(board.createdAt)}
-        </small>
-        <CardTitle className="uppercase text-3xl tracking-normal font-light leading-none">
+        <CardTitle className="text-xl tracking-normal font-medium leading-none">
           {board?.title}
         </CardTitle>
       </CardHeader>
-      <CardFooter className="flex justify-end p-0">
+      <CardFooter className="flex justify-between p-0">
+        <Label color="#d1d5db">
+        {createdDate(board.createdAt)}
+        </Label>
         <MembersAvatarList members={board.members}>
           {board.members.slice(0, 5).map((member) => (
             <Member key={member} userId={member} type="avatar" />

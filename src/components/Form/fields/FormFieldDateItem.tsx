@@ -66,7 +66,6 @@ export const FormFieldDateItem = <T extends FieldValues>({
     if(date) {
       // Set the selected date in the form field
       form.setValue(id as Path<T>, date as PathValue<T, Path<T>> );
-      setIsOpen(false);
     }
   };
 
@@ -80,7 +79,7 @@ export const FormFieldDateItem = <T extends FieldValues>({
           <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
               <FormControl>
-                <Button variant={"outline"} onClick={() => setIsOpen(!isOpen)}>
+                <Button variant={"outline"} onClick={() => setIsOpen(true)}>
                   <span>
                     {field.value ? field.value.toDateString() : "Select a date"}
                   </span>
@@ -88,13 +87,13 @@ export const FormFieldDateItem = <T extends FieldValues>({
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto" align="start">
               <Calendar
                 mode="single"
                 onSelect={handleDateSelect}
                 selected={field.value ? field.value : undefined}
                 disabled={handleDisabledDate}
-                initialFocus
+                className="w-full h-full"
               />
             </PopoverContent>
           </Popover>

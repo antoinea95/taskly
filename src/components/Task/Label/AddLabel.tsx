@@ -29,6 +29,7 @@ export const AddLabel = ({
     { name: "Yellow", color: "#fde047" },
     { name: "Green", color: "#86efac" },
     { name: "Blue", color: "#93c5fd" },
+    { name: "Violet", color: "#c084fc" },
   ];
 
   /**
@@ -39,6 +40,21 @@ export const AddLabel = ({
   const handleChangeColor = (color: string) => {
     setSelectedColor(color);
   };
+
+
+  /**
+   * Reset color when click again on same color
+   */
+  const handleResetColor = (color: string) => {
+
+    if(!selectedColor) {
+      setSelectedColor(color)
+    }
+    if(selectedColor === color) {
+      setSelectedColor(null)
+    }
+  };
+
 
   /**
    * Handles the addition of a new label to the task.
@@ -65,7 +81,7 @@ export const AddLabel = ({
   };
 
   return (
-    <div className="bg-gray-50 rounded-xl">
+    <div>
       {isAddLabel && (
         <div className="p-3 space-y-2">
           <div className="flex items-center gap-2">
@@ -85,6 +101,7 @@ export const AddLabel = ({
                   value={color.color}
                   className="hidden"
                   onChange={() => handleChangeColor(color.color)}
+                  onClick={() => handleResetColor(color.color)}
                 />
                 <div
                   className={`shadow-none rounded-full w-8 h-8 border-2 flex items-center justify-center cursor-pointer border-gray-300`}

@@ -120,8 +120,14 @@ export const TaskDeadline = ({
         id="completed"
         defaultChecked={dueDate.completed}
         onCheckedChange={handleCheckedChange}
-        content={`${dueDate.from ? `${formatDate(dueDate.from)} -` : ""}${formatDate(dueDate.to)}`}
-      />
+      >
+        <label
+        htmlFor="completed"
+        className={`pl-1 cursor-pointer text-xs font-medium mr-1 ${dueDate.completed ? "line-through" : ""}`}
+      >
+        {dueDate.from && `${formatDate(dueDate.from)} - `} {formatDate(dueDate.to)}
+      </label>
+      </FormCheckBoxItem>
       {getTag()}
     </TaskHeaderItem>
   );

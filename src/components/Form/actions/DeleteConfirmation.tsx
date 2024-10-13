@@ -24,7 +24,6 @@ export const DeleteConfirmation = ({
   isPending,
   setIsOpen,
 }: DeleteConfirmationProps) => {
-
   // State to ask user his password before deleting his account;
   const [isNeedPassword, setIsNeedPassword] = useState(
     actionName === "account"
@@ -32,7 +31,11 @@ export const DeleteConfirmation = ({
 
   return (
     <div className="flex flex-col gap-3 items-center font-bold p-3 pt-10">
-      <p>{actionName === "account" && isNeedPassword ? "Please re-authenticate before:" : `Are you sure you want to delete this ${actionName}?`}</p>
+      <p>
+        {actionName === "account" && isNeedPassword
+          ? "Please re-authenticate before:"
+          : `Are you sure you want to delete this ${actionName}?`}
+      </p>
       <div className="flex w-full m-auto items-center gap-10">
         {isNeedPassword ? (
           <ReAuthForm setIsNeedPassword={setIsNeedPassword} />
@@ -40,7 +43,10 @@ export const DeleteConfirmation = ({
           <>
             {/* Confirmation button (Yes) */}
             <Button
-              onClick={handleDelete}
+              onClick={() => {
+                handleDelete();
+                if(!isPending) setIsOpen(false);
+              }}
               className="rounded-xl border-none shadow-none w-full"
             >
               {isPending ? (

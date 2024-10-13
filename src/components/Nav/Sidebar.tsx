@@ -39,7 +39,7 @@ export const Sidebar = () => {
   return (
     <section className="font-outfit flex-1 flex flex-col pb-2">
       {/* Boards section */}
-      <div className="px-3 font-medium bg-gray-50 p-3 rounded-xl space-y-2">
+      <div className="px-3 font-medium p-3 rounded-xl space-y-2">
         <h2 className="uppercase flex items-center gap-2">
           <ClipboardList size={20} />
           Boards
@@ -54,12 +54,12 @@ export const Sidebar = () => {
               key={board.id}
               to={`/${board.id}`}
               className={({ isActive }) =>
-                `text-base rounded-xl w-full flex items-center p-2 hover:bg-gray-300 ${
-                  isActive ? "bg-gray-300" : ""
+                `text-xs rounded-xl w-full flex items-center px-3 py-2 hover:bg-gray-300 ${
+                  isActive ? "bg-gray-100" : ""
                 }`
               }
             >
-              <Dot size={20} /> {board.title}
+              {board.title}
             </NavLink>
           ))
         ) : (

@@ -3,6 +3,7 @@ import { TaskComment } from "./TaskComment";
 import { TaskCommentsSectionProps } from "@/utils/types/tasks.types";
 import { FieldValues } from "react-hook-form";
 import { AddForm } from "@/components/Form/AddForm";
+import { useState } from "react";
 
 /**
  * TaskCommentsSection component renders the section for task comments, allowing users to add and view comments.
@@ -20,6 +21,8 @@ export const TaskCommentsSection = ({
   mutationQuery,
 }: TaskCommentsSectionProps) => {
 
+  const [isAddComment, setIsAddComment] = useState(false);
+
   /**
    * Handles the submission of a new comment.
    *
@@ -35,23 +38,26 @@ export const TaskCommentsSection = ({
     // Mutate the comments array to add a new comment
     mutationQuery.mutate({
       comments: comments ? [...comments, newComment] : [newComment],
+    }, {
+      onSuccess: () => setIsAddComment(false)
     });
   };
 
   return (
-    <div className="col-span-5 px-3 space-y-1">
+    <div className="px-3 space-y-1">
       <h3 className="flex items-center gap-2 font-medium">
         <MessageSquare size={20} />
         Comments
       </h3>
-      <div className="space-y-3 bg-gray-50 p-3 rounded-xl">
+      <div className="space-y-3">
         {/* Form for adding a new comment */}
         <AddForm
           name="comment"
           mutationQuery={mutationQuery}
           onSubmit={handleAddNewComment}
+          isOpen={isAddComment}
+          setIsOpen={setIsAddComment}
         />
-
         {/* Display the list of comments */}
         {comments &&
           comments.map((comment, index) => (

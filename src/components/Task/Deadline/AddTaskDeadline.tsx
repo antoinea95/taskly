@@ -60,7 +60,7 @@ export const AddTaskDeadline = ({
 
   /**
    * Handles form submission for adding or updating the task deadline.
-   * 
+   *
    * @param {FieldValues} data - The form data containing the 'to' (deadline) and optional 'from' (start) dates.
    */
   const handleAddDeadline = async (data: FieldValues) => {
@@ -87,7 +87,10 @@ export const AddTaskDeadline = ({
           mutationQuery={mutationQuery}
           defaultValues={{
             to: task.dueDate ? new Date(task.dueDate.to) : undefined,
-            from: task.dueDate && task.dueDate.from ? new Date(task.dueDate.from) : null,
+            from:
+              task.dueDate && task.dueDate.from
+                ? new Date(task.dueDate.from)
+                : null,
           }}
         >
           {({ form }) => (
@@ -100,14 +103,16 @@ export const AddTaskDeadline = ({
                 onCheckedChange={() => {
                   setIsBeginDate((prev) => !prev);
                 }}
-                content="Start date?"
-              />
+              >
+                <span className="text-sm font-medium"> Start date?</span>
+              </FormCheckBoxItem>
               <FormActionsButton
                 isPending={mutationQuery.isPending}
                 setIsOpen={setIsAddDate}
               >
                 <span className="flex items-center gap-2">
-                <Plus size={16} /> {`${task.dueDate ? "Update" : "Add"} deadline`}
+                  <Plus size={16} />{" "}
+                  {`${task.dueDate ? "Update" : "Add"} deadline`}
                 </span>
               </FormActionsButton>
             </>

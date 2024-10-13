@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useUpdateDoc } from "@/utils/hooks/FirestoreHooks/mutations/useUpdateDoc";
 import { useDeleteDoc } from "@/utils/hooks/FirestoreHooks/mutations/useDeleteDoc";
 import { FormCheckBoxItem } from "@/components/Form/fields/FormCheckBoxItem";
+import { UpdateTitleForm } from "@/components/Form/UpdateTitleForm";
 
 /**
  * TaskCheckListItem component representing a single checklist item within a task.
@@ -70,9 +71,9 @@ export const TaskCheckListItem = ({
         id={item.title} 
         defaultChecked={item.done} 
         onCheckedChange={handleCheckedChange} 
-        content={item.title} 
-        isDone={isDone} 
-      />
+      >
+        <UpdateTitleForm name="Item" mutationQuery={updateCheckListItem} title={item.title} headingLevel={"p"} isDone={isDone} />
+      </FormCheckBoxItem>
       <Button 
         className="p-1 h-fit bg-transparent text-black shadow-none border-none hover:bg-red-500 hover:text-white" 
         onClick={handleDelete}

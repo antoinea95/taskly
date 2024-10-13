@@ -44,7 +44,7 @@ export const HomePage = () => {
 
       {/** Section to display page title and the AddBoard button */}
       <section className="flex justify-between items-start mt-10 relative">
-        <h1 className="text-5xl uppercase">Your boards</h1>
+        <h1 className="text-4xl">Boards</h1>
         <div className="absolute right-0 top-0 w-60 flex justify-end">
           <AddBoard user={currentUser} />
         </div>

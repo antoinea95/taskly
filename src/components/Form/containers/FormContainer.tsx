@@ -32,7 +32,7 @@ export const FormContainer = <T extends FieldValues>({
   const form = useForm<T>({
     mode: "onSubmit",
     resolver: zodResolver(schema),
-    defaultValues: defaultValues ? defaultValues as DefaultValues<T> : undefined
+    defaultValues: defaultValues as DefaultValues<T> || {}
   });
 
   const { isError, error, isSuccess } = mutationQuery;
@@ -43,14 +43,12 @@ export const FormContainer = <T extends FieldValues>({
       form.reset();
     }
   }, [isSuccess, form]);
-
-
   
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full h-fit space-y-3 bg-white p-3 rounded-xl"
+        className="flex flex-col w-full h-fit space-y-3 py-3"
       >
         {/* If children is a function, pass the form instance to it; otherwise, render it directly */}
         {children && typeof children === "function" ? children({ form }) : children}

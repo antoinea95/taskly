@@ -144,8 +144,8 @@ export const TaskDetails = ({
           </TaskHeaderItem>
         )}
       </section>
-      <section className="grid grid-cols-5 grid-rows-2 gap-5 px-4 py-6 h-fit">
-        <div className="flex flex-col gap-3 col-span-3 px-3">
+      <section className="grid grid-cols-5 grid-rows-1 gap-5 px-4 py-6">
+        <div className="flex flex-col gap-3 col-span-3 px-3 h-fit">
           <TaskDescription
             mutationQuery={updateTask}
             description={task.description}
@@ -173,14 +173,14 @@ export const TaskDetails = ({
             />
           </div>
         </div>
-        {currentUser && (
+      </section>
+      {currentUser && (
           <TaskCommentsSection
             comments={task.comments}
             mutationQuery={updateTask}
             userId={currentUser.id}
           />
         )}
-      </section>
     </ScrollArea>
   );
 };

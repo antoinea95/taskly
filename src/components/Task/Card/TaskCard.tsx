@@ -79,7 +79,7 @@ export const TaskCard = ({
             >
               {/* Task Header */}
               <CardHeader className="p-0 flex flex-row items-center justify-between flex-wrap">
-                <CardTitle className="w-fit text-lg font-normal leading-3 py-1">
+                <CardTitle className="w-fit text-lg font-normal leading-5 py-1">
                   {task.title}
                 </CardTitle>
                 {/* Task Labels */}

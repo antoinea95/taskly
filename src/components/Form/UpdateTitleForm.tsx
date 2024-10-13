@@ -27,8 +27,10 @@ export const UpdateTitleForm = <T extends FieldValues>({
   title,
   mutationQuery,
   headingLevel: Heading = "h1",
+  isDone
 }: UpdateTitleProps<T>) => {
   const [isUpdate, setIsUpdate] = useState(false);
+  const [defineInputWidth, setDefineInputWidth] = useState<number | null>(null)
   const divRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -52,6 +54,10 @@ export const UpdateTitleForm = <T extends FieldValues>({
         setIsUpdate(false);
       }
     };
+
+    if(divRef.current && !isUpdate) {
+      setDefineInputWidth(divRef.current.offsetWidth);
+    }
 
     if (isUpdate) {
       document.addEventListener("mousedown", handleClickOutside);
@@ -85,11 +91,13 @@ export const UpdateTitleForm = <T extends FieldValues>({
       default: { height: "40px", fontSize: "14px" },
     } as const;
 
+
+
     if (inputRef.current && isUpdate) {
       const heading = Heading.toString() as keyof typeof inputStyle;
 
       inputRef.current.focus();
-      inputRef.current.style.width = `${Math.max(title.length, 8)}ch`;
+      inputRef.current.style.width = `${defineInputWidth}px`;
 
       // Use a ternary expression to define the style
       const style = inputStyle[heading]
@@ -99,7 +107,7 @@ export const UpdateTitleForm = <T extends FieldValues>({
       inputRef.current.style.height = style.height;
       inputRef.current.style.fontSize = style.fontSize;
     }
-  }, [Heading, title, isUpdate]);
+  }, [Heading, title, isUpdate, defineInputWidth]);
 
   /**
    * Handles form submission for updating the title.
@@ -116,7 +124,7 @@ export const UpdateTitleForm = <T extends FieldValues>({
     <div onClick={() => setIsUpdate(true)} ref={divRef}>
       {!isUpdate ? (
         <Heading
-          className={`px-3 py-2 cursor-text rounded-xl hover:bg-gray-200 animate-fade-in ${headingSizeClass}`}
+          className={`px-3 py-2 cursor-text rounded-xl hover:bg-gray-100 animate-fade-in ${headingSizeClass} ${isDone ? "line-through" : ""}`}
         >
           {title}
         </Heading>
