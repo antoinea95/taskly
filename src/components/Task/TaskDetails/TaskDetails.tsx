@@ -100,7 +100,7 @@ export const TaskDetails = ({
   };
 
   return (
-    <ScrollArea className="w-[850px] h-[80vh]">
+    <ScrollArea className="w-[850px] h-[80vh] dark:text-gray-300">
       <header className="mb-3 flex justify-between items-center p-3 pt-6">
         <UpdateTitleForm
           name="Task"

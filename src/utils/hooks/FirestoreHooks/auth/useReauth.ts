@@ -26,9 +26,13 @@ export const useReauthWithGoogle = (onSuccess: () => void) => {
       try {
         const provider = new GoogleAuthProvider();
         await reauthenticateWithPopup(firebaseAuth.currentUser!, provider);
-      } catch (error) {
+      } catch (error:any) {
         console.error(error);
-        throw new Error("Error while logging with google");
+        if(error.code === "auth/user-mismatch") {
+          throw new Error("Unknown google account, please retry with another one")
+        } else {
+          throw new Error("Error while logging with google");
+        }
       }
     },
     onSuccess: () => onSuccess(),

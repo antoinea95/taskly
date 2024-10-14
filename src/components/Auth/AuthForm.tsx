@@ -166,9 +166,8 @@ export const AuthForm = () => {
               {formContent.map((item) => {
                 if (item.hidden) return;
                 return (
-                  <div className="relative">
+                  <div className="flex flex-col" key={item.name}>
                     <FormFieldInputItem
-                      key={item.name}
                       item={item}
                       form={form}
                     />
@@ -178,7 +177,8 @@ export const AuthForm = () => {
                         onClick={() =>
                           handleResetPassword(form.getValues().email as string)
                         }
-                        className="absolute right-2 top-1 text-xs w-fit h-fit p-0 bg-transparent hover:bg-transparent text-black underline shadow-none border-none"
+                        className="justify-self-end self-end text-xs dark:text-gray-300"
+                        variant="link"
                       >
                         Forgot your password ?
                       </Button>
@@ -201,14 +201,14 @@ export const AuthForm = () => {
         </FormContainer>
       </section>
       <section className="w-3/4 mt-3 flex flex-col items-center gap-3">
-        <p className="uppercase flex items-center justify-between text-gray-300 w-full px-3">
-          <span className="border border-gray-100 inline-block w-1/3"></span> Or
+        <p className="uppercase flex items-center justify-between text-gray-300 w-full px-3 dark:text-gray-700">
+          <span className="border border-gray-100 inline-block w-1/3 dark:border-gray-700"></span> Or
           register with
-          <span className="border border-gray-100 inline-block w-1/3"></span>
+          <span className="border border-gray-100 inline-block w-1/3 dark:border-gray-700"></span>
         </p>
         <Button
           onClick={signinWithGoogle}
-          className="uppercase w-full flex items-center px-3 h-10 rounded-xl"
+          className="uppercase w-full flex items-center rounded-xl dark:bg-gray-300 dark:text-gray-700"
         >
           <FcGoogle color="white" style={{ marginRight: "6px" }} /> Google
         </Button>

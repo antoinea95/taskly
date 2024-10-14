@@ -27,16 +27,19 @@ export const UpdateTitleForm = <T extends FieldValues>({
   title,
   mutationQuery,
   headingLevel: Heading = "h1",
-  isDone
+  isDone,
 }: UpdateTitleProps<T>) => {
   const [isUpdate, setIsUpdate] = useState(false);
-  const [defineInputWidth, setDefineInputWidth] = useState<number | null>(null)
+  const [defineInputSize, setDefineInputSize] = useState<{
+    height: number;
+    width: number;
+  } | null>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const headingSizeClass =
     Heading === "h1"
-      ? "text-4xl uppercase"
+      ? "text-4xl"
       : Heading === "h2"
         ? "text-4xl w-fit"
         : Heading === "h3"
@@ -55,8 +58,11 @@ export const UpdateTitleForm = <T extends FieldValues>({
       }
     };
 
-    if(divRef.current && !isUpdate) {
-      setDefineInputWidth(divRef.current.offsetWidth);
+    if (divRef.current && !isUpdate) {
+      setDefineInputSize({
+        height: divRef.current.offsetHeight,
+        width: divRef.current.offsetWidth,
+      });
     }
 
     if (isUpdate) {
@@ -85,29 +91,27 @@ export const UpdateTitleForm = <T extends FieldValues>({
 
   useEffect(() => {
     const inputStyle = {
-      h1: { height: "56px", fontSize: "36px" },
-      h2: { height: "56px", fontSize: "36px" },
-      h3: { height: "40px", fontSize: "16px" },
-      default: { height: "40px", fontSize: "14px" },
+      h1: "36px",
+      h2: "36px",
+      h3: "16px",
+      default: "14px",
     } as const;
 
-
-
-    if (inputRef.current && isUpdate) {
+    if (inputRef.current && defineInputSize && isUpdate) {
       const heading = Heading.toString() as keyof typeof inputStyle;
 
       inputRef.current.focus();
-      inputRef.current.style.width = `${defineInputWidth}px`;
+      inputRef.current.style.width = `${defineInputSize.width}px`;
+      inputRef.current.style.height = `${defineInputSize.height}px`;
 
       // Use a ternary expression to define the style
-      const style = inputStyle[heading]
+      const fontSize = inputStyle[heading]
         ? inputStyle[heading]
         : inputStyle.default;
 
-      inputRef.current.style.height = style.height;
-      inputRef.current.style.fontSize = style.fontSize;
+      inputRef.current.style.fontSize = fontSize;
     }
-  }, [Heading, title, isUpdate, defineInputWidth]);
+  }, [Heading, title, isUpdate, defineInputSize]);
 
   /**
    * Handles form submission for updating the title.
@@ -124,7 +128,7 @@ export const UpdateTitleForm = <T extends FieldValues>({
     <div onClick={() => setIsUpdate(true)} ref={divRef}>
       {!isUpdate ? (
         <Heading
-          className={`px-3 py-2 cursor-text rounded-xl hover:bg-gray-100 animate-fade-in ${headingSizeClass} ${isDone ? "line-through" : ""}`}
+          className={`px-3 py-2 cursor-text rounded-xl animate-fade-in ${headingSizeClass} ${isDone ? "line-through" : ""} dark:text-gray-300`}
         >
           {title}
         </Heading>

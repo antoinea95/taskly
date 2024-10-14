@@ -1,4 +1,5 @@
 import { PropsWithChildren } from "react";
+import { Badge } from "../ui/badge";
 
 /**
  * `Label` component that renders a label with a customizable background color.
@@ -14,13 +15,14 @@ export const Label = ({
   color,
 }: PropsWithChildren<{ color: string }>): JSX.Element => {
   return (
-    <span
-      className={`uppercase font-bold px-2 py-1 rounded-lg text-[10px] flex items-center gap-1`}
+    <Badge
       style={{
         backgroundColor: color,
       }}
+      className="flex items-center justify-center gap-1 rounded-full text-[10px] border-none dark:text-gray-800"
+      variant="secondary"
     >
       {children}
-    </span>
+    </Badge>
   );
 };

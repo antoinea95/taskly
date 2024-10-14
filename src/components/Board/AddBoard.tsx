@@ -57,7 +57,7 @@ export const AddBoard = ({ user }: { user: UserType | null }) => {
                 tasks: [],
               },
               {
-                title: "Finish",
+                title: "Finished",
                 createdAt: now + 2,
                 boardId: boardId,
                 tasks: [],

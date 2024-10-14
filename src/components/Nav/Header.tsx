@@ -29,12 +29,12 @@ export const Header = ({
   return (
     <header className="flex items-center gap-3 w-full">
       {/* User's avatar, if photoURL is available, otherwise display a fallback with the user's initials */}
-      <Avatar className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-black">
+      <Avatar className="w-11 h-11 rounded-full flex items-center justify-center border-2">
         {user.photoURL && (
           <AvatarImage src={user.photoURL} alt={user.name || "User avatar"} />
         )}
         <AvatarFallback
-          className="flex items-center justify-center text-2xl w-full h-full bg-gray-200 pb-1"
+          className="flex items-center justify-center text-2xl w-full h-full bg-gray-200 pb-1 dark:bg-gray-700"
         >
           {fallback}
         </AvatarFallback>
@@ -45,7 +45,7 @@ export const Header = ({
         <span className="text-base text-gray-500 leading-tight w-fit">
           Welcome,
         </span>
-        <span className="text-2xl font-semibold leading-tight">
+        <span className="text-2xl font-semibold leading-tight dark:text-gray-300">
           {user?.name}
         </span>
       </div>

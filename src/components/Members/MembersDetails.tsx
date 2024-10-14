@@ -90,7 +90,7 @@ export const MembersDetails = <T,>({
           </MembersAvatarList>
         </div>
       </HoverCardTrigger>
-      <HoverCardContent className="mr-8 rounded-xl shadow-none w-fit">
+      <HoverCardContent className="mr-8 rounded-xl shadow-none w-fit dark:bg-gray-800 dark:text-gray-300">
         <div className="space-y-5 min-w-72">
           {members.map((member) => (
             <Member

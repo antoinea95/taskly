@@ -20,7 +20,6 @@ export const TaskCommentsSection = ({
   userId,
   mutationQuery,
 }: TaskCommentsSectionProps) => {
-
   const [isAddComment, setIsAddComment] = useState(false);
 
   /**
@@ -36,20 +35,23 @@ export const TaskCommentsSection = ({
     };
 
     // Mutate the comments array to add a new comment
-    mutationQuery.mutate({
-      comments: comments ? [...comments, newComment] : [newComment],
-    }, {
-      onSuccess: () => setIsAddComment(false)
-    });
+    mutationQuery.mutate(
+      {
+        comments: comments ? [...comments, newComment] : [newComment],
+      },
+      {
+        onSuccess: () => setIsAddComment(false),
+      }
+    );
   };
 
   return (
-    <div className="px-3 space-y-1">
-      <h3 className="flex items-center gap-2 font-medium">
-        <MessageSquare size={20} />
-        Comments
-      </h3>
-      <div className="space-y-3">
+    <div className="px-3 space-y-1 mb-10">
+      <div className="relative min-h-10 mb-3 flex flex-col">
+        <h3 className="flex items-center gap-2 font-medium my-2 justify-self-center">
+          <MessageSquare size={20} />
+          Comments
+        </h3>
         {/* Form for adding a new comment */}
         <AddForm
           name="comment"
@@ -58,8 +60,10 @@ export const TaskCommentsSection = ({
           isOpen={isAddComment}
           setIsOpen={setIsAddComment}
         />
+      </div>
+      <div className="space-y-3">
         {/* Display the list of comments */}
-        {comments &&
+        {comments && comments.length > 0 ? (
           comments.map((comment, index) => (
             <TaskComment
               key={index}
@@ -68,7 +72,12 @@ export const TaskCommentsSection = ({
               userId={userId}
               mutationQuery={mutationQuery}
             />
-          ))}
+          ))
+        ) : (
+          <p className="rounded-xl bg-gray-50 h-16 flex items-center justify-center uppercase font-light text-gray-300 text-sm dark:bg-gray-800 dark:text-gray-600">
+            No comments yet
+          </p>
+        )}
       </div>
     </div>
   );

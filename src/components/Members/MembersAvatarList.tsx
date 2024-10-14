@@ -24,7 +24,7 @@ export const MembersAvatarList = ({
       {children}
       {/* Display additional member count if there are more than 5 members */}
       {members.length > 5 && (
-        <div className="w-8 h-8 rounded-full bg-gray-50 border-2 text-black flex items-center justify-center text-sm font-semibold z-10">
+        <div className="w-8 h-8 rounded-full bg-gray-50 border-2 text-black flex items-center justify-center text-sm font-semibold z-10 dark:bg-gray-700 dark:text-gray-300">
           +{members.length - 5}
         </div>
       )}

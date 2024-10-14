@@ -26,7 +26,7 @@ export const Modal = ({
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent aria-describedby={undefined} className="w-fit min-w-96 max-h-[90vh] font-outfit">
+      <DialogContent aria-describedby={undefined} className="w-fit min-w-96 max-h-[90vh] font-outfit dark:bg-gray-900 border-none">
           <DialogTitle hidden>{title}</DialogTitle>
           {modalContent}
         </DialogContent>

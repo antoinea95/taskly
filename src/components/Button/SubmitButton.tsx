@@ -26,7 +26,7 @@ export const SubmitButton = ({
     <Button
       type="submit"
       disabled={disabled}
-      className="px-3 rounded-xl w-full h-10"
+      className="rounded-xl flex-1 dark:text-gray-900 dark:bg-gray-300"
     >
       {/* If `isPending` is true, show the loader */}
       {isPending ? (

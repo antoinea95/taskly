@@ -143,7 +143,7 @@ export const ProfilePage = () => {
       {currentUser ? (
         <main className="flex-1 flex flex-col font-outfit">
           <header className="flex justify-between w-full items-center">
-            <h1 className="text-4xl uppercase px-3 py-2">{currentUser.name}</h1>
+            <h1 className="text-4xl">{currentUser.name}</h1>
             <DeleteButton content="Delete your account">
                 {({ setIsOpen }) => (<DeleteConfirmation
                     setIsOpen={setIsOpen}

@@ -6,6 +6,7 @@ import { AddFormProps } from "../../utils/types/form.types";
 import { FormContainer } from "./containers/FormContainer";
 import { FormFieldInputItem } from "./fields/FormFieldInputItem";
 import { FormActionsButton } from "./actions/FormActionsButton";
+import { Button } from "../ui/button";
 
 /**
  * AddForm Component
@@ -87,6 +88,15 @@ export const AddForm = <T extends FieldValues>({
   return setIsOpen ? (
     isOpen ? (
       renderForm()
+    ) : name === "comment" ? (
+      <Button
+        className="rounded-xl flex gap-2 shadow-none absolute right-0 top-0 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-600"
+        size="icon"
+        variant="outline"
+        onClick={() => setIsOpen(true)}
+      >
+        <Plus size={16} />
+      </Button>
     ) : (
       <ToggleButton setIsOpen={setIsOpen}>
         {name === "Label" ? <Tag size={16} /> : <Plus size={16} />}

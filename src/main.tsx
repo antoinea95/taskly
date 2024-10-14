@@ -10,6 +10,7 @@ import { LoginPage } from "./pages/LoginPage.tsx";
 import { HomePage } from "./pages/HomePage.tsx";
 import { ProfilePage } from "./pages/ProfilePage.tsx";
 import { ErrorPage } from "./pages/ErrorPage.tsx";
+import { ThemeContextProvider } from "./utils/helpers/context/ThemeContext.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,9 +29,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: (
-          <HomePage />
-        ),
+        element: <HomePage />,
       },
       {
         path: "/:boardId",
@@ -51,8 +50,10 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ThemeContextProvider>
+        <RouterProvider router={router} />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </ThemeContextProvider>
     </QueryClientProvider>
   </StrictMode>
 );

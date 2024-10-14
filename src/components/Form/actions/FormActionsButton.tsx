@@ -26,7 +26,7 @@ export const FormActionsButton = ({
   setIsOpen,
 }:  PropsWithChildren<FormActionsButtonProps>) => {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center space-x-3">
       {/* Submit button */}
       <SubmitButton isPending={isPending} disabled={disabled}>
         {children}

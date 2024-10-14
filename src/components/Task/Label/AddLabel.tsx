@@ -81,14 +81,14 @@ export const AddLabel = ({
   };
 
   return (
-    <div>
+    <div className="space-y-3">
       {isAddLabel && (
-        <div className="p-3 space-y-2">
-          <div className="flex items-center gap-2">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
             <label htmlFor="color">Select tag color: </label>
-            <span className="text-sm flex items-center justify-end bg-white w-fit px-3 py-1 rounded-xl">
+            <span className="text-xs flex items-center gap-1 justify-end w-fit">
               Default:
-              <span className="inline-block w-4 h-4 rounded-full bg-gray-200 mx-1"></span>
+              <span className="inline-block w-3 h-3 rounded-full bg-gray-200"></span>
             </span>
           </div>
           <div className="flex space-x-3">
@@ -104,12 +104,12 @@ export const AddLabel = ({
                   onClick={() => handleResetColor(color.color)}
                 />
                 <div
-                  className={`shadow-none rounded-full w-8 h-8 border-2 flex items-center justify-center cursor-pointer border-gray-300`}
+                  className={`shadow-none rounded-full w-8 h-8 border-2 flex items-center justify-center cursor-pointer border-gray-300 dark:border-gray-600`}
                   style={{
                     backgroundColor: color.color,
                   }}
                 >
-                  {selectedColor === color.color && <Check size={18} />}
+                  {selectedColor === color.color && <Check size={18} className="text-gray-800" />}
                 </div>
               </label>
             ))}

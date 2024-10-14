@@ -38,13 +38,13 @@ export const HomePage = () => {
   }
 
   return (
-    <main className="flex flex-col flex-1 w-full">
+    <main className="flex flex-col flex-1">
       {/** Header section with user information */}
       <Header user={currentUser} />
 
       {/** Section to display page title and the AddBoard button */}
       <section className="flex justify-between items-start mt-10 relative">
-        <h1 className="text-4xl">Boards</h1>
+        <h1 className="text-4xl dark:text-gray-300">Boards</h1>
         <div className="absolute right-0 top-0 w-60 flex justify-end">
           <AddBoard user={currentUser} />
         </div>

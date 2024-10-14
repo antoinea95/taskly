@@ -1,6 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { useMemo, useState } from "react";
-import { ListType} from "@/utils/types/lists.types";
+import { ListType } from "@/utils/types/lists.types";
 import { TaskType } from "../../utils/types/tasks.types";
 import { useDroppable } from "@dnd-kit/core";
 import { TaskCard } from "../Task/Card/TaskCard";
@@ -20,7 +19,7 @@ import { AddForm } from "../Form/AddForm";
  * @param {Object} props - The props for the ListCard component.
  * @param {ListType} props.list - The list object that contains the list's details and tasks.
  * @param {string} props.boardId - The ID of the board that the list belongs to.
- * 
+ *
  * @returns The rendered ListCard component.
  */
 export const ListCard = ({
@@ -38,9 +37,12 @@ export const ListCard = ({
    * This is used to optimize re-renders when the list changes.
    */
   const memoizedTasks = useMemo(() => {
-    return list?.tasks.map((taskId) => (
-      <TaskCard key={taskId} taskId={taskId} list={list} />
-    ));
+    return (
+      list &&
+      list.tasks.map((taskId) => (
+        <TaskCard key={taskId} taskId={taskId} list={list} />
+      ))
+    );
   }, [list]);
 
   const createTask = useAddDoc<TaskType>(["tasks", list.id], "tasks");
@@ -53,7 +55,7 @@ export const ListCard = ({
 
   /**
    * Handles the creation of a new task when the form is submitted.
-   * 
+   *
    * @param {FieldValues} data - The data submitted from the task form.
    */
   const handleCreateTask = async (data: FieldValues) => {
@@ -81,11 +83,11 @@ export const ListCard = ({
   };
 
   return (
-    <div ref={setNodeRef} className="h-fit min-w-72 w-fit px-3">
+    <div ref={setNodeRef} className="w-fit min-w-96 mb-2 rounded-xl">
       {list && (
-        <Card className="shadow-none h-fit bg-transparent min-h-96 border-none">
-          <CardHeader className="p-0 flex flex-col gap-3">
-            <CardTitle className="text-xl font-normal flex items-center justify-between">
+        <section className="min-w-96 w-fit p-3 rounded-xl bg-gray-50 space-y-3 dark:bg-gray-900">
+          <header className="space-y-3">
+            <div className="flex justify-between items-center">
               <UpdateTitleForm
                 name="List"
                 title={list.title}
@@ -102,7 +104,8 @@ export const ListCard = ({
                   />
                 )}
               </DeleteButton>
-            </CardTitle>
+            </div>
+
             <AddForm
               name="Task"
               onSubmit={handleCreateTask}
@@ -110,11 +113,9 @@ export const ListCard = ({
               isOpen={isAddTask}
               setIsOpen={setIsAddTask}
             />
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3 pt-3 px-0">
-            {memoizedTasks}
-          </CardContent>
-        </Card>
+          </header>
+          <section className="space-y-3">{memoizedTasks}</section>
+        </section>
       )}
     </div>
   );

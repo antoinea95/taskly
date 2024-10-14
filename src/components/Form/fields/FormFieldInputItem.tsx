@@ -50,14 +50,16 @@ const InputItem = <T extends FieldValues>(
 
         return (
           <FormItem className="space-y-0 flex-1">
-            <FormLabel>{props.item.label}</FormLabel>
+            <FormLabel htmlFor={props.item.name} className="dark:text-gray-300">{props.item.label}</FormLabel>
             <FormControl>
               {props.item.name === "description" ? (
                 <Textarea
                   placeholder={props.item.placeholder}
                   onChange={field.onChange}
                   defaultValue={field.value}
-                  className="h-28 rounded-xl bg-gray-200 border-none shadow-none resize-none"
+                  className="h-28 rounded-xl border-none shadow-none resize-none bg-gray-100 dark:bg-gray-700 dark:text-gray-300"
+                  name={props.item.name}
+                  id={props.item.name}
                 />
               ) : (
                 <Input
@@ -65,8 +67,10 @@ const InputItem = <T extends FieldValues>(
                   onChange={field.onChange}
                   defaultValue={field.value}
                   type={props.item.type}
-                  className="h-10 rounded-xl bg-gray-200 border-none shadow-none"
+                  className="rounded-xl border-none shadow-none h-10 bg-gray-100 dark:bg-gray-700 dark:text-gray-300"
                   ref={ref}
+                  id={props.item.name}
+                  name={props.item.name}
                 />
               )}
             </FormControl>

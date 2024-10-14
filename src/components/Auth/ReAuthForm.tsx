@@ -9,6 +9,7 @@ import { LogIn } from "lucide-react";
 import { firebaseAuth } from "@/utils/firebase/firebaseApp";
 import { Button } from "../ui/button";
 import { FcGoogle } from "react-icons/fc";
+import { NotificationBanner } from "../Notification/NotificationBanner";
 
 /**
  * ReAuthForm component
@@ -67,7 +68,7 @@ export const ReAuthForm = ({
           mutationQuery={reauthWithPassword}
         >
           {({ form }) => (
-            <>
+            <div className="space-y-3">
               <FormFieldInputItem
                 form={form}
                 item={{
@@ -82,17 +83,18 @@ export const ReAuthForm = ({
                   <LogIn size={16} /> Log in
                 </span>
               </FormActionsButton>
-            </>
+            </div>
           )}
         </FormContainer>
       ) : (
-        <div className="w-full">
+        <div className="w-full space-y-3">
         <Button
           onClick={() => reauthWithGoogle.mutate()}
           className="uppercase w-full flex items-center py-6 rounded-xl"
         >
           <FcGoogle color="white" style={{ marginRight: "6px" }} /> Google
         </Button>
+        <NotificationBanner isError={reauthWithGoogle.isError} content={reauthWithGoogle.error ? reauthWithGoogle.error.message : ""} />
         </div>
       )}
     </>

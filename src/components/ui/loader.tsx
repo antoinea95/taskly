@@ -1,9 +1,14 @@
+import { useTheme } from "@/utils/helpers/hooks/useThemeContext";
+
 type LoaderType = {
   color: string;
   size: string;
 };
 
 export const Loader = ({ data }: { data: LoaderType }) => {
+
+  const {theme} = useTheme();
+
   return (
     <div
       className="animate-spin inline-block border-[2px] border-current border-t-transparent rounded-full"
@@ -12,7 +17,7 @@ export const Loader = ({ data }: { data: LoaderType }) => {
       style={{
         width: data.size,
         height: data.size,
-        borderColor: data.color,
+        borderColor: !theme ? data.color : data.color === "white" ? "dark" : "white",
         borderTopColor: 'transparent', // pour l'effet de spin
       }}
     >

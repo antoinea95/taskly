@@ -35,13 +35,13 @@ export const NotificationBanner = ({
   }, [isSuccess, isError]);
 
   // Class name based on the status (success or error).
-  const messageClass = isSuccess ? "bg-green-300" : "bg-red-300";
+  const messageClass = isSuccess ? "bg-green-500" : "bg-red-500";
 
   return (
     <>
       {isVisible && content.length > 0 && (
         <p
-          className={`text-white flex items-center justify-center gap-2 text-sm px-3 h-10 rounded-xl w-full animate-fade-in ${messageClass}`}
+          className={`text-gray-200 flex items-center justify-center gap-2 text-sm p-3 rounded-xl w-full animate-fade-in leading-4 ${messageClass}`}
         >
           {isError ? <ShieldX size={16} /> : isSuccess ? <CheckCircle size={16} /> : null}
           {content}

@@ -90,7 +90,7 @@ export const UpdatePicture = ({ user }: { user: UserType }) => {
             type="file"
             accept="image/png, image/jpg, image/jpeg"
             onChange={handleFileChange}
-            className="bg-gray-200 border-non shadow-none rounded-xl cursor-pointer"
+            className="bg-gray-200 border-non shadow-none rounded-xl cursor-pointer dark:bg-gray-300"
           />
           <FormActionsButton
             isPending={importFile.isPending}

@@ -45,7 +45,9 @@ export const TaskLabel = ({
       {mutationQuery && (
         <Button
           onClick={handleDelete}
-          className="h-fit w-fit p-0 shadow-none bg-transparent text-black hover:bg-transparent"
+          className="h-fit w-fit shadow-none"
+          variant="ghost"
+          size="icon"
         >
           <X size={12} />
         </Button>

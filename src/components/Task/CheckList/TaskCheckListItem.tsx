@@ -66,7 +66,7 @@ export const TaskCheckListItem = ({
   };
 
   return (
-    <div className="flex justify-between items-center p-2 rounded-xl hover:bg-gray-100">
+    <div className="flex justify-between items-center py-2 px-3 rounded-xl dark:text-gray-300">
       <FormCheckBoxItem 
         id={item.title} 
         defaultChecked={item.done} 
@@ -75,7 +75,9 @@ export const TaskCheckListItem = ({
         <UpdateTitleForm name="Item" mutationQuery={updateCheckListItem} title={item.title} headingLevel={"p"} isDone={isDone} />
       </FormCheckBoxItem>
       <Button 
-        className="p-1 h-fit bg-transparent text-black shadow-none border-none hover:bg-red-500 hover:text-white" 
+        className="hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-600 w-fit h-fit p-1"
+        size="icon"
+        variant="secondary"
         onClick={handleDelete}
       >
         <X size={16} />

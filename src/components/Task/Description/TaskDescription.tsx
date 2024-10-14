@@ -55,7 +55,7 @@ export const TaskDescription = ({
   };
 
   return (
-    <div className="flex flex-col gap-3 my-2">
+    <div className="flex flex-col gap-3">
       <h3 className="flex items-center gap-2 font-medium">
         <PenLine size={20} />
         Description
@@ -63,7 +63,7 @@ export const TaskDescription = ({
       {!isUpdate ? (
         <p
           onClick={() => setIsUpdate(true)}
-          className="cursor-pointer font-medium bg-gray-50 px-2 py-3 rounded-xl hover:bg-gray-100"
+          className="cursor-pointer font-medium bg-gray-50 px-2 py-3 rounded-xl hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-600"
         >
           {description}
         </p>
@@ -90,9 +90,9 @@ export const TaskDescription = ({
                 isPending={mutationQuery.isPending}
                 setIsOpen={setIsUpdate}
               >
-                <span className="flex item-center gap-2">
+                <p className="flex items-center gap-2">
                   <MessageSquare size={16} /> {`${description ? "Update" : "Add"} description`}
-                </span>
+                </p>
               </FormActionsButton>
             </>
           )}

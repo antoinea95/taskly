@@ -91,10 +91,10 @@ export const TaskCheckList = ({
   }, [checklistItems, isFetched]);
 
   return (
-    <div className="space-y-3 rounded-xl my-2 relative p-4 border-2 border-gray-200">
+    <div className="space-y-3 rounded-xl my-2 relative p-4 border-2 border-gray-200 dark:border-gray-800">
       <div className="w-full space-y-3">
         <div className="flex items-center justify-between font-medium w-full">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 dark:text-gray-300">
             <ListCheck size={20} />
             <UpdateTitleForm
               name="Checklist"
@@ -115,7 +115,7 @@ export const TaskCheckList = ({
           </DeleteButton>
         </div>
         <div className="flex items-center gap-4 w-full">
-          <span className="inline-block h-1 flex-1 bg-gray-100 rounded-full relative overflow-hidden">
+          <span className="inline-block h-1 flex-1 bg-gray-100 rounded-full relative overflow-hidden dark:bg-gray-800">
             <span
               className="inline-block h-1 bg-green-500 absolute top-[50%] -translate-y-1/2 transition-all"
               style={{ width: `${completeBarWidth}%` }}
@@ -136,7 +136,7 @@ export const TaskCheckList = ({
           ))}
         </div>
       ) : (
-        <p className="text-gray-300 text-center uppercase text-xs">
+        <p className="text-gray-300 text-center uppercase text-xs dark:text-gray-800">
           No items yet
         </p>
       )}

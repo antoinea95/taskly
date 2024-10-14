@@ -30,7 +30,9 @@ export const DeleteButton = ({
       setIsModalOpen={setIsOpen}
     >
       <Button
-        className="w-fit h-10 px-3 rounded-xl bg-gray-100 text-black flex gap-2 shadow-none border-none hover:bg-gray-300"
+        className="rounded-xl flex gap-2 shadow-none hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-600"
+        size={content ? "default" : "icon"}
+        variant="secondary"
         onClick={() => setIsOpen(true)}
       >
         <Trash size={16} /> {content && content}

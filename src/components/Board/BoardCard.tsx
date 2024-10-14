@@ -23,15 +23,15 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
 
   return (
     <Card
-      className="w-64 h-32 flex flex-col justify-between shadow-none bg-white border-2 border-transparent overflow-hidden rounded-xl pt-3 pb-2 px-3 cursor-pointer hover:border-gray-200"
+      className="w-64 h-32 flex flex-col justify-between border-none bg-gray-100 rounded-xl cursor-pointer hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-800"
       onClick={() => navigate(`/${board?.id}`)}
     >
-      <CardHeader className="flex-1 p-0">
+      <CardHeader className="flex-1 p-4">
         <CardTitle className="text-xl tracking-normal font-medium leading-none">
           {board?.title}
         </CardTitle>
       </CardHeader>
-      <CardFooter className="flex justify-between p-0">
+      <CardFooter className="flex justify-between p-4">
         <Label color="#d1d5db">
         {createdDate(board.createdAt)}
         </Label>

@@ -31,7 +31,7 @@ export const DeleteConfirmation = ({
 
   return (
     <div className="flex flex-col gap-3 items-center font-bold p-3 pt-10">
-      <p>
+      <p className="dark:text-gray-300">
         {actionName === "account" && isNeedPassword
           ? "Please re-authenticate before:"
           : `Are you sure you want to delete this ${actionName}?`}
@@ -45,9 +45,9 @@ export const DeleteConfirmation = ({
             <Button
               onClick={() => {
                 handleDelete();
-                if(!isPending) setIsOpen(false);
+                if(!isPending && actionName === "comment") setIsOpen(false);
               }}
-              className="rounded-xl border-none shadow-none w-full"
+              className="w-full dark:text-gray-700 dark:bg-gray-300 rounded-xl "
             >
               {isPending ? (
                 <Loader data={{ color: "white", size: "1rem" }} />
@@ -58,7 +58,8 @@ export const DeleteConfirmation = ({
             {/* Cancel button (No) */}
             <Button
               onClick={() => setIsOpen(false)}
-              className="bg-gray-100 rounded-xl text-black border-none shadow-none w-full hover:bg-gray-300"
+              className="bg-gray-100 rounded-xl w-full hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-600"
+              variant="secondary"
             >
               No
             </Button>

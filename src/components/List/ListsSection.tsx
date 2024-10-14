@@ -18,7 +18,6 @@ import { useDragMouse } from "@/utils/helpers/hooks/useDragMouse";
 import { useDragAndDropZone } from "../../utils/helpers/hooks/useDragAndDropZone";
 import { useGetLists } from "@/utils/hooks/FirestoreHooks/queries/useGetLists";
 import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
-import { ListSectionSkeleton } from "../Skeletons/skeletons";
 import { AddForm } from "../Form/AddForm";
 import { FieldValues } from "react-hook-form";
 
@@ -79,10 +78,10 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
     );
   };
 
-  // Display a loading skeleton if the lists are not yet fetched
-  if (!isFetched) {
-    return <ListSectionSkeleton />;
+  if(!isFetched) {
+    return null;
   }
+
 
   return (
     <DndContext
@@ -93,16 +92,15 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
       sensors={sensors}
     >
       <section
-        className="overflow-x-auto flex-1 flex flex-col w-full no-scrollbar"
+        className="overflow-x-auto flex-1 flex flex-col w-full no-scrollbar mb-10"
         ref={sliderRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeaveOrUp}
         onMouseUp={handleMouseLeaveOrUp}
       >
-        <section className="flex items-start flex-nowrap mt-10 gap-8 flex-1 w-full">
+        <section className="flex items-start flex-nowrap mt-10 gap-5 flex-1">
           {lists &&
-            isFetched &&
             lists
               .sort((a, b) => a.createdAt - b.createdAt)
               .map((list) => (

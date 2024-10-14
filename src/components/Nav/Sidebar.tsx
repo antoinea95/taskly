@@ -1,4 +1,4 @@
-import { ClipboardList, Dot, LogOut } from "lucide-react";
+import { ClipboardList, LogOut } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { AddBoard } from "../Board/AddBoard";
 import { Skeleton } from "../ui/skeleton";
@@ -6,6 +6,7 @@ import { Member } from "../Members/Member";
 import { useAuth } from "@/utils/hooks/FirestoreHooks/auth/useAuth";
 import { useGetBoards } from "@/utils/hooks/FirestoreHooks/queries/useGetBoards";
 import { useSignOut } from "@/utils/hooks/FirestoreHooks/auth/useSignOut";
+import { Button } from "../ui/button";
 
 /**
  * Sidebar component displays the user's boards, navigation options, user profile,
@@ -37,9 +38,9 @@ export const Sidebar = () => {
   // }, [currentUser, isLoading, navigate]);
 
   return (
-    <section className="font-outfit flex-1 flex flex-col pb-2">
+    <section className="font-outfit flex-1 flex flex-col pb-2 w-full dark:text-gray-300">
       {/* Boards section */}
-      <div className="px-3 font-medium p-3 rounded-xl space-y-2">
+      <div className="font-medium space-y-2 w-full">
         <h2 className="uppercase flex items-center gap-2">
           <ClipboardList size={20} />
           Boards
@@ -54,8 +55,8 @@ export const Sidebar = () => {
               key={board.id}
               to={`/${board.id}`}
               className={({ isActive }) =>
-                `text-xs rounded-xl w-full flex items-center px-3 py-2 hover:bg-gray-300 ${
-                  isActive ? "bg-gray-100" : ""
+                `text-sm rounded-xl w-full flex items-center p-3 hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                  isActive ? "bg-gray-100 dark:bg-gray-700" : ""
                 }`
               }
             >
@@ -73,29 +74,32 @@ export const Sidebar = () => {
       </div>
 
       {/* Profile and logout section */}
-      <div className="mb-0 mt-auto">
+      <div className="mb-0 mt-auto space-y-2">
         {/* Render user profile or loading skeleton if user is not available */}
         {currentUser ? (
           <NavLink
             to={`/profile`}
-            className="flex items-center gap-2 w-full p-2 rounded-xl hover:bg-gray-200 cursor-pointer"
+            className={({ isActive }) =>
+              `rounded-xl w-full flex items-center gap-2 p-3 hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                isActive ? "bg-gray-100 dark:bg-gray-700" : ""
+              }`
+            }
           >
-            <div className="flex items-center gap-2">
               <Member userId={currentUser.id} type="avatar" />
               {currentUser.name}
-            </div>
           </NavLink>
         ) : (
           <Skeleton className="w-60 h-10" />
         )}
 
         {/* Log out button */}
-        <button
-          className="flex items-center gap-2 w-full p-2 rounded-xl hover:bg-gray-200"
+        <Button
+          className="flex items-center justify-start gap-2 w-full h-12 rounded-xl bg-transparent hover:bg-gray-200 dark:bg-transparent dark:text-gray-300 dark:hover:bg-gray-700"
           onClick={handleLogOut}
+          variant="secondary"
         >
           <LogOut /> Log out
-        </button>
+        </Button>
       </div>
     </section>
   );

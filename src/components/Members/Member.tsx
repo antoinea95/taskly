@@ -21,7 +21,7 @@ import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
  * - handleDeleteMember: function to handle removing a member (optional)
  * - isTaskView: whether the current view is a task view (optional)
  *
- * @returns {JSX.Element | null} A JSX element displaying member details or skeleton if loading.
+ * @returns  A JSX element displaying member details or skeleton if loading.
  */
 export const Member = ({
   userId,
@@ -59,7 +59,7 @@ export const Member = ({
     } else {
       return (
         <div>
-          <Skeleton className="w-64 h-10 rounded-xl" />
+          <Skeleton className="w-72 h-10 rounded-xl" />
         </div>
       );
     }
@@ -77,7 +77,8 @@ export const Member = ({
 
           {/* List view: display member name, email, and delete option if applicable */}
           {type === "list" && (
-            <div className="flex flex-col relative w-full">
+            <div className="flex items-center justify-between w-full">
+            <div className="flex flex-col relative">
               <p className="text-sm font-bold leading-3 ">
                 {member.name}{" "}
                 {isCreator && (
@@ -87,12 +88,15 @@ export const Member = ({
               <span className="text-xs max-w-40 truncate hover:whitespace-normal hover:max-w-none transition-all duration-300">
                 {member.email}
               </span>
+              </div>
 
               {/* Delete button: visible for the task view or if the current user is the creator */}
               {((isTaskView || isCurrentUserCreator) && !isCreator && handleDeleteMember) && (
                 <Button
                   onClick={() => handleDeleteMember(member.id)}
-                  className="absolute right-0 top-0 bg-gray-50 w-fit h-fit py-2 gap-2 text-black border-none shadow-none hover:bg-gray-300 text-[10px] px-3"
+                  className="rounded-xl dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-500"
+                  variant="outline"
+                  size="icon"
                 >
                   <UserMinus size={16} />
                 </Button>

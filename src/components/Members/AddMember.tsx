@@ -35,7 +35,7 @@ export const AddMember = <T,>({
 
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const { handleSearchByName, searchResults, isFetched } = useFilteredUsers(members, board);
+  const { handleSearchByName, searchResults } = useFilteredUsers(members, board);
   const { selectedUserIds, setSelectedUsersId, handleSelectUser } = useSelectedUsers();
 
   /**
@@ -59,16 +59,13 @@ export const AddMember = <T,>({
     );
   };
 
-  if (!isFetched) {
-    return <div className="bg-white rounded-xl w-72 h-80 z-10"></div>; // Loading placeholder
-  }
 
   return (
     <>
       {!isOpen ? (
         <MemberButton setIsOpen={setIsOpen} type={queryKey[0]} />
       ) : (
-        <div className="space-y-4 rounded-xl w-72 z-10 bg-white p-3 animate-fade-in">
+        <div className={`space-y-4 rounded-xl z-10 min-w-72 bg-white animate-fade-in ${!board ? "max-w-72 p-3" : ""} dark:bg-gray-800`}>
           {/* Input for searching users by name */}
           <Input
             className="h-10 border-none shadow-none bg-gray-300 rounded-xl w-full"
@@ -83,7 +80,8 @@ export const AddMember = <T,>({
                   <Button
                     key={user.id}
                     onClick={() => handleSelectUser(user.id)} // Select user on click
-                    className="relative bg-transparent text-black justify-between w-64 px-3 text-left h-15 shadow-none hover:bg-gray-200 gap-3"
+                    className="relative justify-between text-left shadow-none gap-3 w-full bg-transparent dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 h-12"
+                    variant="secondary"
                   >
                     <Member userId={user.id} type="list" />
                     {selectedUserIds.includes(user.id) && (
@@ -100,7 +98,7 @@ export const AddMember = <T,>({
           <div className="flex items-center space-x-2">
             <Button
               onClick={handleAddMembers}
-              className="w-full rounded-xl"
+              className="flex-1 rounded-xl dark:text-gray-900 dark:bg-gray-300"
               disabled={selectedUserIds.length === 0} // Disable if no users selected
             >
               {mutationQuery.isPending ? (

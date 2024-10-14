@@ -9,7 +9,7 @@ import {
 } from "../../ui/card";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {TaskType } from "@/utils/types/tasks.types";
+import { TaskType } from "@/utils/types/tasks.types";
 import { ListType } from "@/utils/types/lists.types";
 import { MessageSquare } from "lucide-react";
 import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
@@ -52,7 +52,6 @@ export const TaskCard = ({
     data: { type: "task" },
   });
 
-  // If the task is still being fetched, return null
   if (!isFetched) {
     return null;
   }
@@ -67,7 +66,7 @@ export const TaskCard = ({
             isModalOpen={isTaskOpen}
           >
             <Card
-              className="border-none shadow-none rounded-xl p-3 space-y-3"
+              className="border-none rounded-xl dark:bg-gray-800 dark:text-gray-300"
               style={{
                 transform: CSS.Transform.toString(transform),
                 transition,
@@ -78,22 +77,24 @@ export const TaskCard = ({
               {...listeners}
             >
               {/* Task Header */}
-              <CardHeader className="p-0 flex flex-row items-center justify-between flex-wrap">
-                <CardTitle className="w-fit text-lg font-normal leading-5 py-1">
-                  {task.title}
-                </CardTitle>
+              <CardHeader>
+                <CardTitle>{task.title}</CardTitle>
                 {/* Task Labels */}
-                {task.labels && task.labels.length > 0 && (
-                  <section className="flex items-center gap-2 flex-wrap py-1">
-                    {task.labels.map((label, index) => (
-                      <TaskLabel key={index} label={label} labels={task.labels} />
+                <section className="flex items-center gap-1 flex-wrap">
+                  {task.labels &&
+                    task.labels.length > 0 &&
+                    task.labels.map((label, index) => (
+                      <TaskLabel
+                        key={index}
+                        label={label}
+                        labels={task.labels}
+                      />
                     ))}
-                  </section>
-                )}
+                </section>
               </CardHeader>
 
               {/* Task Content */}
-              <CardContent className="px-0 py-0 min-h-10">
+              <CardContent>
                 {task.description && (
                   <p className="text-xs w-full line-clamp-3">
                     {task.description}
@@ -102,10 +103,14 @@ export const TaskCard = ({
               </CardContent>
 
               {/* Task Footer */}
-              <CardFooter className="flex items-center flex-wrap gap-2 p-0">
+              <CardFooter className="flex gap-2">
                 {/* Due Date */}
                 {task.dueDate && (
-                  <TaskDeadline dueDate={task.dueDate} taskId={task.id} isCard />
+                  <TaskDeadline
+                    dueDate={task.dueDate}
+                    taskId={task.id}
+                    isCard
+                  />
                 )}
                 {/* Task Checklist */}
                 <TaskCheckListSection taskId={task.id} isCard={true} />

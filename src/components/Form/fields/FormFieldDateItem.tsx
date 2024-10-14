@@ -7,7 +7,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { FieldValues, Path, PathValue } from "react-hook-form";
 import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
@@ -28,7 +32,6 @@ export const FormFieldDateItem = <T extends FieldValues>({
   form,
   id,
 }: FormFieldDateItemProps<T>) => {
-  
   // State to control popover open/close state
   const [isOpen, setIsOpen] = useState(false);
 
@@ -63,9 +66,9 @@ export const FormFieldDateItem = <T extends FieldValues>({
    * @param {Date | undefined} date - The selected date.
    */
   const handleDateSelect = (date: Date | undefined) => {
-    if(date) {
+    if (date) {
       // Set the selected date in the form field
-      form.setValue(id as Path<T>, date as PathValue<T, Path<T>> );
+      form.setValue(id as Path<T>, date as PathValue<T, Path<T>>);
     }
   };
 
@@ -75,11 +78,17 @@ export const FormFieldDateItem = <T extends FieldValues>({
       name={id as Path<T>}
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>{id === "to" ? "Deadline" : "Start date"}</FormLabel>
+          <FormLabel htmlFor={id}>
+            {id === "to" ? "Deadline" : "Start date"}
+          </FormLabel>
           <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
               <FormControl>
-                <Button variant={"outline"} onClick={() => setIsOpen(true)}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setIsOpen(true)}
+                  className="rounded-xl hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-600"
+                >
                   <span>
                     {field.value ? field.value.toDateString() : "Select a date"}
                   </span>
@@ -93,7 +102,7 @@ export const FormFieldDateItem = <T extends FieldValues>({
                 onSelect={handleDateSelect}
                 selected={field.value ? field.value : undefined}
                 disabled={handleDisabledDate}
-                className="w-full h-full"
+                className="w-full h-full dark:text-gray-300"
               />
             </PopoverContent>
           </Popover>

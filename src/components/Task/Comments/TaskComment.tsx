@@ -12,7 +12,8 @@ import { FormContainer } from "@/components/Form/containers/FormContainer";
 import { z } from "zod";
 import { FormFieldInputItem } from "@/components/Form/fields/FormFieldInputItem";
 import { FormActionsButton } from "@/components/Form/actions/FormActionsButton";
-import { Plus } from "lucide-react";
+import { Pen, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /**
  * TaskComment component displays a single comment within a task.
@@ -98,7 +99,7 @@ export const TaskComment = ({
   };
 
   return (
-    <div className="flex flex-col space-y-3 bg-white rounded-xl p-3">
+    <div className="flex flex-col space-y-3 p-3 bg-gray-50 rounded-xl dark:bg-gray-800 dark:border dark:border-gray-600">
       <div className="flex items-center gap-2">
         {/* Display the avatar of the comment's author */}
         <Member userId={comment.userId} type="avatar" />
@@ -112,12 +113,14 @@ export const TaskComment = ({
         {/* Display buttons to update or delete the comment if the user is the author */}
         {comment.userId === userId && !isCommentUpdate && (
           <div className="flex items-center justify-end flex-1 gap-2">
-            <button
+            <Button
               onClick={() => setIsCommentUpdate(true)}
-              className="bg-gray-100 rounded-xl text-xs px-3 h-10 text-gray-500 hover:bg-gray-200"
+              className="shadow-none rounded-xl hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-600"
+              size="icon"
+              variant="secondary"
             >
-              Update
-            </button>
+              <Pen size={16} />
+            </Button>
             <DeleteButton>
               {({ setIsOpen }) => (
                 <DeleteConfirmation
@@ -134,7 +137,7 @@ export const TaskComment = ({
 
       {/* Display the comment's content or the form to update the comment */}
       {!isCommentUpdate ? (
-        <p className="p-2 w-full text-sm bg-gray-50 rounded-xl">
+        <p className="p-2 w-full text-sm">
           {comment.title}
         </p>
       ) : (

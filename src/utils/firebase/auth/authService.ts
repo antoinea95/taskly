@@ -259,14 +259,13 @@ export class AuthService {
       console.error("User not authenticated.");
       return;
     }
+
     const userFromFirestore = await FirestoreService.fetchDoc<UserType>(
       "users",
       user.uid
     );
-    // Check if the user is using Google sign-in
-    const isGoogle = user?.providerData.some(
-      (item) => item.providerId === "google.com"
-    );
+   
+    
     const profilPictureRef = ref(
       firebaseStorage,
       `profile/${user.uid}/${user.uid}`
@@ -276,8 +275,16 @@ export class AuthService {
       await FirestoreService.removeMemberAndDeleteDocument("tasks", user.uid);
       await FirestoreService.removeMemberAndDeleteDocument("boards", user.uid);
 
-      if (userFromFirestore && userFromFirestore.photoURL && !isGoogle) {
-        await deleteObject(profilPictureRef);
+      if (userFromFirestore && userFromFirestore.photoURL) {
+        try {
+          await deleteObject(profilPictureRef);
+        } catch (error: any) {
+          if (error.code === "storage/object-not-found") {
+            console.log("User has no profile picture");
+          } else {
+            throw new Error("Error deleting picture");
+          }
+        }
       }
 
       // Delete user data from Firestore
