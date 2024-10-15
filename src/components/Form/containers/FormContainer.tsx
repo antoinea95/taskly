@@ -48,7 +48,7 @@ export const FormContainer = <T extends FieldValues>({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col w-full h-fit space-y-3"
+        className="flex flex-col w-full h-fit space-y-3 animate-fade-in"
       >
         {/* If children is a function, pass the form instance to it; otherwise, render it directly */}
         {children && typeof children === "function" ? children({ form }) : children}

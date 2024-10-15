@@ -66,7 +66,7 @@ export const TaskCard = ({
             isModalOpen={isTaskOpen}
           >
             <Card
-              className="border-none rounded-xl dark:bg-gray-800 dark:text-gray-300"
+              className="border-none rounded-xl dark:bg-gray-800 dark:text-gray-300 animate-top-to-bottom"
               style={{
                 transform: CSS.Transform.toString(transform),
                 transition,

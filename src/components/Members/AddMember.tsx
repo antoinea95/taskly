@@ -65,10 +65,10 @@ export const AddMember = <T,>({
       {!isOpen ? (
         <MemberButton setIsOpen={setIsOpen} type={queryKey[0]} />
       ) : (
-        <div className={`space-y-4 rounded-xl z-10 min-w-72 bg-white animate-fade-in ${!board ? "max-w-72 p-3" : ""} dark:bg-gray-800`}>
+        <div className={`space-y-4 rounded-xl z-10 min-w-72 bg-white animate-fade-in ${!board ? "max-w-72 p-3" : ""} dark:bg-gray-900`}>
           {/* Input for searching users by name */}
           <Input
-            className="h-10 border-none shadow-none bg-gray-300 rounded-xl w-full"
+            className="h-10 border-none shadow-none bg-gray-200 dark:bg-gray-600 dark:text-gray-300 rounded-xl w-full"
             placeholder="Search user"
             onChange={handleSearchByName}
           />
@@ -80,7 +80,7 @@ export const AddMember = <T,>({
                   <Button
                     key={user.id}
                     onClick={() => handleSelectUser(user.id)} // Select user on click
-                    className="relative justify-between text-left shadow-none gap-3 w-full bg-transparent dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 h-12"
+                    className="relative justify-between text-left shadow-none gap-3 w-full bg-transparent dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 h-12"
                     variant="secondary"
                   >
                     <Member userId={user.id} type="list" />

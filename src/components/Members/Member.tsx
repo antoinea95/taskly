@@ -1,7 +1,6 @@
 import { UserType } from "@/utils/types/auth.types";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
-import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import { UserMinus } from "lucide-react";
 import { MemberProps } from "../../utils/types/members.type";
@@ -21,7 +20,7 @@ import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
  * - handleDeleteMember: function to handle removing a member (optional)
  * - isTaskView: whether the current view is a task view (optional)
  *
- * @returns  A JSX element displaying member details or skeleton if loading.
+ * @returns  A JSX element displaying member details.
  */
 export const Member = ({
   userId,
@@ -52,17 +51,8 @@ export const Member = ({
     return null;
   }
 
-  // Display loading skeletons if data is not yet fetched
   if (!isFetched) {
-    if (type === "avatar") {
-      return <Skeleton className="w-8 h-8 rounded-full" />;
-    } else {
-      return (
-        <div>
-          <Skeleton className="w-72 h-10 rounded-xl" />
-        </div>
-      );
-    }
+   return null
   }
 
   return (
@@ -70,14 +60,14 @@ export const Member = ({
       {member && isFetched && (
         <div className="flex items-center gap-2">
           {/* Avatar of the member */}
-          <Avatar className="w-8 h-8 rounded-full border-2">
+          <Avatar className={`w-8 h-8 rounded-full border-2 ${type === "list" ? "animate-top-to-bottom" : "animate-fade-in"}`}>
             <AvatarImage src={member?.photoURL} className="object-cover w-full h-full bg-white" />
-            <AvatarFallback>{fallback}</AvatarFallback>
+            <AvatarFallback className="animate-fade-in">{fallback}</AvatarFallback>
           </Avatar>
 
           {/* List view: display member name, email, and delete option if applicable */}
           {type === "list" && (
-            <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-between w-full animate-top-to-bottom">
             <div className="flex flex-col relative">
               <p className="text-sm font-bold leading-3 ">
                 {member.name}{" "}

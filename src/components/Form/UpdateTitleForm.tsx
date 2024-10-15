@@ -39,9 +39,9 @@ export const UpdateTitleForm = <T extends FieldValues>({
 
   const headingSizeClass =
     Heading === "h1"
-      ? "text-4xl"
+      ? "text-xl md:text-4xl"
       : Heading === "h2"
-        ? "text-4xl w-fit"
+        ? "text-xl md:text-4xl"
         : Heading === "h3"
           ? "text-base"
           : "text-sm";
@@ -55,6 +55,7 @@ export const UpdateTitleForm = <T extends FieldValues>({
     const handleClickOutside = (event: MouseEvent) => {
       if (divRef.current && !divRef.current.contains(event.target as Node)) {
         setIsUpdate(false);
+        setDefineInputSize(null)
       }
     };
 
@@ -90,26 +91,11 @@ export const UpdateTitleForm = <T extends FieldValues>({
    */
 
   useEffect(() => {
-    const inputStyle = {
-      h1: "36px",
-      h2: "36px",
-      h3: "16px",
-      default: "14px",
-    } as const;
-
     if (inputRef.current && defineInputSize && isUpdate) {
-      const heading = Heading.toString() as keyof typeof inputStyle;
-
       inputRef.current.focus();
       inputRef.current.style.width = `${defineInputSize.width}px`;
       inputRef.current.style.height = `${defineInputSize.height}px`;
-
-      // Use a ternary expression to define the style
-      const fontSize = inputStyle[heading]
-        ? inputStyle[heading]
-        : inputStyle.default;
-
-      inputRef.current.style.fontSize = fontSize;
+;
     }
   }, [Heading, title, isUpdate, defineInputSize]);
 
@@ -125,10 +111,10 @@ export const UpdateTitleForm = <T extends FieldValues>({
   };
 
   return (
-    <div onClick={() => setIsUpdate(true)} ref={divRef}>
+    <div onClick={() => setIsUpdate(true)} ref={divRef} className="hover:bg-gray-50 w-fit rounded-xl dark:hover:bg-gray-700 animate-fade-in py-2">
       {!isUpdate ? (
         <Heading
-          className={`px-3 py-2 cursor-text rounded-xl animate-fade-in ${headingSizeClass} ${isDone ? "line-through" : ""} dark:text-gray-300`}
+          className={`md:px-3 cursor-text rounded-xl animate-fade-in ${headingSizeClass} ${isDone ? "line-through" : ""} dark:text-gray-300`}
         >
           {title}
         </Heading>

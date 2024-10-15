@@ -83,9 +83,9 @@ export const ListCard = ({
   };
 
   return (
-    <div ref={setNodeRef} className="w-fit min-w-96 mb-2 rounded-xl">
+    <div ref={setNodeRef} className="w-fit md:min-w-96 min-w-72 mb-2 rounded-xl animate-top-to-bottom">
       {list && (
-        <section className="min-w-96 w-fit p-3 rounded-xl bg-gray-50 space-y-3 dark:bg-gray-900">
+        <section className="md:min-w-96 w-fit min-w-72 p-3 rounded-xl bg-gray-50 space-y-3 dark:bg-gray-900">
           <header className="space-y-3">
             <div className="flex justify-between items-center">
               <UpdateTitleForm

@@ -46,7 +46,7 @@ export const TaskCommentsSection = ({
   };
 
   return (
-    <div className="px-3 space-y-1 mb-10">
+    <div className="md:px-10 space-y-1 mb-10 mt-3">
       <div className="relative min-h-10 mb-3 flex flex-col">
         <h3 className="flex items-center gap-2 font-medium my-2 justify-self-center">
           <MessageSquare size={20} />
@@ -64,7 +64,7 @@ export const TaskCommentsSection = ({
       <div className="space-y-3">
         {/* Display the list of comments */}
         {comments && comments.length > 0 ? (
-          comments.map((comment, index) => (
+          comments.sort((a,b) => b.createdAt - a.createdAt).map((comment, index) => (
             <TaskComment
               key={index}
               comments={comments}

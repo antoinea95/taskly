@@ -30,13 +30,13 @@ export const DeleteConfirmation = ({
   );
 
   return (
-    <div className="flex flex-col gap-3 items-center font-bold p-3 pt-10">
+    <div className="flex flex-col gap-3 items-center font-bold p-6 w-[80vw] max-w-[450px]">
       <p className="dark:text-gray-300">
         {actionName === "account" && isNeedPassword
           ? "Please re-authenticate before:"
           : `Are you sure you want to delete this ${actionName}?`}
       </p>
-      <div className="flex w-full m-auto items-center gap-10">
+      <div className="flex w-3/4 m-auto items-center gap-3">
         {isNeedPassword ? (
           <ReAuthForm setIsNeedPassword={setIsNeedPassword} />
         ) : (

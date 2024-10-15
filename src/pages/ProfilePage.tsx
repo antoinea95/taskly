@@ -142,8 +142,8 @@ export const ProfilePage = () => {
     <>
       {currentUser ? (
         <main className="flex-1 flex flex-col font-outfit">
-          <header className="flex justify-between w-full items-center">
-            <h1 className="text-4xl">{currentUser.name}</h1>
+          <header className="flex justify-between w-full items-center flex-wrap gap-2 mb-10">
+            <h1 className="md:text-4xl text-xl dark:text-gray-300">{currentUser.name}</h1>
             <DeleteButton content="Delete your account">
                 {({ setIsOpen }) => (<DeleteConfirmation
                     setIsOpen={setIsOpen}
@@ -156,7 +156,7 @@ export const ProfilePage = () => {
           </header>
           <section className="flex flex-col items-center space-y-10 w-full">
             <UpdatePicture user={currentUser} />
-            <div className="w-1/2 space-y-3">
+            <div className="w-full max-w-[500px] space-y-3">
               <FormContainer
                 schema={userSchema}
                 mutationQuery={updateUser}
@@ -186,7 +186,7 @@ export const ProfilePage = () => {
                 )}
               </FormContainer>
             </div>
-            <div className="space-y-3 w-1/2 pt-2">
+            <div className="space-y-3 w-full max-w-[500px] pt-2">
               {!isGoogle && <UpdatePassword />}
             </div>
           </section>

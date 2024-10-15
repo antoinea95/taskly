@@ -12,7 +12,7 @@ import { FirestoreService } from "@/utils/firebase/firestore/firestoreService";
    * Fetch a single document and return the result.
    */
   const fetchDocument = <T,>(collectionName: string, documentId: string): Promise<T> => {
-    return new Promise<T>((resolve) => {
+    return new Promise<T>((resolve, reject) => {
       const unsubscribe = FirestoreService.subscribeToDocument<T>(
         collectionName,
         documentId,
@@ -20,7 +20,9 @@ import { FirestoreService } from "@/utils/firebase/firestore/firestoreService";
           resolve(data);
           unsubscribe(); // Nettoie après la réception des données
         },
-        `Error while getting data from ${collectionName}`,
+        (error) => {
+          reject(new Error(`Error while getting document from ${collectionName}: ${error.message}`));
+        },
       );
     });
   };
@@ -33,15 +35,17 @@ import { FirestoreService } from "@/utils/firebase/firestore/firestoreService";
     collectionName: string,
     filterFn?: (colRef: CollectionReference) => QueryConstraint[],
   ): Promise<T> => {
-    return new Promise<T>((resolve) => {
+    return new Promise<T>((resolve, reject) => {
       const unsubscribe = FirestoreService.subscribeToCollection<T>(
         collectionName,
         (data) => {
           resolve(data as T);
           unsubscribe(); // Nettoie après la réception des données
         },
-        `Error while getting data from ${collectionName}`,
-        filterFn ? (colRef) => firestoreQuery(colRef, ...filterFn(colRef)) : undefined,
+        (error: Error) => {
+          reject(new Error(`Error while getting collection from ${collectionName}: ${error.message}`));
+        },
+        filterFn ? (colRef) => firestoreQuery(colRef, ...filterFn(colRef)) : undefined
       );
     });
   };

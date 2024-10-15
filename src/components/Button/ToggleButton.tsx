@@ -21,7 +21,7 @@ export const ToggleButton = ({
   return (
     <Button
       onClick={() => setIsOpen(true)}
-      className="rounded-xl flex gap-2 w-full shadow-none hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-600"
+      className="rounded-xl flex gap-2 w-full shadow-none hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-600 animate-fade-in"
       variant="secondary"
     >
       {children}

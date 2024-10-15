@@ -66,7 +66,7 @@ export const TaskCheckListItem = ({
   };
 
   return (
-    <div className="flex justify-between items-center py-2 px-3 rounded-xl dark:text-gray-300">
+    <div className="flex justify-between items-center py-2 px-3 rounded-xl dark:text-gray-300 animate-top-to-bottom">
       <FormCheckBoxItem 
         id={item.title} 
         defaultChecked={item.done} 

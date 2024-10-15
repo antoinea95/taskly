@@ -74,7 +74,7 @@ const InputItem = <T extends FieldValues>(
                 />
               )}
             </FormControl>
-            <FormMessage />
+            <FormMessage className="text-center p-2" />
           </FormItem>
         );
       }}

@@ -26,7 +26,7 @@ export const TaskHeaderItem = ({
   const Icon = icon;
 
   return (
-    <section className="flex flex-col px-3 gap-1">
+    <section className="flex flex-col md:px-3 gap-2">
       <h3 className="flex items-center gap-2 font-medium text-sm">
         <Icon size={14} />
         {title}

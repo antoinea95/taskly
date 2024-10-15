@@ -100,60 +100,65 @@ export const TaskDetails = ({
   };
 
   return (
-    <ScrollArea className="w-[850px] h-[80vh] dark:text-gray-300">
-      <header className="mb-3 flex justify-between items-center p-3 pt-6">
-        <UpdateTitleForm
-          name="Task"
-          title={task.title}
-          mutationQuery={updateTask}
-          headingLevel={"h2"}
-        />
-        <DeleteButton content="Delete task">
-          {({ setIsOpen }) => (
-            <DeleteConfirmation
-              handleDelete={handleDeleteTask}
-              actionName="task"
-              isPending={deleteTask.isPending}
-              setIsOpen={setIsOpen}
-            />
-          )}
-        </DeleteButton>
-      </header>
-      <section className="flex items-start my-2 gap-2 px-3">
-        <TaskHeaderItem title="List" icon={List}>
-          <span className="text-sm font-medium">{list.title}</span>
-        </TaskHeaderItem>
-        {task.dueDate && (
-          <TaskDeadline dueDate={task.dueDate} taskId={task.id} />
-        )}
-        {task.members && task.members.length > 0 && board.data && (
-          <TaskHeaderItem title="Members" icon={Users}>
-            <MembersDetails members={task.members} mutationQuery={updateTask} />
+    <ScrollArea className=" h-[95vh] md:max-h-[700px] max-w-[850px] w-[95vw] border-2 border-white m-0 p-3 bg-white dark:bg-gray-900 dark:border-gray-900 dark:text-gray-300">
+      <header className="sticky top-0 z-10 bg-white dark:bg-gray-900 dark:border-gray-900 space-y-2 p-3 md:p-6 animate-top-to-bottom">
+        <div className="flex justify-between items-center flex-wrap">
+          <UpdateTitleForm
+            name="Task"
+            title={task.title}
+            mutationQuery={updateTask}
+            headingLevel={"h2"}
+          />
+          <DeleteButton content="Delete task">
+            {({ setIsOpen }) => (
+              <DeleteConfirmation
+                handleDelete={handleDeleteTask}
+                actionName="task"
+                isPending={deleteTask.isPending}
+                setIsOpen={setIsOpen}
+              />
+            )}
+          </DeleteButton>
+        </div>
+        <section className="flex items-start gap-3 md:gap-2 flex-wrap">
+          <TaskHeaderItem title="List" icon={List}>
+            <span className="text-sm font-medium">{list.title}</span>
           </TaskHeaderItem>
-        )}
-        {task.labels && task.labels.length > 0 && (
-          <TaskHeaderItem title="Labels" icon={Tag}>
-            {task.labels.map((label, index) => (
-              <TaskLabel
-                key={index}
-                label={label}
-                labels={task.labels}
+          {task.dueDate && (
+            <TaskDeadline dueDate={task.dueDate} taskId={task.id} />
+          )}
+          {task.members && task.members.length > 0 && board.data && (
+            <TaskHeaderItem title="Members" icon={Users}>
+              <MembersDetails
+                members={task.members}
                 mutationQuery={updateTask}
               />
-            ))}
-          </TaskHeaderItem>
-        )}
-      </section>
-      <section className="grid grid-cols-5 grid-rows-1 gap-5 px-4 py-6">
-        <div className="flex flex-col gap-3 col-span-3 px-3 h-fit">
+            </TaskHeaderItem>
+          )}
+          {task.labels && task.labels.length > 0 && (
+            <TaskHeaderItem title="Labels" icon={Tag}>
+              {task.labels.map((label, index) => (
+                <TaskLabel
+                  key={index}
+                  label={label}
+                  labels={task.labels}
+                  mutationQuery={updateTask}
+                />
+              ))}
+            </TaskHeaderItem>
+          )}
+        </section>
+      </header>
+      <section className="flex flex-col-reverse md:flex-row md:flex-nowrap items-start justify-between flex-wrap md:px-10 gap-5 py-3 animate-top-to-bottom delay-75">
+        <div className="flex flex-col gap-3 h-fit md:w-3/5 w-full">
           <TaskDescription
             mutationQuery={updateTask}
             description={task.description}
           />
           <TaskCheckListSection taskId={task.id} />
         </div>
-        <div className="h-fit col-span-2 relative">
-          <div className="rounded-xl w-full sticky top-0 right-0 flex flex-col gap-3">
+        <div className="md:sticky md:top-48 right-0 md:w-2/5 ml-auto h-fit w-full">
+          <div className="rounded-xl w-full flex flex-col gap-3">
             <AddLabel labels={task.labels} mutationQuery={updateTask} />
             {board.data && (
               <AddMember
@@ -174,13 +179,15 @@ export const TaskDetails = ({
           </div>
         </div>
       </section>
+     
+
       {currentUser && (
-          <TaskCommentsSection
-            comments={task.comments}
-            mutationQuery={updateTask}
-            userId={currentUser.id}
-          />
-        )}
+        <TaskCommentsSection
+          comments={task.comments}
+          mutationQuery={updateTask}
+          userId={currentUser.id}
+        />
+      )}
     </ScrollArea>
   );
 };

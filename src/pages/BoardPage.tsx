@@ -8,7 +8,6 @@ import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
 import { useUpdateDoc } from "@/utils/hooks/FirestoreHooks/mutations/useUpdateDoc";
 import { useDeleteBoard } from "@/utils/hooks/FirestoreHooks/mutations/useDeletions";
 import { useAuth } from "@/utils/hooks/FirestoreHooks/auth/useAuth";
-import { BoardPageSkeleton } from "@/components/Skeletons/skeletons";
 import { DeleteButton } from "@/components/Button/DeleteButton";
 import { DeleteConfirmation } from "@/components/Form/actions/DeleteConfirmation";
 
@@ -25,13 +24,19 @@ export const BoardPage = () => {
   const { currentUser } = useAuth();
   const naviagate = useNavigate();
 
-  const { data: board, isFetched } = useGetDoc<BoardType>("boards", boardId);
+  const { data: board, isFetched, isError } = useGetDoc<BoardType>("boards", boardId);
   const deleteBoard = useDeleteBoard<void>(currentUser?.id, boardId);
   const updateBoard = useUpdateDoc<BoardType>(
     ["board", boardId],
     "boards",
     boardId
   );
+
+  if(isError && isFetched) {
+    return <div className="h-full flex items-center justify-center animate-fade-in">
+      <h1 className="text-4xl uppercase text-gray-300 dark:text-gray-600">Board not found</h1>
+    </div>
+  }
   
 
   /**
@@ -44,14 +49,14 @@ export const BoardPage = () => {
   };
 
   if (!boardId || !isFetched) {
-    return <BoardPageSkeleton />;
+    return null;
   }
 
   return (
     <main className="flex-1 flex flex-col">
       {board && isFetched && (
         <>
-          <header className="flex justify-between items-center">
+          <header className="flex justify-between items-center flex-wrap animate-top-to-bottom">
             {/* Form to update the board title */}
             <UpdateTitleForm
               title={board.title}
@@ -59,8 +64,7 @@ export const BoardPage = () => {
               mutationQuery={updateBoard}
               headingLevel={"h1"}
             />
-            <div className="flex items-start gap-3 h-10">
-              <div className="h-10 flex items-center">
+            <div className="flex flex-col md:flex-row items-start gap-3 pl-3 md:h-10 mt-3 w-full md:w-fit">
                 {/* Display member details and allow updating members */}
                 <MembersDetails
                   members={board.members}
@@ -68,7 +72,6 @@ export const BoardPage = () => {
                   mutationQuery={updateBoard}
                   isBoard
                 />
-              </div>
               {board.creator === currentUser?.id && (
                 <AddMember
                   queryKey={["boards", board.creator]}

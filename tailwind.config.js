@@ -42,12 +42,12 @@ export default {
         "top-to-bottom": {
           from: {
             opacity: "0%",
-            transform: "translateY(-200px)",
+            transform: "translateY(-50px)",
           },
 
           to: {
             opacity: "100%",
-            transform: "translateY(0)",
+            transform: "translateY(0px)",
           },
         },
       },
@@ -55,7 +55,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.3s ease-in-out forwards",
         "fade-in": "fade-in 0.2s ease-out",
-		"top-to-bottom": "top-to-bottom 0.2s ease-out fowards"
+		    "top-to-bottom": "top-to-bottom 0.3s ease-out"
       },
     },
   },

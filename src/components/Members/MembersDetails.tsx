@@ -1,15 +1,11 @@
 import { Member } from "./Member";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "../ui/hover-card";
 import { MembersAvatarList } from "./MembersAvatarList";
 import { useQueryClient } from "@tanstack/react-query";
 import { TaskType } from "@/utils/types/tasks.types";
 import { where } from "firebase/firestore";
 import { MembersDetailsProps } from "../../utils/types/members.type";
 import { FirestoreService } from "@/utils/firebase/firestore/firestoreService";
+import { PopoverTrigger, Popover, PopoverContent} from "../ui/popover";
 
 /**
  * MembersDetails component
@@ -80,8 +76,8 @@ export const MembersDetails = <T,>({
   };
 
   return (
-    <HoverCard>
-      <HoverCardTrigger asChild>
+    <Popover>
+      <PopoverTrigger asChild className="cursor-pointer">
         <div className="flex items-center">
           <MembersAvatarList members={members}>
             {members.slice(0, 5).map((member) => (
@@ -89,8 +85,8 @@ export const MembersDetails = <T,>({
             ))}
           </MembersAvatarList>
         </div>
-      </HoverCardTrigger>
-      <HoverCardContent className="mr-8 rounded-xl shadow-none w-fit dark:bg-gray-800 dark:text-gray-300">
+      </PopoverTrigger>
+      <PopoverContent className="mr-8 rounded-xl shadow-none w-fit dark:bg-gray-800 dark:text-gray-300 font-outfit overflow-hidden">
         <div className="space-y-5 min-w-72">
           {members.map((member) => (
             <Member
@@ -103,7 +99,7 @@ export const MembersDetails = <T,>({
             />
           ))}
         </div>
-      </HoverCardContent>
-    </HoverCard>
+      </PopoverContent>
+    </Popover>
   );
 };

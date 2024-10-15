@@ -263,7 +263,7 @@ export class FirestoreService {
     collectionName: string,
     documentId: string,
     callback: (data: T) => void,
-    errorMessage: string
+    onError: (error: Error) => void,
   ): () => void {
     const docRef = doc(this.firebaseFirestore, collectionName, documentId);
 
@@ -276,11 +276,12 @@ export class FirestoreService {
             id: docSnap.id,
           };
           callback(doc as T);
+        } else {
+          onError(new Error);
         }
       },
       (error) => {
-        console.error(`${errorMessage}`, error);
-        throw new Error("Error while subscribing to document");
+        onError(error);
       }
     );
 
@@ -299,7 +300,7 @@ export class FirestoreService {
   public static subscribeToCollection<T>(
     collectionName: string,
     callback: (data: T) => void,
-    errorMessage: string,
+    onError: (error: Error) => void,
     filterFn?: (colRef: CollectionReference) => any
   ): () => void {
     const colRef = collection(this.firebaseFirestore, collectionName);
@@ -307,6 +308,7 @@ export class FirestoreService {
     const unsubscribe = onSnapshot(
       q,
       (querySnapshot: QuerySnapshot) => {
+
         const docs = querySnapshot.docs.map((doc) => ({
           ...doc.data(),
           id: doc.id,
@@ -314,7 +316,7 @@ export class FirestoreService {
         callback(docs);
       },
       (error) => {
-        console.error(`${errorMessage}`, error);
+        onError(error)
       }
     );
 

@@ -23,18 +23,18 @@ export const BoardCard = ({ board }: { board: BoardType }) => {
 
   return (
     <Card
-      className="w-64 h-32 flex flex-col justify-between border-none bg-gray-100 rounded-xl cursor-pointer hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-800"
+      className="max-w-72 min-w-60 shadow-none flex flex-col justify-between border-none bg-gray-100 rounded-xl cursor-pointer hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 animate-top-to-bottom"
       onClick={() => navigate(`/${board?.id}`)}
     >
-      <CardHeader className="flex-1 p-4">
-        <CardTitle className="text-xl tracking-normal font-medium leading-none">
+      <CardHeader className="flex-1">
+        <CardTitle>
           {board?.title}
         </CardTitle>
-      </CardHeader>
-      <CardFooter className="flex justify-between p-4">
         <Label color="#d1d5db">
         {createdDate(board.createdAt)}
         </Label>
+      </CardHeader>
+      <CardFooter className="flex justify-end">
         <MembersAvatarList members={board.members}>
           {board.members.slice(0, 5).map((member) => (
             <Member key={member} userId={member} type="avatar" />

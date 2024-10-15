@@ -2,7 +2,6 @@ import { Member } from "@/components/Members/Member";
 import { UserType } from "@/utils/types/auth.types";
 import { TaskCommentProps } from "@/utils/types/tasks.types";
 import { useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
 import { FieldValues } from "react-hook-form";
 import { useElapsedTime } from "@/utils/helpers/hooks/useElapsedtime";
@@ -99,14 +98,14 @@ export const TaskComment = ({
   };
 
   return (
-    <div className="flex flex-col space-y-3 p-3 bg-gray-50 rounded-xl dark:bg-gray-800 dark:border dark:border-gray-600">
+    <div className="flex flex-col space-y-3 p-3 bg-gray-50 rounded-xl dark:bg-gray-800 dark:border dark:border-gray-600 animate-top-to-bottom">
       <div className="flex items-center gap-2">
         {/* Display the avatar of the comment's author */}
         <Member userId={comment.userId} type="avatar" />
 
         {/* Display the user's name and the time since the comment was created */}
-        <p className="text-xs text-gray-500">
-          {!isFetched ? <Skeleton className="w-44 h-5" /> : user && user.name}
+        <p className="text-xs text-gray-500 animate-fade-in">
+          {!isFetched ? null : user && user.name}
           <span>{elpasedTime}</span>
         </p>
 

@@ -126,7 +126,7 @@ export const TaskCheckList = ({
       </div>
       {checklistItems && checklistItems.length > 0 ? (
         <div>
-          {checklistItems.map((item) => (
+          {checklistItems.sort((a,b) => b.createdAt - a.createdAt).map((item) => (
             <TaskCheckListItem
               key={item.id}
               item={item}

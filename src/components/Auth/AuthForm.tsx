@@ -136,26 +136,27 @@ export const AuthForm = () => {
   };
 
   return (
-    <div className="flex flex-col w-1/2 justify-center items-center h-screen">
-      <section className="w-3/4 mb-6 ">
-        <h1 className="text-4xl uppercase font-extrabold">
+    <div className="flex flex-col justify-center items-center">
+      <section className="mb-6 ">
+        <h1 className="md:text-4xl text-xl uppercase font-extrabold">
           {!isLogin ? "Create an account" : "Access your boards"}
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <p className="text-center">
             {isLogin
               ? "Don't have an account yet?"
               : "Already have an account?"}
           </p>
-          <button
+          <Button
             onClick={() => setIsLogin((prev) => !prev)}
-            className="font-bold underline"
+            className="underline w-fit h-fit p-0"
+            variant="link"
           >
             {isLogin ? "Create one" : "Log in"}
-          </button>
+          </Button>
         </div>
       </section>
-      <section className="w-3/4 space-y-3 flex flex-col items-end">
+      <section className="space-y-3 flex flex-col items-end w-full">
         <FormContainer
           schema={UserSchema}
           onSubmit={handleAuth}
@@ -200,8 +201,8 @@ export const AuthForm = () => {
           )}
         </FormContainer>
       </section>
-      <section className="w-3/4 mt-3 flex flex-col items-center gap-3">
-        <p className="uppercase flex items-center justify-between text-gray-300 w-full px-3 dark:text-gray-700">
+      <section className="mt-3 flex flex-col items-center gap-3 w-full">
+        <p className="uppercase flex items-center justify-between text-gray-300 w-full px-3 text-xs md:text-base whitespace-nowrap dark:text-gray-700">
           <span className="border border-gray-100 inline-block w-1/3 dark:border-gray-700"></span> Or
           register with
           <span className="border border-gray-100 inline-block w-1/3 dark:border-gray-700"></span>

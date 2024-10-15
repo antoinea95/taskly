@@ -19,7 +19,7 @@ export const Label = ({
       style={{
         backgroundColor: color,
       }}
-      className="flex items-center justify-center gap-1 rounded-full text-[10px] border-none dark:text-gray-800"
+      className="flex items-center justify-center gap-1 rounded-full text-[10px] border-none dark:text-gray-800 w-fit animate-fade-in"
       variant="secondary"
     >
       {children}

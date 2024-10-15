@@ -2,10 +2,10 @@ import { AuthForm } from "@/components/Auth/AuthForm";
 
 export const LoginPage = () => {
   return (
-    <main className="w-screen h-screen flex items-center font-outfit dark:bg-gray-950 dark:text-gray-300">
-      <div className="w-1/2 border-r-2 border-r-black h-screen flex flex-col justify-center items-center gap-16 dark:border-r-gray-300">
-        <h1 className="w-3/4 flex justify-center text-6xl font-black uppercase">Welcome to Taskly!</h1>
-        <p className="w-3/4 flex justify-center items-center text-lg">
+    <main className="w-screen h-screen flex items-center flex-wrap gap-10 font-outfit dark:bg-gray-950 dark:text-gray-300 p-10">
+      <div className=" md:border-r-2 md:border-r-black flex flex-col justify-center items-center md:gap-16 dark:border-r-gray-300">
+        <h1 className="flex justify-center text-3xl md:text-6xl font-black uppercase">Welcome to Taskly!</h1>
+        <p className="flex justify-center items-center text-lg">
           Welcome to Taskly! Organize, prioritize, and conquer your tasks with
           ease. Taskly is your all-in-one task management tool designed to keep
           your projects on track. Whether you're collaborating with a team or

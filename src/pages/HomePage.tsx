@@ -9,7 +9,6 @@
 import { BoardCard } from "../components/Board/BoardCard";
 import { AddBoard } from "@/components/Board/AddBoard";
 import { Header } from "@/components/Nav/Header";
-import { HomeSkeleton } from "@/components/Skeletons/skeletons";
 import { useAuth } from "@/utils/hooks/FirestoreHooks/auth/useAuth";
 import { useGetBoards } from "@/utils/hooks/FirestoreHooks/queries/useGetBoards";
 
@@ -34,24 +33,24 @@ export const HomePage = () => {
 
   // Show loading state if boards or user data is still being fetched
   if (!isFetched && isLoading) {
-    return <HomeSkeleton />;
+    return null;
   }
 
   return (
-    <main className="flex flex-col flex-1">
+    <main className="flex flex-col flex-1 w-full">
       {/** Header section with user information */}
       <Header user={currentUser} />
 
       {/** Section to display page title and the AddBoard button */}
-      <section className="flex justify-between items-start mt-10 relative">
-        <h1 className="text-4xl dark:text-gray-300">Boards</h1>
-        <div className="absolute right-0 top-0 w-60 flex justify-end">
+      <section className="flex justify-between items-start mt-10 relative animate-top-to-bottom flex-wrap gap-2">
+        <h1 className="md:text-4xl text-2xl dark:text-gray-300">Boards</h1>
+        <div className="flex justify-end w-60">
           <AddBoard user={currentUser} />
         </div>
       </section>
 
       {/** Section displaying a grid of the user's boards */}
-      <section className="grid grid-cols-4 gap-8 w-full mt-10">
+      <section className="flex item-center flex-wrap gap-5 mt-10">
         {boards &&
           isFetched &&
           boards
