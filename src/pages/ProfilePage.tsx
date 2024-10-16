@@ -20,6 +20,7 @@ import { FormFieldItemType } from "@/utils/types/form.types";
 import { Pen } from "lucide-react";
 import { NotificationBanner } from "@/components/Notification/NotificationBanner";
 import { useQueryClient } from "@tanstack/react-query";
+import PageTitle from "@/routes/PageTitle";
 
 /**
  * ProfilePage component for managing and updating user profile details.
@@ -142,6 +143,7 @@ export const ProfilePage = () => {
     <>
       {currentUser ? (
         <main className="flex-1 flex flex-col font-outfit">
+          <PageTitle title={`Taskly: ${currentUser.name}`} />
           <header className="flex justify-between w-full items-center flex-wrap gap-2 mb-10">
             <h1 className="md:text-4xl text-xl dark:text-gray-300">{currentUser.name}</h1>
             <DeleteButton content="Delete your account">

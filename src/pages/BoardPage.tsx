@@ -10,6 +10,7 @@ import { useDeleteBoard } from "@/utils/hooks/FirestoreHooks/mutations/useDeleti
 import { useAuth } from "@/utils/hooks/FirestoreHooks/auth/useAuth";
 import { DeleteButton } from "@/components/Button/DeleteButton";
 import { DeleteConfirmation } from "@/components/Form/actions/DeleteConfirmation";
+import PageTitle from "@/routes/PageTitle";
 
 /**
  * BoardPage component
@@ -56,6 +57,7 @@ export const BoardPage = () => {
     <main className="flex-1 flex flex-col">
       {board && isFetched && (
         <>
+          <PageTitle title={`Taskly: ${board.title}`} />
           <header className="flex justify-between items-center flex-wrap animate-top-to-bottom">
             {/* Form to update the board title */}
             <UpdateTitleForm

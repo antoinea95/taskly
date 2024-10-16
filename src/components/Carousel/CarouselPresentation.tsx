@@ -3,6 +3,8 @@ import {
   CarouselApi,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from "../ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useRef, useState } from "react";
@@ -103,9 +105,9 @@ export const CarouselPresentation = () => {
         </CarouselItem>
       </CarouselContent>
       <div className="flex items-center justify-center w-full h-16 relative">
-        {/* <CarouselPrevious variant="secondary" className="bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:text-gray-300 shadow-none" /> */}
+        <CarouselPrevious variant="secondary" className="bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:text-gray-300 shadow-none" />
         <CarouselDot current={current} />
-        {/* <CarouselNext variant="secondary" className="bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:text-gray-300 shadow-none" /> */}
+        <CarouselNext variant="secondary" className="bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:text-gray-300 shadow-none" />
       </div>
     </Carousel>
     </>

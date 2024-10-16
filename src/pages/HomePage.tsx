@@ -9,6 +9,7 @@
 import { BoardCard } from "../components/Board/BoardCard";
 import { AddBoard } from "@/components/Board/AddBoard";
 import { Header } from "@/components/Nav/Header";
+import PageTitle from "@/routes/PageTitle";
 import { useAuth } from "@/utils/hooks/FirestoreHooks/auth/useAuth";
 import { useGetBoards } from "@/utils/hooks/FirestoreHooks/queries/useGetBoards";
 
@@ -38,6 +39,7 @@ export const HomePage = () => {
 
   return (
     <main className="flex flex-col flex-1 w-full">
+      <PageTitle title="Taskly: Welcome!" />
       {/** Header section with user information */}
       <Header user={currentUser} />
 
