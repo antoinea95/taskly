@@ -1,4 +1,4 @@
-import { TaskType } from "@/utils/types/types";
+import { TaskType } from "@/utils/types/tasks.types";
 import { useFirestoreQuery } from "./useFirestoreQuery";
 import { documentId, where } from "firebase/firestore";
 

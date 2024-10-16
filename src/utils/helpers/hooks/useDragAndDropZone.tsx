@@ -43,7 +43,9 @@ export const useDragAndDropZone = ({ lists, boardId }: DragAndDropZoneProps) => 
             reject(new Error(`Task with ID ${taskId} not found`));
           }
         },
-        "Error getting task"
+        (error) => {
+          reject(new Error(`Error while getting document: ${error.message}`));
+        },
       );
       return () => unsubscribe;
     });

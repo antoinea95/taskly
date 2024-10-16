@@ -35,7 +35,9 @@ export const useAuth = () => {
             setCurrentUser(fireStoreUser);
             setIsLoading(false);  // Set loading to false when user data is fetched
           },
-            "Error retrieving user data.",  // Provide a custom error message
+          (error) => {
+            new Error(`Error while getting user: ${error.message}`)
+          },
         );
         return () => {
           unsubscribeUserData();  // Return the cleanup function to unsubscribe
