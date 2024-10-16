@@ -100,7 +100,7 @@ export const TaskDetails = ({
   };
 
   return (
-    <ScrollArea className=" h-[95vh] md:max-h-[700px] max-w-[850px] w-[95vw] border-2 border-white m-0 p-3 bg-white dark:bg-gray-900 dark:border-gray-900 dark:text-gray-300">
+    <ScrollArea className=" h-[95dvh] md:max-h-[700px] max-w-[850px] w-[90vw] border-2 border-white m-0 p-3 bg-white dark:bg-gray-900 dark:border-gray-900 dark:text-gray-300">
       <header className="sticky top-0 z-10 bg-white dark:bg-gray-900 dark:border-gray-900 space-y-2 p-3 md:p-6 animate-top-to-bottom">
         <div className="flex justify-between items-center flex-wrap">
           <UpdateTitleForm

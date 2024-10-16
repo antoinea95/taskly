@@ -38,15 +38,15 @@ export const HomePage = () => {
   }
 
   return (
-    <main className="flex flex-col flex-1 w-full">
+    <main className="flex flex-col">
       <PageTitle title="Taskly: Welcome!" />
       {/** Header section with user information */}
       <Header user={currentUser} />
 
       {/** Section to display page title and the AddBoard button */}
-      <section className="flex justify-between items-start mt-10 relative animate-top-to-bottom flex-wrap gap-2">
+      <section className="flex justify-between w-full items-start mt-10 relative animate-top-to-bottom flex-wrap gap-2">
         <h1 className="md:text-4xl text-2xl dark:text-gray-300">Boards</h1>
-        <div className="flex justify-end w-60">
+        <div className="flex borderjustify-end w-60">
           <AddBoard user={currentUser} />
         </div>
       </section>

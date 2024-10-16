@@ -15,9 +15,9 @@ export const Root = () => {
   };
 
   return (
-    <main className="font-outfit h-screen dark:bg-gray-950 w-screen">
+    <main className="font-outfit h-dvh dark:bg-gray-950 w-[100vw] overflow-x-hidden relative">
       <nav
-        className={`animate-fade-in  z-20 h-screen pt-5 flex flex-col space-y-3 transition-all w-72 px-3 border-r bg-white dark:bg-gray-950 dark:border-gray-600 absolute top-0 left-0 ${openSideBar ? "translate-x-0" : "-translate-x-64 pr-12"}`}
+        className={`animate-fade-in z-20 h-dvh pt-5 flex flex-col space-y-3 transition-all w-72 px-3 border-r bg-white dark:bg-gray-950 dark:border-gray-600 fixed top-0 left-0 ${openSideBar ? "translate-x-0" : "-translate-x-64 pr-12"}`}
       >
         <Button
           onClick={() => setOpenSideBar((prev) => !prev)}
@@ -44,7 +44,7 @@ export const Root = () => {
         </h2>
         <Sidebar />
       </nav>
-      <section className="px-14 py-10 flex flex-col mr-0 ml-auto overflow-auto h-full flex-1">
+      <section className="flex flex-col py-6 px-10 h-full ml-auto" style={{ width: "calc(100vw - 32px)"}}>
         <PrivateRoute component={Outlet} />
       </section>
     </main>

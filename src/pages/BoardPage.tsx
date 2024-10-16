@@ -54,7 +54,7 @@ export const BoardPage = () => {
   }
 
   return (
-    <main className="flex-1 flex flex-col">
+    <main className="flex flex-col">
       {board && isFetched && (
         <>
           <PageTitle title={`Taskly: ${board.title}`} />
