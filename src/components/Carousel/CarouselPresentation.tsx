@@ -42,7 +42,7 @@ export const CarouselPresentation = () => {
   return (
     <>
     <Carousel
-      className="max-w-xl relative flex-1"
+      className="w-full max-w-lg xl:max-w-2xl"
       opts={{
         align: "start",
         loop: true,

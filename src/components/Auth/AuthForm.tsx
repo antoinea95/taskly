@@ -136,7 +136,7 @@ export const AuthForm = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center px-6 w-full max-w-lg">
+    <div className="flex flex-col justify-center w-full max-w-lg xl:max-w-2xl mb-20">
       <section className="mb-6">
         <h1 className="md:text-4xl text-xl font-bold">
           {!isLogin ? "Create an account" : "Access your boards"}
