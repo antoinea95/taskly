@@ -15,7 +15,7 @@ export const Root = () => {
   };
 
   return (
-    <main className="font-outfit h-screen w-full dark:bg-gray-950">
+    <main className="font-outfit h-screen dark:bg-gray-950 w-screen">
       <nav
         className={`animate-fade-in  z-20 h-screen pt-5 flex flex-col space-y-3 transition-all w-72 px-3 border-r bg-white dark:bg-gray-950 dark:border-gray-600 absolute top-0 left-0 ${openSideBar ? "translate-x-0" : "-translate-x-64 pr-12"}`}
       >
