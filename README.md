@@ -42,3 +42,6 @@ This project is a tool for creating Kanban boards and managing projects. It allo
 - **Task Assignment**: Users can assign tasks to team members.
 - **Deadlines**: Users can set deadlines for tasks to ensure timely completion.
 - **Comments**: Users can comment on tasks for better collaboration and communication.
+
+ ![Screen](https://github.com/antoinea95/taskly/blob/main/public/assets/taskly-screen.png)
+
