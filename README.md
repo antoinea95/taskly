@@ -27,7 +27,7 @@
 
 
 
-## Description
+## Overview
 This project is a tool for creating Kanban boards and managing projects. It allows users to organize tasks visually using boards, lists, and cards, making it easier to track progress and collaborate effectively. I developed this clone using **TypeScript**, **Tailwind CSS**, **ShadCN**, **React**, and **Firebase** to enhance the quality of my code and improve my TypeScript skills. I utilized **React Query** to manage requests to Firebase and created a class to avoid code repetition for subscribing to the database, among other functionalities. Additionally, I employed **Zod** and **React Hook Form** to manage forms and validate data, and **React Router** for seamless navigation within the application.
 
 
