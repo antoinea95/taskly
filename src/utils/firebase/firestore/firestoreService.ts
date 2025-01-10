@@ -9,7 +9,6 @@ import {
   onSnapshot,
   query,
   QueryConstraint,
-  QuerySnapshot,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -282,42 +281,6 @@ export class FirestoreService {
       },
       (error) => {
         onError(error);
-      }
-    );
-
-    return unsubscribe;
-  }
-
-  /**
-   * Subscribes to a collection of documents and invokes a callback whenever the collection changes.
-   * @param collectionName - The name of the collection to subscribe to.
-   * @param callback - A function to be called with the updated array of documents.
-   * @param errorMessage - A custom error message to log if the subscription fails.
-   * @param filterFn - An optional function to filter or modify the query for the collection.
-   * @returns A function to unsubscribe from the collection changes.
-   * @throws Throws an error if subscribing to the collection fails.
-   */
-  public static subscribeToCollection<T>(
-    collectionName: string,
-    callback: (data: T) => void,
-    onError: (error: Error) => void,
-    filterFn?: (colRef: CollectionReference) => any
-  ): () => void {
-    const colRef = collection(this.firebaseFirestore, collectionName);
-    const q = filterFn ? filterFn(colRef) : colRef;
-    const unsubscribe = onSnapshot(
-      q,
-      (querySnapshot: QuerySnapshot) => {
-
-        const docs = querySnapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        })) as T;
-        callback(docs);
-      },
-      (error) => {
-        console.log("null")
-        onError(error)
       }
     );
 
