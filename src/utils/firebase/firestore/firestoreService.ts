@@ -316,6 +316,7 @@ export class FirestoreService {
         callback(docs);
       },
       (error) => {
+        console.log("null")
         onError(error)
       }
     );

@@ -16,3 +16,10 @@ export const useGetTasks = (taskIds: string[], listId: string) => {
       filterFn: () => [where(documentId(), "in", taskIds)],
     });
   };
+
+  export const useGetAllTasks = () => {
+    return useFirestoreQuery<TaskType[]>({
+      collectionName: "tasks",
+      key: ["tasks"],
+    });
+  };
