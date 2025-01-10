@@ -49,7 +49,7 @@ export const TaskFilter = ({ tasks, children }: TaskFilterProps) => {
     return tasks.filter((task) => {
       const matchesSearchValue = searchValue ? task.title.toLowerCase().includes(searchValue.toLowerCase()) : true;
       const matchSelectedLabels = selectedTags.length
-        ? selectedTags.every((selectedTag) => task.labels?.some((tag) => tag.title === selectedTag.title))
+        ? selectedTags.some((selectedTag) => task.labels?.some((tag) => tag.title === selectedTag.title))
         : true;
 
       return matchesSearchValue && matchSelectedLabels;
