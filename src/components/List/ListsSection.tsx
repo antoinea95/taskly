@@ -1,5 +1,5 @@
 import { ListCard } from "@/components/List/ListCard";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ListType } from "@/utils/types/lists.types";
 import { useGetLists } from "@/utils/hooks/FirestoreHooks/queries/useGetLists";
 import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
@@ -28,13 +28,18 @@ export const ListsSection = ({ board }: { board: BoardType }) => {
   // Fetch the lists associated with the board
   const { data: lists, isFetched } = useGetLists(board.id);
   const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } = useDragMouse();
-  const { data: lists, isFetched } = useGetLists(boardId);
+
   const taskIdsInLists = useMemo(() => {
     if (!lists) return;
     return lists.flatMap((list) => list.tasks);
   }, [lists]);
 
-  const { data: tasks } = useGetTasks(taskIdsInLists);
+  const { data: tasks, refetch } = useGetTasks(taskIdsInLists ? taskIdsInLists : undefined);
+
+   // Make sure tasks are fetched after taskIdsInLists is updated
+   useEffect(() => {
+    refetch();
+  }, [taskIdsInLists, refetch]);
 
   // Mutation to create a new list
   const createList = useAddDoc<ListType>(["lists", board.id], "lists");
@@ -67,7 +72,7 @@ export const ListsSection = ({ board }: { board: BoardType }) => {
     );
   };
 
-  if (!isFetched || !lists) {
+  if (!isFetched || !lists || !tasks) {
     return null;
   }
 
@@ -82,16 +87,16 @@ export const ListsSection = ({ board }: { board: BoardType }) => {
         onMouseUp={handleMouseLeaveOrUp}
       >
         <SortableContext items={lists.map((list) => list.id)} strategy={horizontalListSortingStrategy}>
-            <TaskFilter tasks={tasks || []}>
+          <TaskFilter tasks={tasks}>
             {(filteredTasks) => (
-              <section className="flex items-start flex-nowrap mt-10 gap-5 flex-1">
+              <section className="flex items-start flex-nowrap pt-10 gap-5">
                 {lists &&
                   lists
                     .sort((a, b) => board.lists.indexOf(a.id) - board.lists.indexOf(b.id))
                     .map((list) => (
-                        <DraggableContainer id={list.id} type="list" key={list.id}>
-                          <ListCard list={list} boardId={boardId} tasks={filteredTasks.filter((task) => list.tasks.includes(task.id))} />
-                        </DraggableContainer>
+                      <DraggableContainer id={list.id} type="list" key={list.id}>
+                        <ListCard list={list} boardId={board.id} tasks={filteredTasks.filter((task) => list.tasks.includes(task.id))} />
+                      </DraggableContainer>
                     ))}
                 <div className="min-w-72">
                   <AddForm name="List" onSubmit={handleCreateList} mutationQuery={createList} isOpen={isAddList} setIsOpen={setIsAddList} />
