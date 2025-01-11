@@ -1,6 +1,5 @@
 import { PropsWithChildren } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 
 /**
  * A draggable container component for use with the `@dnd-kit` library.
@@ -13,7 +12,7 @@ import { CSS } from "@dnd-kit/utilities";
  *
  */
 export const DraggableContainer = ({ id, type, children }: PropsWithChildren<{ id: string; type: "list" | "task" }>) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const { attributes, listeners, setNodeRef, transition, isDragging } = useSortable({
     id,
     data: {
       type,
@@ -26,13 +25,10 @@ export const DraggableContainer = ({ id, type, children }: PropsWithChildren<{ i
       {...listeners}
       {...attributes}
       style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
+        transition: isDragging ? "none" : transition,
         opacity: isDragging ? 0.3 : 1,
         cursor: "grab",
       }}
-      {...attributes}
-      {...listeners}
       className={`${type === "list" ? "h-fit min-h-52" : ""}`}
     >
       {children}

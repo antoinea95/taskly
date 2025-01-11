@@ -29,11 +29,9 @@ import { DraggableContainer } from "@/components/DragAndDrop/DraggableContainer"
  * @returns The rendered task card component.
  */
 export const TaskCard = ({
-  taskId,
   task,
   list,
 }: {
-  taskId: string;
   task: TaskType
   list: ListType;
 }) => {

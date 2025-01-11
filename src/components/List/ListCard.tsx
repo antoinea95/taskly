@@ -33,13 +33,12 @@ export const ListCard = ({
   tasks: TaskType[]
 }) => {
   const [isAddTask, setIsAddTask] = useState(false);
-  const { setNodeRef } = useDroppable({ id: list.id, data: { type: "list" } });
 
   const sortedTask = useMemo(() => tasks.sort((a,b) => {
     const indexA = list.tasks.indexOf(a.id);
     const indexB = list.tasks.indexOf(b.id);
     return indexA - indexB
-  }), [list, tasks]);
+  }), [list.tasks, tasks]);
 
   const createTask = useAddDoc<TaskType>(["tasks", list.id], "tasks");
   const updateList = useUpdateDoc<Partial<ListType>>(["lists", boardId], "lists", list.id);
@@ -93,7 +92,7 @@ export const ListCard = ({
                 <AddForm name="Task" onSubmit={handleCreateTask} mutationQuery={createTask} isOpen={isAddTask} setIsOpen={setIsAddTask} />
               </header>
                <section className="space-y-3"> {sortedTask.map((task) => (
-                  <TaskCard key={task.id} taskId={task.id} task={task} list={list} />
+                  <TaskCard key={task.id} task={task} list={list} />
                 ))}
               </section>
             </section>
