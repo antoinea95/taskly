@@ -97,7 +97,7 @@ export const BoardPage = () => {
             </div>
           </header>
           {/* Display lists associated with the board */}
-          <ListsSection boardId={boardId} />
+          <ListsSection board={board} />
         </>
       )}
     </main>

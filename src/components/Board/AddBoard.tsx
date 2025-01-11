@@ -5,49 +5,30 @@ import { useState } from "react";
 import { AddForm } from "../Form/AddForm";
 import { FieldValues } from "react-hook-form";
 import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
+import { FirestoreService } from "@/utils/firebase/firestore/firestoreService"; // Service Firestore
 
-/**
- * AddBoard component handles the creation of a new board and its default lists.
- * It manages the form submission and uses Firestore mutation hooks to add a board
- * and associated default lists ("To do", "In progress", "Finish").
- *
- * @param props - Component props.
- * @param {UserType | null} props.user - The current logged-in user who is creating the board.
- *
- * @returns The AddBoard component.
- */
 export const AddBoard = ({ user }: { user: UserType | null }) => {
-  // Call mutate hooks for adding boards and lists to Firestore
   const createBoard = useAddDoc<BoardType>(["boards"], "boards");
   const createList = useAddDoc<ListType>(["lists"], "lists");
 
-  // State to toggle the visibility of the Add Board form
   const [isAddBoard, setIsAddBoard] = useState(false);
 
-  /**
-   * Form submit handler for creating a new board.
-   * If the board is successfully created, it also creates default lists for the board.
-   *
-   * @param data - The form data submitted, typically contains the board title.
-   * @returns A promise that resolves after the board and lists are created.
-   */
   const onSubmit = async (data: FieldValues) => {
     const now = Date.now();
 
-    // Ensure a user is logged in before creating the board
     if (user) {
       createBoard.mutate(
         {
           title: data.title,
+          lists: [], // Initialement vide
           members: [user.id],
           creator: user.id,
           createdAt: now,
         },
         {
           onSuccess: async (boardId) => {
-            setIsAddBoard(false); // Close the form once the board is created
+            setIsAddBoard(false);
 
-            // Default lists to create for the new board
             const defaultLists: Omit<ListType, "id">[] = [
               { title: "To do", createdAt: now, boardId: boardId, tasks: [] },
               {
@@ -64,19 +45,42 @@ export const AddBoard = ({ user }: { user: UserType | null }) => {
               },
             ];
 
-            // Create each default list
-            await Promise.all(
-              defaultLists.map((list) =>
-                createList.mutate(list, {
-                  onError: (error) => {
-                    console.error(
-                      `Failed to create list ${list.title}:`,
-                      error
-                    );
-                  },
-                })
-              )
-            );
+            try {
+
+              // Created lists documents
+              const createdListIds: string[] = [];
+              for (const list of defaultLists) {
+                try {
+                  const listId = await new Promise<string>((resolve, reject) => {
+                    createList.mutate(list, {
+                      onSuccess: (id) => resolve(id),
+                      onError: (error) => reject(error),
+                    });
+                  });
+                  console.log(`List created: ${listId}`);
+                  createdListIds.push(listId);
+                } catch (error) {
+                  console.error(`Failed to create list "${list.title}":`, error);
+                }
+              }
+          
+              // Update the board with the lists Ids to keep track position
+              await FirestoreService.updateDocument(
+                "boards",
+                { lists: createdListIds },
+                boardId
+              );
+
+
+            } catch (error) {
+              console.error(
+                "Error while creating lists or updating the board:",
+                error
+              );
+            }
+          },
+          onError: (error) => {
+            console.error("Failed to create board:", error);
           },
         }
       );
