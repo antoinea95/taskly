@@ -7,8 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../../ui/card";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { TaskType } from "@/utils/types/tasks.types";
 import { ListType } from "@/utils/types/lists.types";
 import { MessageSquare } from "lucide-react";
@@ -20,6 +18,7 @@ import { Label } from "@/components/Label/Label";
 import { MembersAvatarList } from "@/components/Members/MembersAvatarList";
 import { Member } from "@/components/Members/Member";
 import { TaskDetails } from "../TaskDetails/TaskDetails";
+import { DraggableContainer } from "@/components/DragAndDrop/DraggableContainer";
 
 /**
  * TaskCard component that displays a detailed task card with labels, description, checklist, members, and other task details.
@@ -40,24 +39,12 @@ export const TaskCard = ({
   const [isTaskOpen, setIsTaskOpen] = useState(false); // State to manage modal visibility
   const { data: task, isFetched } = useGetDoc<TaskType>("tasks", taskId); // Fetch task data
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: taskId,
-    data: { type: "task" },
-  });
-
   if (!isFetched) {
     return null;
   }
 
   return (
-    <div ref={setNodeRef}>
+    <DraggableContainer id={taskId} type="task">
       {task && (
         <>
           <Modal
@@ -65,17 +52,7 @@ export const TaskCard = ({
             setIsModalOpen={setIsTaskOpen}
             isModalOpen={isTaskOpen}
           >
-            <Card
-              className="border-none rounded-xl dark:bg-gray-800 dark:text-gray-300 animate-top-to-bottom"
-              style={{
-                transform: CSS.Transform.toString(transform),
-                transition,
-                opacity: isDragging ? 0.3 : 1,
-                cursor: "grab",
-              }}
-              {...attributes}
-              {...listeners}
-            >
+            <Card className="border-none rounded-xl dark:bg-gray-800 dark:text-gray-300 animate-top-to-bottom">
               {/* Task Header */}
               <CardHeader>
                 <CardTitle>{task.title}</CardTitle>
@@ -142,6 +119,6 @@ export const TaskCard = ({
           </Modal>
         </>
       )}
-    </div>
+    </DraggableContainer>
   );
 };

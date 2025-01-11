@@ -1,6 +1,7 @@
 import { collection, doc, DocumentReference, getDoc, getDocs, query, where, WriteBatch, writeBatch } from "firebase/firestore";
 import { firebaseFirestore } from "../firebaseApp";
 
+
 export class BatchService {
 
     private static firebaseFirestore = firebaseFirestore;
@@ -43,6 +44,27 @@ export class BatchService {
       if (!listDoc.exists()) {
         throw new Error(`List with ID ${listId} not found.`);
       }
+
+      const listData = listDoc.data();
+      const boardId = listData?.boardId;
+
+      if (!boardId) {
+        throw new Error(`List with ID ${listId} is not associated with a board.`);
+      }
+
+      const boardRef = doc(this.firebaseFirestore, "boards", boardId);
+      const boardDoc = await getDoc(boardRef);
+
+      if (!boardDoc.exists()) {
+        throw new Error(`Board with ID ${boardId} not found.`);
+      }
+
+      const boardData = boardDoc.data();
+      const lists = boardData?.lists || [];
+
+      const updatedLists = lists.filter((id: string) => id !== listId);
+
+      batch.update(boardRef, { lists: updatedLists });
 
       // Retrieve list's tasks and delete them
       await this.deleteTasks(listId, batch);
