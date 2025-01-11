@@ -23,19 +23,28 @@ import { DroppableContainer } from "../DragAndDrop/DroppableContainer";
  *
  * @returns The rendered ListCard component.
  */
-export const ListCard = ({ list, boardId }: { list: ListType; boardId: string }) => {
+export const ListCard = ({
+  list,
+  boardId,
+  tasks
+}: {
+  list: ListType;
+  boardId: string;
+  tasks: TaskType[]
+}) => {
   const [isAddTask, setIsAddTask] = useState(false);
-  /**
-   * Memoized task cards, created from the list's task IDs.
-   * This is used to optimize re-renders when the list changes.
-   */
-  const memoizedTasks = useMemo(() => {
-    return list && list.tasks.map((taskId) => <TaskCard key={taskId} taskId={taskId} list={list} />);
-  }, [list]);
+  const { setNodeRef } = useDroppable({ id: list.id, data: { type: "list" } });
+
+  const sortedTask = useMemo(() => tasks.sort((a,b) => {
+    const indexA = list.tasks.indexOf(a.id);
+    const indexB = list.tasks.indexOf(b.id);
+    return indexA - indexB
+  }), [list, tasks]);
 
   const createTask = useAddDoc<TaskType>(["tasks", list.id], "tasks");
   const updateList = useUpdateDoc<Partial<ListType>>(["lists", boardId], "lists", list.id);
   const deleteList = useDeleteList<void>(boardId, list.id);
+
 
   /**
    * Handles the creation of a new task when the form is submitted.
@@ -83,7 +92,10 @@ export const ListCard = ({ list, boardId }: { list: ListType; boardId: string })
                 </div>
                 <AddForm name="Task" onSubmit={handleCreateTask} mutationQuery={createTask} isOpen={isAddTask} setIsOpen={setIsAddTask} />
               </header>
-              <section className="space-y-3">{memoizedTasks}</section>
+               <section className="space-y-3"> {sortedTask.map((task) => (
+                  <TaskCard key={task.id} taskId={task.id} task={task} list={list} />
+                ))}
+              </section>
             </section>
           )}
         </div>

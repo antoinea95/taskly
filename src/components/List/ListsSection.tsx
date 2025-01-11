@@ -11,6 +11,8 @@ import { DraggableContainer } from "../DragAndDrop/DraggableContainer";
 import { useUpdateDoc } from "@/utils/hooks/FirestoreHooks/mutations/useUpdateDoc";
 import { BoardType } from "@/utils/types/boards.types";
 import { useDragMouse } from "@/utils/helpers/hooks/useDragMouse";
+import { useGetTasks } from "@/utils/hooks/FirestoreHooks/queries/useGetTasks";
+import { TaskFilter } from "../Filters/TaskFilter";
 
 /**
  * ListsSection component
@@ -26,6 +28,13 @@ export const ListsSection = ({ board }: { board: BoardType }) => {
   // Fetch the lists associated with the board
   const { data: lists, isFetched } = useGetLists(board.id);
   const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } = useDragMouse();
+  const { data: lists, isFetched } = useGetLists(boardId);
+  const taskIdsInLists = useMemo(() => {
+    if (!lists) return;
+    return lists.flatMap((list) => list.tasks);
+  }, [lists]);
+
+  const { data: tasks } = useGetTasks(taskIdsInLists);
 
   // Mutation to create a new list
   const createList = useAddDoc<ListType>(["lists", board.id], "lists");
@@ -73,18 +82,23 @@ export const ListsSection = ({ board }: { board: BoardType }) => {
         onMouseUp={handleMouseLeaveOrUp}
       >
         <SortableContext items={lists.map((list) => list.id)} strategy={horizontalListSortingStrategy}>
-            <section className="flex gap-5">
-              {lists
-                .sort((a, b) => board.lists.indexOf(a.id) - board.lists.indexOf(b.id))
-                .map((list) => (
-                  <DraggableContainer id={list.id} type="list" key={list.id}>
-                    <ListCard list={list} boardId={board.id} />
-                  </DraggableContainer>
-                ))}
-              <div className="min-w-72">
-                <AddForm name="List" onSubmit={handleCreateList} mutationQuery={createList} isOpen={isAddList} setIsOpen={setIsAddList} />
-              </div>
-            </section>
+            <TaskFilter tasks={tasks || []}>
+            {(filteredTasks) => (
+              <section className="flex items-start flex-nowrap mt-10 gap-5 flex-1">
+                {lists &&
+                  lists
+                    .sort((a, b) => board.lists.indexOf(a.id) - board.lists.indexOf(b.id))
+                    .map((list) => (
+                        <DraggableContainer id={list.id} type="list" key={list.id}>
+                          <ListCard list={list} boardId={boardId} tasks={filteredTasks.filter((task) => list.tasks.includes(task.id))} />
+                        </DraggableContainer>
+                    ))}
+                <div className="min-w-72">
+                  <AddForm name="List" onSubmit={handleCreateList} mutationQuery={createList} isOpen={isAddList} setIsOpen={setIsAddList} />
+                </div>
+              </section>
+            )}
+          </TaskFilter>
         </SortableContext>
       </section>
     </DragAndDropContainer>

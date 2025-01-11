@@ -10,7 +10,6 @@ import {
 import { TaskType } from "@/utils/types/tasks.types";
 import { ListType } from "@/utils/types/lists.types";
 import { MessageSquare } from "lucide-react";
-import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
 import { TaskLabel } from "../Label/TaskLabel";
 import { TaskDeadline } from "../Deadline/TaskDeadline";
 import { TaskCheckListSection } from "../CheckList/TaskCheckListSection";
@@ -31,20 +30,18 @@ import { DraggableContainer } from "@/components/DragAndDrop/DraggableContainer"
  */
 export const TaskCard = ({
   taskId,
+  task,
   list,
 }: {
   taskId: string;
+  task: TaskType
   list: ListType;
 }) => {
   const [isTaskOpen, setIsTaskOpen] = useState(false); // State to manage modal visibility
-  const { data: task, isFetched } = useGetDoc<TaskType>("tasks", taskId); // Fetch task data
 
-  if (!isFetched) {
-    return null;
-  }
 
   return (
-    <DraggableContainer id={taskId} type="task">
+    <DraggableContainer id={task.id} type="task">
       {task && (
         <>
           <Modal
