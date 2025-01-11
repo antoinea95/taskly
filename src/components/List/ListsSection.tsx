@@ -1,17 +1,7 @@
 import { ListCard } from "@/components/List/ListCard";
-import {
-  DndContext,
-  DragOverlay,
-  closestCorners,
-  useSensors,
-  useSensor,
-  PointerSensor,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { useState } from "react";
+import { DndContext, DragOverlay, closestCorners, useSensors, useSensor, PointerSensor } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { useMemo, useState } from "react";
 import { Card } from "../ui/card";
 import { ListType } from "@/utils/types/lists.types";
 import { useDragMouse } from "@/utils/helpers/hooks/useDragMouse";
@@ -20,6 +10,8 @@ import { useGetLists } from "@/utils/hooks/FirestoreHooks/queries/useGetLists";
 import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
 import { AddForm } from "../Form/AddForm";
 import { FieldValues } from "react-hook-form";
+import { useGetTasks } from "@/utils/hooks/FirestoreHooks/queries/useGetTasks";
+import { TaskFilter } from "../Filters/TaskFilter";
 
 /**
  * ListsSection component
@@ -38,6 +30,12 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
 
   // Fetch the lists associated with the board
   const { data: lists, isFetched } = useGetLists(boardId);
+  const taskIdsInLists = useMemo(() => {
+    if (!lists) return;
+    return lists.flatMap((list) => list.tasks);
+  }, [lists]);
+
+  const { data: tasks } = useGetTasks(taskIdsInLists);
 
   // Mutation to create a new list
   const createList = useAddDoc<ListType>(["lists", boardId], "lists");
@@ -78,59 +76,49 @@ export const ListsSection = ({ boardId }: { boardId: string }) => {
     );
   };
 
-  if(!isFetched) {
+  if (!isFetched) {
     return null;
   }
 
-
   return (
-    <DndContext
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      onDragOver={handleDragOver}
-      collisionDetection={closestCorners}
-      sensors={sensors}
-    >
-      <section
-        className="overflow-x-auto flex-1 flex flex-col w-full no-scrollbar mb-10"
-        ref={sliderRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeaveOrUp}
-        onMouseUp={handleMouseLeaveOrUp}
+    <>
+      <DndContext
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        collisionDetection={closestCorners}
+        sensors={sensors}
       >
-        <section className="flex items-start flex-nowrap mt-10 gap-5 flex-1">
-          {lists &&
-            lists
-              .sort((a, b) => a.createdAt - b.createdAt)
-              .map((list) => (
-                <SortableContext
-                  key={list.id}
-                  items={list.tasks}
-                  id={list.id}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <ListCard list={list} boardId={boardId} />
-                </SortableContext>
-              ))}
-          <div className="min-w-72">
-            <AddForm
-              name="List"
-              onSubmit={handleCreateList}
-              mutationQuery={createList}
-              isOpen={isAddList}
-              setIsOpen={setIsAddList}
-            />
-          </div>
+        <section
+          className="overflow-x-auto flex-1 flex flex-col w-full no-scrollbar mb-10"
+          ref={sliderRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeaveOrUp}
+          onMouseUp={handleMouseLeaveOrUp}
+        >
+          <TaskFilter tasks={tasks || []}>
+            {(filteredTasks) => (
+              <section className="flex items-start flex-nowrap mt-10 gap-5 flex-1">
+                {lists &&
+                  lists
+                    .sort((a, b) => a.createdAt - b.createdAt)
+                    .map((list) => (
+                      <SortableContext key={list.id} items={list.tasks} id={list.id} strategy={verticalListSortingStrategy}>
+                        <ListCard list={list} boardId={boardId} tasks={filteredTasks.filter((task) => list.tasks.includes(task.id))} />
+                      </SortableContext>
+                    ))}
+                <div className="min-w-72">
+                  <AddForm name="List" onSubmit={handleCreateList} mutationQuery={createList} isOpen={isAddList} setIsOpen={setIsAddList} />
+                </div>
+              </section>
+            )}
+          </TaskFilter>
         </section>
-      </section>
-      <DragOverlay>
-        {activeTask ? (
-          <Card className="py-6 px-2 min-h-13 shadow-none border-none cursor-grabbing">
-            {activeTask.title}
-          </Card>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+        <DragOverlay>
+          {activeTask ? <Card className="py-6 px-2 min-h-13 shadow-none border-none cursor-grabbing">{activeTask.title}</Card> : null}
+        </DragOverlay>
+      </DndContext>
+    </>
   );
 };

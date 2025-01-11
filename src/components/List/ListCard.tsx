@@ -25,25 +25,20 @@ import { AddForm } from "../Form/AddForm";
 export const ListCard = ({
   list,
   boardId,
+  tasks
 }: {
   list: ListType;
   boardId: string;
+  tasks: TaskType[]
 }) => {
   const [isAddTask, setIsAddTask] = useState(false);
   const { setNodeRef } = useDroppable({ id: list.id, data: { type: "list" } });
 
-  /**
-   * Memoized task cards, created from the list's task IDs.
-   * This is used to optimize re-renders when the list changes.
-   */
-  const memoizedTasks = useMemo(() => {
-    return (
-      list &&
-      list.tasks.map((taskId) => (
-        <TaskCard key={taskId} taskId={taskId} list={list} />
-      ))
-    );
-  }, [list]);
+  const sortedTask = useMemo(() => tasks.sort((a,b) => {
+    const indexA = list.tasks.indexOf(a.id);
+    const indexB = list.tasks.indexOf(b.id);
+    return indexA - indexB
+  }), [list, tasks]);
 
   const createTask = useAddDoc<TaskType>(["tasks", list.id], "tasks");
   const updateList = useUpdateDoc<Partial<ListType>>(
@@ -52,6 +47,7 @@ export const ListCard = ({
     list.id
   );
   const deleteList = useDeleteList<void>(boardId, list.id);
+
 
   /**
    * Handles the creation of a new task when the form is submitted.
@@ -83,7 +79,7 @@ export const ListCard = ({
   };
 
   return (
-    <div ref={setNodeRef} className="w-fit md:min-w-96 min-w-72 mb-2 rounded-xl animate-top-to-bottom">
+    <div ref={setNodeRef} className="w-fit md:min-w-96 min-w-72 mb-2 rounded-xl">
       {list && (
         <section className="md:min-w-96 w-fit min-w-72 p-3 rounded-xl bg-gray-50 space-y-3 dark:bg-gray-900">
           <header className="space-y-3">
@@ -114,7 +110,9 @@ export const ListCard = ({
               setIsOpen={setIsAddTask}
             />
           </header>
-          <section className="space-y-3">{memoizedTasks}</section>
+          <section className="space-y-3"> {sortedTask.map((task) => (
+              <TaskCard key={task.id} taskId={task.id} task={task} list={list} />
+            ))}</section>
         </section>
       )}
     </div>

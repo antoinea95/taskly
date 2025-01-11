@@ -1,4 +1,4 @@
-import { CollectionReference } from "firebase/firestore";
+import { CollectionReference, QueryConstraint } from "firebase/firestore";
 
 export type WithoutId<T> = Omit<T, "id">;
 
@@ -6,7 +6,7 @@ export type UseFirestoreQueryProps = {
   collectionName: string;
   key: any[];
   documentId?: string;
-  filterFn?: (colRef: CollectionReference) => any;
+  filterFn?: (colRef: CollectionReference) => QueryConstraint[];
   enabled?: boolean;
 };
 

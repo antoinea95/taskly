@@ -132,7 +132,6 @@ export const useDragAndDropZone = ({ lists, boardId }: DragAndDropZoneProps) => 
             oldList.id
           ),
         ]);
-        queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
       } catch (error: any) {
         queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
         throw new Error(error);
@@ -192,7 +191,6 @@ export const useDragAndDropZone = ({ lists, boardId }: DragAndDropZoneProps) => 
           { tasks: sortedTask },
           listToUpdate.id
         );
-        queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
       } catch (error: any) {
         queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
         throw new Error(error);

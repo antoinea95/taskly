@@ -12,7 +12,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { TaskType } from "@/utils/types/tasks.types";
 import { ListType } from "@/utils/types/lists.types";
 import { MessageSquare } from "lucide-react";
-import { useGetDoc } from "@/utils/hooks/FirestoreHooks/queries/useGetDoc";
 import { TaskLabel } from "../Label/TaskLabel";
 import { TaskDeadline } from "../Deadline/TaskDeadline";
 import { TaskCheckListSection } from "../CheckList/TaskCheckListSection";
@@ -32,13 +31,14 @@ import { TaskDetails } from "../TaskDetails/TaskDetails";
  */
 export const TaskCard = ({
   taskId,
+  task,
   list,
 }: {
   taskId: string;
+  task: TaskType
   list: ListType;
 }) => {
   const [isTaskOpen, setIsTaskOpen] = useState(false); // State to manage modal visibility
-  const { data: task, isFetched } = useGetDoc<TaskType>("tasks", taskId); // Fetch task data
 
   const {
     attributes,
@@ -52,10 +52,6 @@ export const TaskCard = ({
     data: { type: "task" },
   });
 
-  if (!isFetched) {
-    return null;
-  }
-
   return (
     <div ref={setNodeRef}>
       {task && (
@@ -66,7 +62,7 @@ export const TaskCard = ({
             isModalOpen={isTaskOpen}
           >
             <Card
-              className="border-none rounded-xl dark:bg-gray-800 dark:text-gray-300 animate-top-to-bottom"
+              className="border-none rounded-xl dark:bg-gray-800 dark:text-gray-300"
               style={{
                 transform: CSS.Transform.toString(transform),
                 transition,
