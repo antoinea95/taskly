@@ -92,7 +92,7 @@ export const ListCard = ({
                 <AddForm name="Task" onSubmit={handleCreateTask} mutationQuery={createTask} isOpen={isAddTask} setIsOpen={setIsAddTask} />
               </header>
                <section className="space-y-3"> {sortedTask.map((task) => (
-                  <TaskCard key={task.id} taskId={task.id} task={task} list={list} />
+                  <TaskCard key={task.id} task={task} list={list} />
                 ))}
               </section>
             </section>
