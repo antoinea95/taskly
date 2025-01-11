@@ -1,55 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  CollectionReference,
-  query as firestoreQuery,
-  QueryConstraint,
-} from "firebase/firestore";
 import { UseFirestoreQueryProps } from "../../hooks.types";
 import { FirestoreService } from "@/utils/firebase/firestore/firestoreService";
-
-  
-  /**
-   * Fetch a single document and return the result.
-   */
-  const fetchDocument = <T,>(collectionName: string, documentId: string): Promise<T> => {
-    return new Promise<T>((resolve, reject) => {
-      const unsubscribe = FirestoreService.subscribeToDocument<T>(
-        collectionName,
-        documentId,
-        (data) => {
-          resolve(data);
-          unsubscribe(); // Nettoie après la réception des données
-        },
-        (error) => {
-          reject(new Error(`Error while getting document from ${collectionName}: ${error.message}`));
-        },
-      );
-    });
-  };
-  
-  /**
-   * Fetch a collection and return the result.
-   * Applies optional filtering and transformation functions.
-   */
-  const fetchCollection = <T,>(
-    collectionName: string,
-    filterFn?: (colRef: CollectionReference) => QueryConstraint[],
-  ): Promise<T> => {
-    return new Promise<T>((resolve, reject) => {
-      const unsubscribe = FirestoreService.subscribeToCollection<T>(
-        collectionName,
-        (data) => {
-          resolve(data as T);
-          unsubscribe(); // Nettoie après la réception des données
-        },
-        (error: Error) => {
-          reject(new Error(`Error while getting collection from ${collectionName}: ${error.message}`));
-        },
-        filterFn ? (colRef) => firestoreQuery(colRef, ...filterFn(colRef)) : undefined
-      );
-    });
-  };
-  
   
   /**
    * Custom hook to fetch data from a Firestore collection or document using React Query.
@@ -71,12 +22,14 @@ import { FirestoreService } from "@/utils/firebase/firestore/firestoreService";
       queryKey: key,
       queryFn: async () => {
         if (documentId) {
-          return fetchDocument<T>(collectionName, documentId);
+          const document = await FirestoreService.fetchDoc<T>(collectionName, documentId);
+          if (!document) throw new Error(`Document not found in ${collectionName}`);
+          return document;
         } else {
-          return fetchCollection<T>(collectionName, filterFn);
+          const collection = await FirestoreService.fetchDocs<T>(collectionName, filterFn);
+          return collection as T;
         }
       },
-      staleTime: Infinity, // Provides persistent data until it is invalidated.
-      enabled, // Conditionally enables or disables the hook execution based on the provided flag.
+      enabled,
     });
   };
