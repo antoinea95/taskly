@@ -33,7 +33,7 @@ export const TaskDeadline = ({
   isCard?: boolean;
 }) => {
   const updateTask = useUpdateDoc<Partial<TaskType>>(
-    ["task", taskId],
+    ["tasks"],
     "tasks",
     taskId
   );
