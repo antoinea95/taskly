@@ -7,15 +7,26 @@ import { createContext, PropsWithChildren, useMemo } from "react";
 export const BoardContext = createContext<{
   listsInBoard: ListType[] | null;
   tasksInBoard: TaskType[] | null;
-  uniqueTagsFromTasks: TaskTagType[]
+  uniqueTagsFromTasks: TaskTagType[];
   listIds: string[];
   boardId: string;
 } | null>(null);
 
 export const BoardContextProvider = ({ boardId, children }: PropsWithChildren<{ boardId: string }>) => {
+
+
   // fetch lists
   const listsInBoard = useGetLists(boardId);
-  const tasksInBoard = useGetTasks(!!listsInBoard.data, listsInBoard.data?.flatMap((list) => list.tasks) ?? []);
+
+
+  // Get lists
+  const taskIds = useMemo(() => {
+    if (!listsInBoard.data) return [];
+    const taskIds = listsInBoard.data.flatMap((list) => list.tasks);
+    return taskIds ? taskIds : [];
+  }, [listsInBoard]);
+
+  const tasksInBoard = useGetTasks(taskIds.length > 0, taskIds);
 
   const listIds = useMemo(() => {
     if (!listsInBoard.data) return [];
@@ -23,7 +34,7 @@ export const BoardContextProvider = ({ boardId, children }: PropsWithChildren<{ 
   }, [listsInBoard.data]);
 
   const uniqueTagsFromTasks = useMemo(() => {
-    if (!tasksInBoard.data) return [];
+    if (!tasksInBoard.data || taskIds.length === 0) return [];
 
     const uniqueTags = tasksInBoard.data.reduce(
       (acc, task) => {
@@ -41,8 +52,7 @@ export const BoardContextProvider = ({ boardId, children }: PropsWithChildren<{ 
       title: label,
       color: uniqueTags[label],
     }));
-  }, [tasksInBoard]);
-
+  }, [tasksInBoard.data, taskIds]);
 
   // Fetch tasks based on task Ids, enabled only when taskIdsInLists is defined
   const isLoading = listsInBoard.isLoading || tasksInBoard.isLoading;
@@ -52,16 +62,19 @@ export const BoardContextProvider = ({ boardId, children }: PropsWithChildren<{ 
     return <p>Loading...</p>;
   }
 
-  if(isError) {
-    return <p>An error occurred. Please try again later.</p>
+  if (isError) {
+    console.log(tasksInBoard.error);
+    return <p>An error occurred. Please try again later.</p>;
   }
+
+  console.log(tasksInBoard.data)
 
   const value = {
     listsInBoard: listsInBoard.data ?? null,
     tasksInBoard: tasksInBoard.data ?? null,
     uniqueTagsFromTasks,
     listIds,
-    boardId
+    boardId,
   };
 
   return <BoardContext.Provider value={value}>{children}</BoardContext.Provider>;

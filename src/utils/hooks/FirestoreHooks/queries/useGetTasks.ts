@@ -1,6 +1,7 @@
 import { TaskType } from "@/utils/types/tasks.types";
 import { useFirestoreQuery } from "./useFirestoreQuery";
 import { documentId, where } from "firebase/firestore";
+import { useEffect } from "react";
 
 /**
  * Custom hook to fetch tasks from the Firestore "tasks" collection based on a list ID and task IDs.
@@ -9,11 +10,19 @@ import { documentId, where } from "firebase/firestore";
  * @param listId - The ID of the list to filter the tasks by.
  * @returns A React Query result object with the fetched task data.
  */
-export const useGetTasks = (enabled: boolean, taskIds?: string[]) => {
-  return useFirestoreQuery<TaskType[]>({
+export const useGetTasks = (enabled: boolean, taskIds: string[]) => {
+  const tasksInBoard = useFirestoreQuery<TaskType[]>({
     collectionName: "tasks",
     key: ["tasks"],
     filterFn: () => [where(documentId(), "in", taskIds)],
-    enabled
+    enabled: false,
   });
+
+  useEffect(() => {
+    if (enabled) {
+      tasksInBoard.refetch();
+    }
+  }, [enabled, tasksInBoard]);
+
+  return tasksInBoard;
 };

@@ -69,7 +69,7 @@ export const ListsSection = ({ board }: { board: BoardType }) => {
     );
   };
 
-  if (!listsInBoard || !tasksInBoard) {
+  if (!listsInBoard) {
     return null;
   }
 
