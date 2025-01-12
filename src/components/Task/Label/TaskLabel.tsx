@@ -1,8 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
-import { Label } from "../../Label/Label";
 import { TaskTagType, TaskType } from "@/utils/types/tasks.types";
 import { MutationResultType } from "@/utils/types/form.types";
+import { TagButton } from "@/components/Filters/TagButton";
 
 /**
  * Component to display a task label and optionally allow the user to delete the label.
@@ -40,18 +38,6 @@ export const TaskLabel = ({
   };
 
   return (
-    <Label color={label.color}>
-      {label.title}
-      {mutationQuery && (
-        <Button
-          onClick={handleDelete}
-          className="h-fit w-fit shadow-none"
-          variant="ghost"
-          size="icon"
-        >
-          <X size={12} />
-        </Button>
-      )}
-    </Label>
+    <TagButton tag={label} handleSelectedTags={handleDelete} />
   );
 };
