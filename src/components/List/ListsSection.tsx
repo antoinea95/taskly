@@ -30,7 +30,7 @@ export const ListsSection = ({ board }: { board: BoardType }) => {
   if(!boardContext) {
     throw new Error("Components ListsSection must be within a BoardContext Provider")
   }
-  const {listsInBoard, tasksInBoard, listIds} = boardContext;
+  const {listsInBoard, tasksInBoard, uniqueTagsFromTasks, listIds} = boardContext;
   // const { data: lists, isFetched } = useGetLists(board.id);
   const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } = useDragMouse();
 
@@ -84,7 +84,7 @@ export const ListsSection = ({ board }: { board: BoardType }) => {
         onMouseUp={handleMouseLeaveOrUp}
       >
         <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
-          <TaskFilter tasks={tasksInBoard}>
+          <TaskFilter tasks={tasksInBoard} uniqueTagsFromTasks={uniqueTagsFromTasks}>
             {(filteredTasks) => (
               <section className="flex items-start flex-nowrap pt-10 gap-5">
                 {filteredLists

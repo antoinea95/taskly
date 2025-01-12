@@ -1,12 +1,13 @@
 import { useGetLists } from "@/utils/hooks/FirestoreHooks/queries/useGetLists";
 import { useGetTasks } from "@/utils/hooks/FirestoreHooks/queries/useGetTasks";
 import { ListType } from "@/utils/types/lists.types";
-import { TaskType } from "@/utils/types/tasks.types";
+import { TaskTagType, TaskType } from "@/utils/types/tasks.types";
 import { createContext, PropsWithChildren, useMemo } from "react";
 
 export const BoardContext = createContext<{
   listsInBoard: ListType[] | null;
   tasksInBoard: TaskType[] | null;
+  uniqueTagsFromTasks: TaskTagType[]
   listIds: string[];
   boardId: string;
 } | null>(null);
@@ -20,6 +21,27 @@ export const BoardContextProvider = ({ boardId, children }: PropsWithChildren<{ 
     if (!listsInBoard.data) return [];
     return listsInBoard.data.map((list) => list.id);
   }, [listsInBoard.data]);
+
+  const uniqueTagsFromTasks = useMemo(() => {
+    if (!tasksInBoard.data) return [];
+
+    const uniqueTags = tasksInBoard.data.reduce(
+      (acc, task) => {
+        task.labels?.forEach((label) => {
+          if (!acc[label.title]) {
+            acc[label.title] = label.color;
+          }
+        });
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+
+    return Object.keys(uniqueTags).map((label) => ({
+      title: label,
+      color: uniqueTags[label],
+    }));
+  }, [tasksInBoard]);
 
 
   // Fetch tasks based on task Ids, enabled only when taskIdsInLists is defined
@@ -37,6 +59,7 @@ export const BoardContextProvider = ({ boardId, children }: PropsWithChildren<{ 
   const value = {
     listsInBoard: listsInBoard.data ?? null,
     tasksInBoard: tasksInBoard.data ?? null,
+    uniqueTagsFromTasks,
     listIds,
     boardId
   };
