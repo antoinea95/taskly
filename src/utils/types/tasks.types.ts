@@ -51,5 +51,6 @@ export type TaskType = {
   labels?: TaskTagType[];
   comments?: TaskCommentType[];
   members?: string[];
+  files?:string[];
   createdAt: number;
 };

@@ -1,40 +1,46 @@
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { firebaseStorage } from "../firebaseApp";
+import { firebaseAuth, firebaseStorage, firebaseFirestore } from "../firebaseApp";
 import { FirestoreService } from "../firestore/firestoreService";
-import { UserType } from "@/utils/types/auth.types";
+import { doc, getDoc } from "firebase/firestore";
+import { TaskType } from "@/utils/types/tasks.types";
 export class StorageService {
   private static firebaseStorage = firebaseStorage;
+  private static firebaseFirestore = firebaseFirestore;
 
   /**
    * Imports a file to Firebase Storage and updates the user profile with the file's URL.
    * @param file - The file to be uploaded.
-   * @param userId - The ID of the user uploading the file.
+   * @param documentId - The ID of the document to update with the file.
+   * @param folder - the name of the folder
+   * @param collectionName - the collection Name of the document to update
    * @throws Throws an error if file upload or update fails.
    */
-  public static async ImportFile(file: File | null, userId: string) {
+  public static async ImportFile<T>(file: File | null, documentId: string, folder: string, collectionName: string) {
     try {
-      if(!file) {
-        throw new Error("Error, please provided a file or retry")
+      let updateData: Partial<T> = {};
+      const user = firebaseAuth.currentUser;
+      if (!file) {
+        throw new Error("Error, please provided a file or retry");
       }
       if (file) {
-        const storageRef = ref(
-          this.firebaseStorage,
-          `profile/${userId}/${file.name}`
-        );
+        const storageRef = ref(this.firebaseStorage, `/${user?.uid}/${folder}/${file.name}`);
         await uploadBytes(storageRef, file);
         const downloadUrl = await getDownloadURL(storageRef);
 
-        await FirestoreService.updateDocument<UserType>(
-          "users",
-          {
-            photoURL: downloadUrl,
-          },
-          userId
-        );
+        if (collectionName === "users") {
+          updateData = { photoURL: downloadUrl } as T;
+        } else if (collectionName === "tasks") {
+          const docRef = doc(this.firebaseFirestore, collectionName, documentId);
+          const docSnap = await getDoc(docRef);
+          const data = docSnap.data() as TaskType;
+          updateData = data.files ? ({ files: [...data.files, downloadUrl] } as T) : ({ files: [downloadUrl] } as T);
+        }
+
+        await FirestoreService.updateDocument<T>(collectionName, updateData, documentId);
       }
     } catch (error) {
       console.error("Error during file upload:", error);
-      throw new Error("Error, please provided a file or retry")
+      throw new Error("Error, please provided a file or retry");
     }
   }
 }
