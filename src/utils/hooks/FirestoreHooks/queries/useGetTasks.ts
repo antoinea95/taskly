@@ -9,10 +9,11 @@ import { documentId, where } from "firebase/firestore";
  * @param listId - The ID of the list to filter the tasks by.
  * @returns A React Query result object with the fetched task data.
  */
-export const useGetTasks = (taskIds?: string[]) => {
+export const useGetTasks = (enabled: boolean, taskIds?: string[]) => {
   return useFirestoreQuery<TaskType[]>({
     collectionName: "tasks",
     key: ["tasks"],
     filterFn: () => [where(documentId(), "in", taskIds)],
+    enabled
   });
 };

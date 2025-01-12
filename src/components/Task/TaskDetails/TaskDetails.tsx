@@ -64,7 +64,7 @@ export const TaskDetails = ({
     list.id
   );
   const updateTask = useUpdateDoc<Partial<TaskType>>(
-    ["task", task.id],
+    ["tasks"],
     "tasks",
     task.id
   );

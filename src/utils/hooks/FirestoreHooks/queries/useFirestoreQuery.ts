@@ -16,7 +16,7 @@ import { FirestoreService } from "@/utils/firebase/firestore/firestoreService";
     key,
     documentId,
     filterFn,
-    enabled,
+    enabled = true,
   }: UseFirestoreQueryProps) => {
     return useQuery<T, Error>({
       queryKey: key,

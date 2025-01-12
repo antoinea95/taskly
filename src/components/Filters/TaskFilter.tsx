@@ -5,34 +5,15 @@ import { SelectLabel } from "./SelectLabels";
 import { TagButton } from "./TagButton";
 
 type TaskFilterProps = {
-  tasks: TaskType[];
+  tasks: TaskType[]
+  uniqueTagsFromTasks: TaskTagType[]
   children: (filteredTasks: TaskType[]) => JSX.Element;
 };
 
-export const TaskFilter = ({ tasks, children }: TaskFilterProps) => {
+export const TaskFilter = ({tasks, uniqueTagsFromTasks, children }: TaskFilterProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [selectedTags, setSelectedTags] = useState<TaskTagType[]>([]);
 
-  const uniqueTagsFromTasks = useMemo(() => {
-    if (!tasks) return [];
-
-    const uniqueTags = tasks.reduce(
-      (acc, task) => {
-        task.labels?.forEach((label) => {
-          if (!acc[label.title]) {
-            acc[label.title] = label.color;
-          }
-        });
-        return acc;
-      },
-      {} as Record<string, string>
-    );
-
-    return Object.keys(uniqueTags).map((label) => ({
-      title: label,
-      color: uniqueTags[label],
-    }));
-  }, [tasks]);
 
   const handleSelectedTags = (tag: TaskTagType) => {
     setSelectedTags((prevSelectedTags: TaskTagType[]) => {

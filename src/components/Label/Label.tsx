@@ -19,7 +19,7 @@ export const Label = ({
       style={{
         backgroundColor: color,
       }}
-      className="flex items-center justify-center gap-1 rounded-full text-[10px] border-none dark:text-gray-800 w-fit animate-fade-in"
+      className="rounded-full flex gap-1 shadow-none text-black text-xs px-2 py-1 h-fit cursor-pointer border-2 border-transparent hover:border-black dark:hover:border-white"
       variant="secondary"
     >
       {children}

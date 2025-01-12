@@ -1,7 +1,6 @@
 import { ListCard } from "@/components/List/ListCard";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { ListType } from "@/utils/types/lists.types";
-import { useGetLists } from "@/utils/hooks/FirestoreHooks/queries/useGetLists";
 import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
 import { AddForm } from "../Form/AddForm";
 import { FieldValues } from "react-hook-form";
@@ -11,8 +10,8 @@ import { DraggableContainer } from "../DragAndDrop/DraggableContainer";
 import { useUpdateDoc } from "@/utils/hooks/FirestoreHooks/mutations/useUpdateDoc";
 import { BoardType } from "@/utils/types/boards.types";
 import { useDragMouse } from "@/utils/helpers/hooks/useDragMouse";
-import { useGetTasks } from "@/utils/hooks/FirestoreHooks/queries/useGetTasks";
 import { TaskFilter } from "../Filters/TaskFilter";
+import { BoardContext } from "@/utils/helpers/context/BoardContext";
 
 /**
  * ListsSection component
@@ -26,20 +25,18 @@ import { TaskFilter } from "../Filters/TaskFilter";
  */
 export const ListsSection = ({ board }: { board: BoardType }) => {
   // Fetch the lists associated with the board
-  const { data: lists, isFetched } = useGetLists(board.id);
+  const boardContext = useContext(BoardContext);
+
+  if(!boardContext) {
+    throw new Error("Components ListsSection must be within a BoardContext Provider")
+  }
+  const {listsInBoard, tasksInBoard, uniqueTagsFromTasks, listIds} = boardContext;
+  // const { data: lists, isFetched } = useGetLists(board.id);
   const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } = useDragMouse();
 
-  const taskIdsInLists = useMemo(() => {
-    if (!lists) return;
-    return lists.flatMap((list) => list.tasks);
-  }, [lists]);
-
-  const { data: tasks, refetch } = useGetTasks(taskIdsInLists ? taskIdsInLists : undefined);
-
-   // Make sure tasks are fetched after taskIdsInLists is updated
-   useEffect(() => {
-    refetch();
-  }, [taskIdsInLists, refetch]);
+  const filteredLists = useMemo(() => {
+    return listsInBoard?.sort((a, b) => board.lists.indexOf(a.id) - board.lists.indexOf(b.id));
+  }, [listsInBoard, board.lists]);
 
   // Mutation to create a new list
   const createList = useAddDoc<ListType>(["lists", board.id], "lists");
@@ -72,12 +69,12 @@ export const ListsSection = ({ board }: { board: BoardType }) => {
     );
   };
 
-  if (!isFetched || !lists || !tasks) {
+  if (!listsInBoard || !tasksInBoard) {
     return null;
   }
 
   return (
-    <DragAndDropContainer lists={lists} board={board}>
+    <DragAndDropContainer lists={listsInBoard} board={board}>
       <section
         className="overflow-x-auto flex flex-col w-full no-scrollbar mt-10"
         ref={sliderRef}
@@ -86,14 +83,12 @@ export const ListsSection = ({ board }: { board: BoardType }) => {
         onMouseLeave={handleMouseLeaveOrUp}
         onMouseUp={handleMouseLeaveOrUp}
       >
-        <SortableContext items={lists.map((list) => list.id)} strategy={horizontalListSortingStrategy}>
-          <TaskFilter tasks={tasks}>
+        <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
+          <TaskFilter tasks={tasksInBoard} uniqueTagsFromTasks={uniqueTagsFromTasks}>
             {(filteredTasks) => (
               <section className="flex items-start flex-nowrap pt-10 gap-5">
-                {lists &&
-                  lists
-                    .sort((a, b) => board.lists.indexOf(a.id) - board.lists.indexOf(b.id))
-                    .map((list) => (
+                {filteredLists
+                    ?.map((list) => (
                       <DraggableContainer id={list.id} type="list" key={list.id}>
                         <ListCard list={list} boardId={board.id} tasks={filteredTasks.filter((task) => list.tasks.includes(task.id))} />
                       </DraggableContainer>

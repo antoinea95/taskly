@@ -40,7 +40,7 @@ export const ListCard = ({
     return indexA - indexB
   }), [list.tasks, tasks]);
 
-  const createTask = useAddDoc<TaskType>(["tasks", list.id], "tasks");
+  const createTask = useAddDoc<TaskType>(["tasks"], "tasks");
   const updateList = useUpdateDoc<Partial<ListType>>(["lists", boardId], "lists", list.id);
   const deleteList = useDeleteList<void>(boardId, list.id);
 

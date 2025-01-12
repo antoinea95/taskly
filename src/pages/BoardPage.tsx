@@ -11,6 +11,7 @@ import { useAuth } from "@/utils/hooks/FirestoreHooks/auth/useAuth";
 import { DeleteButton } from "@/components/Button/DeleteButton";
 import { DeleteConfirmation } from "@/components/Form/actions/DeleteConfirmation";
 import PageTitle from "@/routes/PageTitle";
+import { BoardContextProvider } from "@/utils/helpers/context/BoardContext";
 
 /**
  * BoardPage component
@@ -56,7 +57,7 @@ export const BoardPage = () => {
   return (
     <main className="flex flex-col">
       {board && isFetched && (
-        <>
+        <BoardContextProvider boardId={board.id}>
           <PageTitle title={`Taskly: ${board.title}`} />
           <header className="flex justify-between items-center flex-wrap animate-top-to-bottom">
             {/* Form to update the board title */}
@@ -98,7 +99,7 @@ export const BoardPage = () => {
           </header>
           {/* Display lists associated with the board */}
           <ListsSection board={board} />
-        </>
+        </BoardContextProvider>
       )}
     </main>
   );
