@@ -1,4 +1,4 @@
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { firebaseAuth, firebaseStorage, firebaseFirestore } from "../firebaseApp";
 import { FirestoreService } from "../firestore/firestoreService";
 import { doc, getDoc } from "firebase/firestore";
@@ -19,30 +19,52 @@ export class StorageService {
     try {
       let updateData: Partial<T> = {};
       const user = firebaseAuth.currentUser;
+
       if (!file) {
-        throw new Error("Error, please provided a file or retry");
+        throw { code: "FILE_MISSING", message: "No file provided. Please upload a file." };
       }
-      if (file) {
-        const storageRef = ref(this.firebaseStorage, `/${user?.uid}/${folder}/${file.name}`);
-        await uploadBytes(storageRef, file);
-        const downloadUrl = await getDownloadURL(storageRef);
 
-        if (collectionName === "users") {
-          updateData = { photoURL: downloadUrl } as T;
-        } else if (collectionName === "tasks") {
-          const docRef = doc(this.firebaseFirestore, collectionName, documentId);
-          const docSnap = await getDoc(docRef);
-          if(!docSnap.exists()) throw new Error(`No task ${documentId} in tasks collection`);
+      const storageRef = ref(this.firebaseStorage, `/${user?.uid}/${folder}/${file.name}`);
+      await uploadBytes(storageRef, file);
+      const downloadUrl = await getDownloadURL(storageRef);
 
-          const data = docSnap.data() as TaskType;
-          updateData = data.files ? ({ files: [...data.files, {name: file.name, url: downloadUrl}] } as T) : ({ files: [{name: file.name, url: downloadUrl}] } as T);
+      if (collectionName === "users") {
+        updateData = { photoURL: downloadUrl } as T;
+      } else if (collectionName === "tasks") {
+        const docRef = doc(this.firebaseFirestore, collectionName, documentId);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+          throw { code: "DOCUMENT_NOT_FOUND", message: `No task with ID ${documentId} found.` };
         }
 
-        await FirestoreService.updateDocument<T>(collectionName, updateData, documentId);
+        const data = docSnap.data() as TaskType;
+        updateData = data.files
+          ? ({ files: [...data.files, { name: file.name, url: downloadUrl, type: file.type }] } as T)
+          : ({ files: [{ name: file.name, url: downloadUrl, type: file.type }] } as T);
       }
+
+      await FirestoreService.updateDocument<T>(collectionName, updateData, documentId);
     } catch (error) {
       console.error("Error during file upload:", error);
-      throw new Error("Error, please provided a file or retry");
+      throw error;
     }
+  }
+
+  public static async deleteFileFromTask(fileName: string, taskId: string) {
+    const userId = firebaseAuth.currentUser?.uid;
+    if (!userId) throw { code: "USER_NOT_FOUND", message: "User not authenticated" };
+    const taskRef = doc(this.firebaseFirestore, "tasks", taskId);
+    const taskDoc = await getDoc(taskRef);
+    if (!taskDoc.exists()) throw { code: "TASK_NOT_FOUND", message: `task with id ${taskId} doesn't exists` };
+
+    const task = taskDoc.data() as TaskType;
+    const files = task.files;
+    const updatedFiles = files?.filter((fileFromDb) => fileFromDb.name !== fileName);
+
+    await FirestoreService.updateDocument<TaskType>("tasks", { files: updatedFiles }, taskId);
+
+    const fileRef = ref(this.firebaseStorage, `${userId}/tasks/${fileName}`);
+    await deleteObject(fileRef);
   }
 }

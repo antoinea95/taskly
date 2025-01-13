@@ -15,7 +15,7 @@ export const useGetTasks = (enabled: boolean, taskIds: string[]) => {
     collectionName: "tasks",
     key: ["tasks"],
     filterFn: () => [where(documentId(), "in", taskIds)],
-    enabled: false,
+    enabled,
   });
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import {
 } from "../../ui/card";
 import { TaskType } from "@/utils/types/tasks.types";
 import { ListType } from "@/utils/types/lists.types";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Paperclip } from "lucide-react";
 import { TaskLabel } from "../Label/TaskLabel";
 import { TaskDeadline } from "../Deadline/TaskDeadline";
 import { TaskCheckListSection } from "../CheckList/TaskCheckListSection";
@@ -93,6 +93,13 @@ export const TaskCard = ({
                     {task.comments.length}
                   </Label>
                 )}
+                 {/* Comments Section */}
+                 {task.files && task.files.length > 0 && (
+                  <Label color="#d1d5db">
+                    <Paperclip size={12} />
+                    {task.files.length}
+                  </Label>
+                )}
                 {/* Members Avatars */}
                 {task.members && task.members.length > 0 && (
                   <div className="flex-1">
@@ -103,6 +110,7 @@ export const TaskCard = ({
                     </MembersAvatarList>
                   </div>
                 )}
+                
               </CardFooter>
             </Card>
             {/* Task Details Modal */}

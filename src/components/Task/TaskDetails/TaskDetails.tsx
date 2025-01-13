@@ -25,7 +25,8 @@ import { AddTaskDeadline } from "../Deadline/AddTaskDeadline";
 import { AddForm } from "@/components/Form/AddForm";
 import { DeleteButton } from "@/components/Button/DeleteButton";
 import { DeleteConfirmation } from "@/components/Form/actions/DeleteConfirmation";
-import { AddFileInDescription } from "../Description/AddFileInDescription";
+import { AddFileInTask } from "../Files/AddFileInTask";
+import { TaskFiles } from "../Files/TaskFiles";
 
 /**
  * Component to display the details of a task, including the ability to update or delete the task,
@@ -114,6 +115,7 @@ export const TaskDetails = ({ task, setIsTaskOpen, list }: { task: TaskType; set
       <section className="flex flex-col-reverse md:flex-row md:flex-nowrap items-start justify-between flex-wrap md:px-10 gap-5 py-3 animate-top-to-bottom delay-75">
         <div className="flex flex-col gap-3 h-fit md:w-3/5 w-full">
           <TaskDescription mutationQuery={updateTask} description={task.description} />
+          {task.files && <TaskFiles taskId={task.id} files={task.files} />}
           <TaskCheckListSection taskId={task.id} />
         </div>
         <div className="md:sticky md:top-48 right-0 md:w-2/5 ml-auto h-fit w-full">
@@ -130,7 +132,7 @@ export const TaskDetails = ({ task, setIsTaskOpen, list }: { task: TaskType; set
               isOpen={isAddCheckList}
               setIsOpen={setIsAddCheckList}
             />
-            <AddFileInDescription taskId={task.id} />
+            <AddFileInTask taskId={task.id} files={task.files} />
           </div>
         </div>
       </section>
