@@ -36,7 +36,7 @@ export const TaskFiles = ({ taskId, files }: { taskId: string; files: TaskFileTy
           <div className="grid grid-cols-5 items-center gap-4 flex-wrap">
             {images.map((image, index) => (
               <div
-                className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center bg-black"
+                className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center bg-black cursor-pointer hover:scale-105 transition-transform"
                 key={image.name}
                 onClick={() => handleOpenCarousel(index)}
               >
