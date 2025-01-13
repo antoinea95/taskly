@@ -22,6 +22,6 @@ export const useUploadProfilePic = (
       return Promise.reject(new Error("Document ID is not defined"));
     }
     // Proceed with file upload if both are available
-    return StorageService.ImportFile<UserType>(file, documentId, "profile", "users", "photoURL");
+    return StorageService.ImportFile<UserType>(file, documentId, "profile", "users");
   }, key);
 };
