@@ -34,8 +34,6 @@ export const Sidebar = () => {
           <ClipboardList size={20} />
           Boards
         </h2>
-
-        {/* Display loading skeleton or boards if available */}
         {!isFetched ? (
           null
         ) : boards && boards.length > 0 ? (
