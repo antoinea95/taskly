@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useTaskModalState } from "./useTaskModalState";
 
 /**
  * Custom hook to enable drag-to-scroll functionality for a horizontal scrollable container.
@@ -16,6 +17,7 @@ export const useDragMouse = () => {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const isModalOpen = useTaskModalState();
 
   /**
    * Handles the `mousedown` event and starts the dragging process by capturing the
@@ -24,11 +26,10 @@ export const useDragMouse = () => {
    * @param {React.MouseEvent<HTMLDivElement>} e - The mouse event triggered on `mousedown`.
    */
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (sliderRef.current) {
+    if (isModalOpen || !sliderRef.current) return;
       setIsDragging(true);
       setStartX(e.pageX - sliderRef.current.offsetLeft);
       setScrollLeft(sliderRef.current.scrollLeft);
-    }
   };
 
   /**
@@ -45,7 +46,7 @@ export const useDragMouse = () => {
    * @param {React.MouseEvent<HTMLDivElement>} e - The mouse event triggered on `mousemove`.
    */
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || !sliderRef.current) return;
+    if (isModalOpen || !isDragging || !sliderRef.current) return; // Disable drag if modal is open
     e.preventDefault();
     const x = e.pageX - sliderRef.current.offsetLeft;
     const walk = (x - startX) * 2; // Multiplier to increase scroll speed

@@ -1,5 +1,6 @@
-import { PropsWithChildren } from "react";
+import { PropsWithChildren} from "react";
 import { useSortable } from "@dnd-kit/sortable";
+import { useTaskModalState } from "@/utils/helpers/hooks/useTaskModalState";
 
 /**
  * A draggable container component for use with the `@dnd-kit` library.
@@ -11,13 +12,17 @@ import { useSortable } from "@dnd-kit/sortable";
  * @param {React.ReactNode} props.children - The child components to be rendered inside the draggable container.
  *
  */
-export const DraggableContainer = ({ id, type, children }: PropsWithChildren<{ id: string; type: "list" | "task" }>) => {
+export const DraggableContainer = ({ id, type, children }: PropsWithChildren<{ id: string; type: "list" | "task"}>) => {
+  const isModalOpen = useTaskModalState();
+
   const { attributes, listeners, setNodeRef, transition, isDragging } = useSortable({
     id,
     data: {
       type,
     },
+    disabled: isModalOpen
   });
+
 
   return (
     <div
