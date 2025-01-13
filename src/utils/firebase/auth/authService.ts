@@ -268,7 +268,7 @@ export class AuthService {
     
     const profilPictureRef = ref(
       firebaseStorage,
-      `profile/${user.uid}/${user.uid}`
+      `${user.uid}/profile/${user.uid}`
     );
 
     try {

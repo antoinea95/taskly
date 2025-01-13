@@ -5,7 +5,7 @@ import { SelectLabel } from "./SelectLabels";
 import { TagButton } from "./TagButton";
 
 type TaskFilterProps = {
-  tasks: TaskType[]
+  tasks: TaskType[] | null;
   uniqueTagsFromTasks: TaskTagType[]
   children: (filteredTasks: TaskType[]) => JSX.Element;
 };
@@ -13,7 +13,6 @@ type TaskFilterProps = {
 export const TaskFilter = ({tasks, uniqueTagsFromTasks, children }: TaskFilterProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [selectedTags, setSelectedTags] = useState<TaskTagType[]>([]);
-
 
   const handleSelectedTags = (tag: TaskTagType) => {
     setSelectedTags((prevSelectedTags: TaskTagType[]) => {

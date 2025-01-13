@@ -12,7 +12,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { firebaseFirestore } from "../firebaseApp";
+import { firebaseFirestore} from "../firebaseApp";
 import { BatchService } from "./batchService";
 import { TaskCommentType, TaskType } from "@/utils/types/tasks.types";
 import { BoardType } from "@/utils/types/boards.types";
@@ -27,10 +27,7 @@ export class FirestoreService {
    * @throws Throws an error if document creation fails.
    */
 
-  public static async createDocument<T>(
-    collectionName: string,
-    data: Omit<T, "id">
-  ): Promise<string> {
+  public static async createDocument<T>(collectionName: string, data: Omit<T, "id">): Promise<string> {
     try {
       const docRef = collection(this.firebaseFirestore, collectionName);
       const snapshot = await addDoc(docRef, data);
@@ -49,11 +46,7 @@ export class FirestoreService {
    * @returns A promise that resolves when the document is updated.
    * @throws Throws an error if the document update fails.
    */
-  public static async updateDocument<T>(
-    collectionName: string,
-    data: Partial<T>,
-    id: string
-  ): Promise<string> {
+  public static async updateDocument<T>(collectionName: string, data: Partial<T>, id: string): Promise<string> {
     try {
       const docRef = doc(this.firebaseFirestore, collectionName, id);
       await updateDoc(docRef, data);
@@ -75,10 +68,7 @@ export class FirestoreService {
    * @returns A promise that resolves when the document is delete.
    * @throws Throw an error if document is not found.
    */
-  public static async deleteDocument(
-    collectionName: string,
-    id: string
-  ): Promise<void> {
+  public static async deleteDocument(collectionName: string, id: string): Promise<void> {
     try {
       const docRef = doc(this.firebaseFirestore, collectionName, id);
       await deleteDoc(docRef);
@@ -105,15 +95,9 @@ export class FirestoreService {
    * // Remove the user from boards or delete the board if they are the creator
    * await FirestoreService.removeMemberAndDeleteDocument<BoardType>("boards", user.uid);
    */
-  public static async removeMemberAndDeleteDocument(
-    collectionName: string,
-    userId: string
-  ): Promise<void> {
+  public static async removeMemberAndDeleteDocument(collectionName: string, userId: string): Promise<void> {
     // Fetch documents where the user is a member (for boards)
-    const boards = await FirestoreService.fetchDocs<BoardType>(
-      collectionName,
-      () => [where("members", "array-contains", userId)]
-    );
+    const boards = await FirestoreService.fetchDocs<BoardType>(collectionName, () => [where("members", "array-contains", userId)]);
 
     // Handle update or deletion of boards
     if (boards.length) {
@@ -133,9 +117,7 @@ export class FirestoreService {
     // Fetch tasks where the user is mentioned in the comments (but not necessarily a member)
     const allTasks = await FirestoreService.fetchDocs<TaskType>(collectionName); // Assuming all tasks are in the same collection
 
-    const tasksToRemoveCommentsFrom = allTasks.filter((task) =>
-      task.comments?.some((comment) => comment.userId === userId)
-    );
+    const tasksToRemoveCommentsFrom = allTasks.filter((task) => task.comments?.some((comment) => comment.userId === userId));
 
     // Handle update of tasks
     if (tasksToRemoveCommentsFrom.length) {
@@ -154,18 +136,12 @@ export class FirestoreService {
    * @param userId - The user ID to remove.
    * @param collectionName - The name of the collection.
    */
-  private static async updateMembers<
-    T extends { members?: string[]; id: string },
-  >(doc: T, userId: string, collectionName: string): Promise<void> {
+  private static async updateMembers<T extends { members?: string[]; id: string }>(doc: T, userId: string, collectionName: string): Promise<void> {
     if (doc.members) {
       const updatedMembers = doc.members.filter((member) => member !== userId);
 
       // Update the document with the new members list
-      await FirestoreService.updateDocument<T>(
-        collectionName,
-        { members: updatedMembers } as Partial<T>,
-        doc.id
-      );
+      await FirestoreService.updateDocument<T>(collectionName, { members: updatedMembers } as Partial<T>, doc.id);
     }
   }
 
@@ -176,20 +152,16 @@ export class FirestoreService {
    * @param userId - The user ID to remove.
    * @param collectionName - The name of the collection.
    */
-  private static async removeUserComments<
-    T extends { comments?: TaskCommentType[]; id: string },
-  >(task: T, userId: string, collectionName: string): Promise<void> {
+  private static async removeUserComments<T extends { comments?: TaskCommentType[]; id: string }>(
+    task: T,
+    userId: string,
+    collectionName: string
+  ): Promise<void> {
     if (task.comments) {
-      const updatedComments = task.comments.filter(
-        (comment) => comment.userId !== userId
-      );
+      const updatedComments = task.comments.filter((comment) => comment.userId !== userId);
 
       // Update the task with the new comments list
-      await FirestoreService.updateDocument<T>(
-        collectionName,
-        { comments: updatedComments } as Partial<T>,
-        task.id
-      );
+      await FirestoreService.updateDocument<T>(collectionName, { comments: updatedComments } as Partial<T>, task.id);
     }
   }
 
@@ -200,10 +172,7 @@ export class FirestoreService {
    * @returns The fetched document data, or null if not found.
    * @throws  Throws an error if fetching the document fails.
    */
-  public static async fetchDoc<T>(
-    collectionName: string,
-    documentId: string
-  ): Promise<T | null> {
+  public static async fetchDoc<T>(collectionName: string, documentId: string): Promise<T | null> {
     try {
       const docRef = doc(this.firebaseFirestore, collectionName, documentId);
       const docSnap = await getDoc(docRef);
@@ -226,10 +195,7 @@ export class FirestoreService {
    * @returns A promise that resolves to an array of documents of type T.
    * @throws Throws an error if fetching documents fails.
    */
-  public static async fetchDocs<T>(
-    collectionName: string,
-    filterFn?: (colRef: CollectionReference) => QueryConstraint[]
-  ): Promise<T[]> {
+  public static async fetchDocs<T>(collectionName: string, filterFn?: (colRef: CollectionReference) => QueryConstraint[]): Promise<T[]> {
     try {
       const colRef = collection(this.firebaseFirestore, collectionName);
       const q = filterFn ? query(colRef, ...filterFn(colRef)) : colRef;
@@ -262,7 +228,7 @@ export class FirestoreService {
     collectionName: string,
     documentId: string,
     callback: (data: T) => void,
-    onError: (error: Error) => void,
+    onError: (error: Error) => void
   ): () => void {
     const docRef = doc(this.firebaseFirestore, collectionName, documentId);
 
@@ -276,7 +242,7 @@ export class FirestoreService {
           };
           callback(doc as T);
         } else {
-          onError(new Error);
+          onError(new Error());
         }
       },
       (error) => {

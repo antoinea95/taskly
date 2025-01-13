@@ -1,3 +1,4 @@
+import { StorageService } from "@/utils/firebase/storage/storageService";
 import { useFirestoreMutation } from "./useFirestoreMutation";
 import { BatchService } from "@/utils/firebase/firestore/batchService";
 
@@ -46,6 +47,23 @@ export const useDeleteBoard = <T,>(userId?: string, id?: string) => {
     return useFirestoreMutation<void, T>(() => {
       if (id) {
         return BatchService.deleteTask(id);
+      }
+      return Promise.reject(new Error("Document ID is not defined"));
+    }, ["tasks", id]);
+  };
+
+   /**
+   * Hook to delete a file from task.
+   * Uses the FirestoreApi to delete the specified files.
+   * 
+   * @param id The ID of the task.
+   * @param fileName the name of the file to delete
+   * @returns A mutation result object from react-query.
+   */
+   export const useDeleteFileFromTask = (fileName: string, id?: string) => {
+    return useFirestoreMutation<void, void>(() => {
+      if (id) {
+        return StorageService.deleteFileFromTask(fileName, id);
       }
       return Promise.reject(new Error("Document ID is not defined"));
     }, ["tasks", id]);

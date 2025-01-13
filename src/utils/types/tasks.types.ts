@@ -10,6 +10,12 @@ export type DateRange = {
     title: string,
     color: string
   }
+
+  export type TaskFileType = {
+    name: string,
+    url: string, 
+    type: string,
+  }
   
   export type TaskCommentType = {
     userId: string,
@@ -51,5 +57,6 @@ export type TaskType = {
   labels?: TaskTagType[];
   comments?: TaskCommentType[];
   members?: string[];
+  files?: TaskFileType[];
   createdAt: number;
 };

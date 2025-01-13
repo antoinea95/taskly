@@ -25,6 +25,8 @@ import { AddTaskDeadline } from "../Deadline/AddTaskDeadline";
 import { AddForm } from "@/components/Form/AddForm";
 import { DeleteButton } from "@/components/Button/DeleteButton";
 import { DeleteConfirmation } from "@/components/Form/actions/DeleteConfirmation";
+import { AddFileInTask } from "../Files/AddFileInTask";
+import { TaskFiles } from "../Files/TaskFiles";
 
 /**
  * Component to display the details of a task, including the ability to update or delete the task,
@@ -36,15 +38,7 @@ import { DeleteConfirmation } from "@/components/Form/actions/DeleteConfirmation
  * @param {ListType} props.list - The list to which the task belongs.
  * @returns The TaskDetails component.
  */
-export const TaskDetails = ({
-  task,
-  setIsTaskOpen,
-  list,
-}: {
-  task: TaskType;
-  setIsTaskOpen: Dispatch<SetStateAction<boolean>>;
-  list: ListType;
-}) => {
+export const TaskDetails = ({ task, setIsTaskOpen, list }: { task: TaskType; setIsTaskOpen: Dispatch<SetStateAction<boolean>>; list: ListType }) => {
   const { currentUser } = useAuth();
   const { boardId } = useParams();
   const [isAddCheckList, setIsAddCheckList] = useState(false);
@@ -53,21 +47,10 @@ export const TaskDetails = ({
   const board = useGetDoc<BoardType>("boards", boardId);
 
   // mutate hooks
-  const addCheckList = useAddDoc<CheckListType>(
-    ["checklists", task.id],
-    `tasks/${task.id}/checklists`
-  );
+  const addCheckList = useAddDoc<CheckListType>(["checklists", task.id], `tasks/${task.id}/checklists`);
   const deleteTask = useDeleteTask<void>(task.id);
-  const updateList = useUpdateDoc<Partial<ListType>>(
-    ["lists", boardId],
-    "lists",
-    list.id
-  );
-  const updateTask = useUpdateDoc<Partial<TaskType>>(
-    ["tasks"],
-    "tasks",
-    task.id
-  );
+  const updateList = useUpdateDoc<Partial<ListType>>(["lists", boardId], "lists", list.id);
+  const updateTask = useUpdateDoc<Partial<TaskType>>(["tasks"], "tasks", task.id);
 
   /**
    * Handles adding a new checklist to the task.
@@ -103,20 +86,10 @@ export const TaskDetails = ({
     <ScrollArea className=" h-[95dvh] md:max-h-[700px] max-w-[850px] w-[90vw] border-2 border-white m-0 p-3 bg-white dark:bg-gray-900 dark:border-gray-900 dark:text-gray-300">
       <header className="sticky top-0 z-10 bg-white dark:bg-gray-900 dark:border-gray-900 space-y-2 p-3 md:p-6 animate-top-to-bottom">
         <div className="flex justify-between items-center flex-wrap">
-          <UpdateTitleForm
-            name="Task"
-            title={task.title}
-            mutationQuery={updateTask}
-            headingLevel={"h2"}
-          />
+          <UpdateTitleForm name="Task" title={task.title} mutationQuery={updateTask} headingLevel={"h2"} />
           <DeleteButton content="Delete task">
             {({ setIsOpen }) => (
-              <DeleteConfirmation
-                handleDelete={handleDeleteTask}
-                actionName="task"
-                isPending={deleteTask.isPending}
-                setIsOpen={setIsOpen}
-              />
+              <DeleteConfirmation handleDelete={handleDeleteTask} actionName="task" isPending={deleteTask.isPending} setIsOpen={setIsOpen} />
             )}
           </DeleteButton>
         </div>
@@ -124,26 +97,16 @@ export const TaskDetails = ({
           <TaskHeaderItem title="List" icon={List}>
             <span className="text-sm font-medium">{list.title}</span>
           </TaskHeaderItem>
-          {task.dueDate && (
-            <TaskDeadline dueDate={task.dueDate} taskId={task.id} />
-          )}
+          {task.dueDate && <TaskDeadline dueDate={task.dueDate} taskId={task.id} />}
           {task.members && task.members.length > 0 && board.data && (
             <TaskHeaderItem title="Members" icon={Users}>
-              <MembersDetails
-                members={task.members}
-                mutationQuery={updateTask}
-              />
+              <MembersDetails members={task.members} mutationQuery={updateTask} />
             </TaskHeaderItem>
           )}
           {task.labels && task.labels.length > 0 && (
             <TaskHeaderItem title="Labels" icon={Tag}>
               {task.labels.map((label, index) => (
-                <TaskLabel
-                  key={index}
-                  label={label}
-                  labels={task.labels}
-                  mutationQuery={updateTask}
-                />
+                <TaskLabel key={index} label={label} labels={task.labels} mutationQuery={updateTask} />
               ))}
             </TaskHeaderItem>
           )}
@@ -151,22 +114,15 @@ export const TaskDetails = ({
       </header>
       <section className="flex flex-col-reverse md:flex-row md:flex-nowrap items-start justify-between flex-wrap md:px-10 gap-5 py-3 animate-top-to-bottom delay-75">
         <div className="flex flex-col gap-3 h-fit md:w-3/5 w-full">
-          <TaskDescription
-            mutationQuery={updateTask}
-            description={task.description}
-          />
+          <TaskDescription mutationQuery={updateTask} description={task.description} />
+          {task.files && <TaskFiles taskId={task.id} files={task.files} />}
           <TaskCheckListSection taskId={task.id} />
         </div>
         <div className="md:sticky md:top-48 right-0 md:w-2/5 ml-auto h-fit w-full">
           <div className="rounded-xl w-full flex flex-col gap-3">
             <AddLabel labels={task.labels} mutationQuery={updateTask} />
             {board.data && (
-              <AddMember
-                queryKey={["tasks", task.id]}
-                members={task.members ? task.members : []}
-                mutationQuery={updateTask}
-                board={board.data}
-              />
+              <AddMember queryKey={["tasks", task.id]} members={task.members ? task.members : []} mutationQuery={updateTask} board={board.data} />
             )}
             <AddTaskDeadline task={task} mutationQuery={updateTask} />
             <AddForm
@@ -176,18 +132,12 @@ export const TaskDetails = ({
               isOpen={isAddCheckList}
               setIsOpen={setIsAddCheckList}
             />
+            <AddFileInTask taskId={task.id} files={task.files} />
           </div>
         </div>
       </section>
-     
 
-      {currentUser && (
-        <TaskCommentsSection
-          comments={task.comments}
-          mutationQuery={updateTask}
-          userId={currentUser.id}
-        />
-      )}
+      {currentUser && <TaskCommentsSection comments={task.comments} mutationQuery={updateTask} userId={currentUser.id} />}
     </ScrollArea>
   );
 };
