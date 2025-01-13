@@ -17,7 +17,7 @@ export const SelectLabel = ({
   if(uniqueTagsFromTasks.length === 0) return null;
 
   return (
-    <div className=" bg-gray-100 w-fit px-3 py-3 h-14 rounded-xl flex items-center">
+    <div className=" bg-gray-100 dark:bg-gray-600 w-fit px-3 py-3 h-14 rounded-xl flex items-center">
       <div className="flex items-center gap-2">
         {uniqueTagsFromTasks
           .filter((tag) => !isSelected(tag)) // Filtrer les tags non sélectionnés
