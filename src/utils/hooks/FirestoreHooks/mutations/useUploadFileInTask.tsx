@@ -14,7 +14,7 @@ import { StorageService } from "@/utils/firebase/storage/storageService";
 export const useUploadFileInTask = (
   key: any[],
   file: File | null,
-  documentId?: string
+  documentId?: string,
 ) => {
   return useFirestoreMutation<void, void>(() => {
     // Check if both documentId and file are provided

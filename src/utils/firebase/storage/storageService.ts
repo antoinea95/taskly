@@ -32,8 +32,10 @@ export class StorageService {
         } else if (collectionName === "tasks") {
           const docRef = doc(this.firebaseFirestore, collectionName, documentId);
           const docSnap = await getDoc(docRef);
+          if(!docSnap.exists()) throw new Error(`No task ${documentId} in tasks collection`);
+
           const data = docSnap.data() as TaskType;
-          updateData = data.files ? ({ files: [...data.files, downloadUrl] } as T) : ({ files: [downloadUrl] } as T);
+          updateData = data.files ? ({ files: [...data.files, {name: file.name, url: downloadUrl}] } as T) : ({ files: [{name: file.name, url: downloadUrl}] } as T);
         }
 
         await FirestoreService.updateDocument<T>(collectionName, updateData, documentId);

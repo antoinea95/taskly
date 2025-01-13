@@ -67,8 +67,6 @@ export const BoardContextProvider = ({ boardId, children }: PropsWithChildren<{ 
     return <p>An error occurred. Please try again later.</p>;
   }
 
-  console.log(tasksInBoard.data)
-
   const value = {
     listsInBoard: listsInBoard.data ?? null,
     tasksInBoard: tasksInBoard.data ?? null,

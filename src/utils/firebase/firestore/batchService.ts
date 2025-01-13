@@ -1,5 +1,7 @@
-import { collection, doc, DocumentReference, getDoc, getDocs, query, where, WriteBatch, writeBatch } from "firebase/firestore";
-import { firebaseFirestore } from "../firebaseApp";
+import { collection, doc, DocumentData, DocumentReference, DocumentSnapshot, getDoc, getDocs, query, where, WriteBatch, writeBatch } from "firebase/firestore";
+import { firebaseAuth, firebaseFirestore, firebaseStorage } from "../firebaseApp";
+import { TaskType } from "@/utils/types/tasks.types";
+import { deleteObject, ref } from "firebase/storage";
 
 
 export class BatchService {
@@ -78,6 +80,36 @@ export class BatchService {
     }
   }
 
+    /**
+     * Delete a document in a Firestore collection and its associated files in Firebase Storage.
+     * @param id - The ID of the document to delete.
+     * @returns A promise that resolves when the document and files are deleted.
+     * @throws Throw an error if the document is not found.
+     */
+    public static async deleteTaskFilesInStorage(taskDoc: DocumentSnapshot<DocumentData, DocumentData>): Promise<void> {
+      try {
+        const userId = firebaseAuth.currentUser?.uid;
+        if (!userId) throw new Error("User not authenticated");
+  
+        const task = taskDoc.data() as TaskType;
+        const files = task.files;
+        if (!files || files.length === 0) return;
+  
+        // Extraire les chemins et supprimer les fichiers en parallèle
+        const deletePromises = files.map(async (file) => {
+          const path = `${userId}/tasks/${file.name}`;
+          console.log(path);
+          const fileRef = ref(firebaseStorage, path);
+          await deleteObject(fileRef);
+        });
+  
+        await Promise.all(deletePromises);
+      } catch (error: any) {
+        console.error("Error deleting task files:", error);
+        throw new Error(error.message || "Failed to delete files");
+      }
+    }
+
   /**
    * Deletes a task from Firestore.
    * @param taskId - The ID of the task to delete.
@@ -94,6 +126,8 @@ export class BatchService {
        if (!taskDoc.exists()) {
         throw new Error(`Task with ID ${taskId} not found.`);
        }
+      
+       await this.deleteTaskFilesInStorage(taskDoc);
 
       // Delete sub-collections of the task
       await this.deleteSubCollections(taskRef, batch, ["items", "checklists"]);
@@ -166,7 +200,8 @@ export class BatchService {
       if (!taskDoc.exists()) {
         throw new Error(`Task with ID ${taskId} not found.`);
       }
-
+      
+      await this.deleteTaskFilesInStorage(taskDoc);
       await this.deleteSubCollections(taskRef, batch, ["items", "checklists"]);
       batch.delete(taskRef);
     }
