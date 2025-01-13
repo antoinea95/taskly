@@ -11,14 +11,18 @@ export const Root = () => {
   const [openSideBar, setOpenSideBar] = useState(false);
   const sideBarRef = useRef<HTMLElement | null>(null);
 
-
   // Add a eventListener on document when sideBar is Open, if click is outside close the sideBar
   useEffect(() => {
     if (openSideBar) {
       const handleCloseSideBarWhenClickOutSide = (e: MouseEvent) => {
         const sidebar = sideBarRef.current;
         if (sidebar && !sidebar.contains(e.target as Node)) {
-          setOpenSideBar(false);
+          // Get the end of the sidebar and check if the click is outside of it
+          const sidebarRight = sidebar.getBoundingClientRect().right;
+          const clickPosition = e.clientX;
+          if (clickPosition > sidebarRight) {
+            setOpenSideBar(false);
+          }
         }
       };
       document.addEventListener("click", handleCloseSideBarWhenClickOutSide);
