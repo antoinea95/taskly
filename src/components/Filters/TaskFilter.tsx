@@ -27,7 +27,7 @@ export const TaskFilter = ({tasks, uniqueTagsFromTasks, children }: TaskFilterPr
   const filteredTasks = useMemo(() => {
     if (!tasks) return [];
     return tasks.filter((task) => {
-      const matchesSearchValue = searchValue ? task.title.toLowerCase().includes(searchValue.toLowerCase()) : true;
+      const matchesSearchValue = searchValue ? task.title.trim().toLowerCase().includes(searchValue.trim().toLowerCase()) : true;
       const matchSelectedLabels = selectedTags.length
         ? selectedTags.some((selectedTag) => task.labels?.some((tag) => tag.title === selectedTag.title))
         : true;
