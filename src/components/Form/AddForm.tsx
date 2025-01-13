@@ -57,7 +57,7 @@ export const AddForm = <T extends FieldValues>({
             item={{
               name: "title",
               type: "text",
-              placeholder: `${name === "Label" ? "Or add a new one" : `Add your ${name}`} `,
+              placeholder: `Add a new ${name}`,
             }}
           />
           <FormActionsButton
