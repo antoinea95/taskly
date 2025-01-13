@@ -1,5 +1,5 @@
 import { ListCard } from "@/components/List/ListCard";
-import { useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ListType } from "@/utils/types/lists.types";
 import { useAddDoc } from "@/utils/hooks/FirestoreHooks/mutations/useAddDoc";
 import { AddForm } from "../Form/AddForm";
@@ -11,7 +11,7 @@ import { useUpdateDoc } from "@/utils/hooks/FirestoreHooks/mutations/useUpdateDo
 import { BoardType } from "@/utils/types/boards.types";
 import { useDragMouse } from "@/utils/helpers/hooks/useDragMouse";
 import { TaskFilter } from "../Filters/TaskFilter";
-import { BoardContext } from "@/utils/helpers/context/BoardContext";
+import { useBoardContext } from "@/utils/helpers/hooks/useBoardContext";
 
 /**
  * ListsSection component
@@ -25,12 +25,7 @@ import { BoardContext } from "@/utils/helpers/context/BoardContext";
  */
 export const ListsSection = ({ board }: { board: BoardType }) => {
   // Fetch the lists associated with the board
-  const boardContext = useContext(BoardContext);
-
-  if(!boardContext) {
-    throw new Error("Components ListsSection must be within a BoardContext Provider")
-  }
-  const {listsInBoard, tasksInBoard, uniqueTagsFromTasks, listIds} = boardContext;
+  const { listsInBoard, tasksInBoard, uniqueTagsFromTasks, listIds } = useBoardContext();
   // const { data: lists, isFetched } = useGetLists(board.id);
   const { sliderRef, handleMouseDown, handleMouseLeaveOrUp, handleMouseMove } = useDragMouse();
 
@@ -74,33 +69,32 @@ export const ListsSection = ({ board }: { board: BoardType }) => {
   }
 
   return (
-    <DragAndDropContainer lists={listsInBoard} board={board}>
-      <section
-        className="overflow-x-auto flex flex-col w-full no-scrollbar mt-10"
-        ref={sliderRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeaveOrUp}
-        onMouseUp={handleMouseLeaveOrUp}
-      >
-        <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
-          <TaskFilter tasks={tasksInBoard} uniqueTagsFromTasks={uniqueTagsFromTasks}>
-            {(filteredTasks) => (
-              <section className="flex items-start flex-nowrap pt-10 gap-5">
-                {filteredLists
-                    ?.map((list) => (
-                      <DraggableContainer id={list.id} type="list" key={list.id}>
-                        <ListCard list={list} boardId={board.id} tasks={filteredTasks.filter((task) => list.tasks.includes(task.id))} />
-                      </DraggableContainer>
-                    ))}
-                <div className="min-w-72">
-                  <AddForm name="List" onSubmit={handleCreateList} mutationQuery={createList} isOpen={isAddList} setIsOpen={setIsAddList} />
-                </div>
-              </section>
-            )}
-          </TaskFilter>
-        </SortableContext>
-      </section>
-    </DragAndDropContainer>
+      <DragAndDropContainer lists={listsInBoard} board={board}>
+        <section
+          className="overflow-x-auto flex flex-col w-full no-scrollbar mt-10"
+          ref={sliderRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeaveOrUp}
+          onMouseUp={handleMouseLeaveOrUp}
+        >
+          <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
+            <TaskFilter tasks={tasksInBoard} uniqueTagsFromTasks={uniqueTagsFromTasks}>
+              {(filteredTasks) => (
+                <section className="flex items-start flex-nowrap pt-10 gap-5">
+                  {filteredLists?.map((list) => (
+                    <DraggableContainer id={list.id} type="list" key={list.id} >
+                      <ListCard list={list} boardId={board.id} tasks={filteredTasks.filter((task) => list.tasks.includes(task.id))} />
+                    </DraggableContainer>
+                  ))}
+                  <div className="min-w-72">
+                    <AddForm name="List" onSubmit={handleCreateList} mutationQuery={createList} isOpen={isAddList} setIsOpen={setIsAddList} />
+                  </div>
+                </section>
+              )}
+            </TaskFilter>
+          </SortableContext>
+        </section>
+      </DragAndDropContainer>
   );
 };
