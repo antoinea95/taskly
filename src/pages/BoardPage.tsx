@@ -80,6 +80,7 @@ export const BoardPage = () => {
                   queryKey={["boards", board.creator]}
                   mutationQuery={updateBoard}
                   members={board.members}
+                  board={board}
                 />
               )}
               {/* Show the delete button only if the current user is the creator */}

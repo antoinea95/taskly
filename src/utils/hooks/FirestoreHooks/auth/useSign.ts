@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { authenticateUser } from "./authenticateUser";
 import { AuthService } from "@/utils/firebase/auth/authService";
+import { User } from "firebase/auth";
 
 /**
  * Custom hook to handle user sign-in and sign-up.
@@ -37,4 +38,27 @@ export const useSignWithGoogle = () => {
     },
   })
 }
+
+
+export const useSignWithLink = () => {
+  return useMutation<
+    User,
+    Error,
+    { email: string},
+    unknown
+  >({
+    mutationFn: ({ email }) => AuthService.signInWithLink(email),
+  });
+};
+
+export const useSendInvitationLink = () => {
+  return useMutation<
+    void,
+    Error,
+    { email: string; boardId: string },
+    unknown
+  >({
+    mutationFn: ({ email, boardId }) => AuthService.sendEmailInvitation(email, boardId),
+  });
+};
   

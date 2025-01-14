@@ -9,6 +9,8 @@ import { FormActionsButton } from "../Form/actions/FormActionsButton";
 import { FormFieldItemType } from "../../utils/types/form.types";
 import { NotificationBanner } from "../Notification/NotificationBanner";
 import { Lock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { SubmitButton } from "../Button/SubmitButton";
 
 /**
  * UpdatePassword component
@@ -19,11 +21,12 @@ import { Lock } from "lucide-react";
  *
  * @returns The rendered password update form or button.
  */
-export const UpdatePassword = () => {
+export const UpdatePassword = ({ isNewUser }: { isNewUser?: boolean }) => {
+  const navigate = useNavigate();
   // Zod schema for validating password fields
   const passwordSchema = z
     .object({
-      actualPassword: z.string().min(8), // Minimum length of 8 for the current password
+      actualPassword: isNewUser ? z.string().optional() : z.string().min(8), // Minimum length of 8 for the current password
       newPassword: z.string().min(8), // Minimum length of 8 for the new password
       confirmPassword: z.string().min(8), // Minimum length of 8 for password confirmation
     })
@@ -42,17 +45,19 @@ export const UpdatePassword = () => {
     );
 
   // State to toggle between showing the form or not
-  const [isUpdatePassword, setIsUpdatePassword] = useState(false);
+  const [isUpdatePassword, setIsUpdatePassword] = useState(isNewUser ? true : false);
 
-    // Custom hook to handle password update logic
-    const updatePassword = useUpdatePassword<z.infer<typeof passwordSchema>>(
-      () => {
-        setIsUpdatePassword(false); // Hide form after successful update
-      }
-    );
+  // Custom hook to handle password update logic
+  const updatePassword = useUpdatePassword<z.infer<typeof passwordSchema>>(() => {
+    if (isNewUser) {
+      navigate("/");
+    } else {
+      setIsUpdatePassword(false);
+    } // Hide form after successful update
+  });
 
   // Form content definition
-  const formContent: FormFieldItemType[] = [
+  const formContentDefault: FormFieldItemType[] = [
     {
       name: "actualPassword",
       type: "password",
@@ -72,7 +77,8 @@ export const UpdatePassword = () => {
       label: "Confirm password",
     },
   ];
-  
+
+  const formContent = isNewUser ? formContentDefault.filter((form) => form.name !== "actualPassword") : formContentDefault;
 
   /**
    * Handles the password update process by submitting the form data.
@@ -90,43 +96,39 @@ export const UpdatePassword = () => {
   return (
     <div className="flex flex-col items-center">
       {isUpdatePassword ? (
-        <FormContainer
-          schema={passwordSchema}
-          onSubmit={handleUpdatePassword}
-          mutationQuery={updatePassword}
-        >
+        <FormContainer schema={passwordSchema} onSubmit={handleUpdatePassword} mutationQuery={updatePassword}>
           {({ form }) => (
             <>
               {/* Render the form fields */}
               {formContent.map((item) => {
                 if (item.hidden) return;
-                return (
-                  <FormFieldInputItem key={item.name} form={form} item={item} />
-                );
+                return <FormFieldInputItem key={item.name} form={form} item={item} />;
               })}
-              <FormActionsButton
-                isPending={updatePassword.isPending}
-                setIsOpen={setIsUpdatePassword}
-                disabled={updatePassword.isPending}
-              >
-                <span className="flex items-center gap-2">
-                  <Lock size={16} />
-                  Update password
-                </span>
-              </FormActionsButton>
-              {/* Display status message */}
+
+              {isNewUser ? (
+                <SubmitButton isPending={updatePassword.isPending} disabled={updatePassword.isPending}>
+                  <span className="flex items-center gap-2">
+                    <Lock size={16} />
+                    Create a password
+                  </span>
+                </SubmitButton>
+              ) : (
+                <FormActionsButton isPending={updatePassword.isPending} setIsOpen={setIsUpdatePassword} disabled={updatePassword.isPending}>
+                  <span className="flex items-center gap-2">
+                    <Lock size={16} />
+                    Update password
+                  </span>
+                </FormActionsButton>
+              )}
             </>
           )}
         </FormContainer>
       ) : (
         <div className="space-y-3 w-full">
-        <ToggleButton setIsOpen={setIsUpdatePassword}>
-          <Lock size={16} /> Update Password
-        </ToggleButton>
-          <NotificationBanner
-            isSuccess={updatePassword.isSuccess}
-            content={updatePassword.isSuccess ? "Password updated" : ""}
-          />
+          <ToggleButton setIsOpen={setIsUpdatePassword}>
+            <Lock size={16} /> Update Password
+          </ToggleButton>
+          <NotificationBanner isSuccess={updatePassword.isSuccess} content={updatePassword.isSuccess ? "Password updated" : ""} />
         </div>
       )}
     </div>
