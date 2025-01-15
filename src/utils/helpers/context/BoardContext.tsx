@@ -1,3 +1,4 @@
+import { Loader } from "@/components/ui/loader";
 import { useGetLists } from "@/utils/hooks/FirestoreHooks/queries/useGetLists";
 import { useGetTasks } from "@/utils/hooks/FirestoreHooks/queries/useGetTasks";
 import { ListType } from "@/utils/types/lists.types";
@@ -13,11 +14,8 @@ export const BoardContext = createContext<{
 } | null>(null);
 
 export const BoardContextProvider = ({ boardId, children }: PropsWithChildren<{ boardId: string }>) => {
-
-
   // fetch lists
   const listsInBoard = useGetLists(boardId);
-
 
   // Get lists
   const taskIds = useMemo(() => {
@@ -59,12 +57,19 @@ export const BoardContextProvider = ({ boardId, children }: PropsWithChildren<{ 
   const isError = listsInBoard.isError || tasksInBoard.isError;
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="w-[95vw] h-screen flex items-center justify-center">
+        <Loader data={{ color: "#d1d5db", size: "5rem" }} />
+      </div>
+    );
   }
 
   if (isError) {
-    console.log(tasksInBoard.error);
-    return <p>An error occurred. Please try again later.</p>;
+    return (
+      <div className="w-[95vw] h-screen flex items-center justify-center">
+        <p className="dark:text-gray-300 text-xl">An error occurred. Please try again later.</p>
+      </div>
+    );
   }
 
   const value = {

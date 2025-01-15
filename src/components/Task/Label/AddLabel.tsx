@@ -101,8 +101,8 @@ export const AddLabel = ({ labels, mutationQuery }: { labels?: TaskTagType[]; mu
 
   return (
     <>
-      {isAddLabel && (
-        <div className="bg-gray-100 rounded-xl p-3 space-y-3">
+      {isAddLabel && filteredUniqueTagsFromTasks.length > 0 && (
+        <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-3 space-y-3">
           <h4 className="text-sm">Select a label: </h4>
           <div className=" flex items-center gap-2 flex-wrap">
             {filteredUniqueTagsFromTasks.map((tag) => (
@@ -116,12 +116,12 @@ export const AddLabel = ({ labels, mutationQuery }: { labels?: TaskTagType[]; mu
         {labelAlreadyExist && <small className="text-red-500">{labelAlreadyExist}</small>}
         {isAddLabel && (
           <Select onValueChange={handleChangeColor} defaultValue="#e5e7eb">
-            <SelectTrigger className="w-20 absolute right-0 top-0">
+            <SelectTrigger className="w-20 absolute right-0 top-0 dark:bg-gray-700">
               <SelectValue />
             </SelectTrigger>
             <SelectContent
               position="popper"
-              className="w-fit px-6 py-2 bg-gray-100 rounded-br-xl rounded-bl-xl -translate-y-2 flex flex-col items-center z-50"
+              className="w-fit px-6 py-2 bg-gray-100 dark:bg-gray-700 rounded-br-xl rounded-bl-xl -translate-y-2 flex flex-col items-center z-50"
             >
               {colorOptions.map((color) => (
                 <SelectItem key={color.name} value={color.color}>
