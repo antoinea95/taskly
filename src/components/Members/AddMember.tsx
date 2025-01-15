@@ -67,7 +67,7 @@ export const AddMember = <T,>({ queryKey, mutationQuery, board }: AddMemberProps
 
   const handleSendInvitationByEmail = async () => {
     if (!isEmailValid.success || !email || !board) return;
-    await sendEmailInvitation.mutateAsync({ email: email, boardId: board.id });
+    await sendEmailInvitation.mutateAsync({ email: email, boardId: board.id});
   };
 
   const isPending = mutationQuery.isPending || sendEmailInvitation.isPending;

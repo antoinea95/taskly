@@ -4,7 +4,6 @@ import {
   EmailAuthProvider,
   GoogleAuthProvider,
   reauthenticateWithCredential,
-  sendSignInLinkToEmail,
   signInWithEmailAndPassword,
   signInWithEmailLink,
   signInWithPopup,
@@ -53,20 +52,57 @@ export class AuthService {
     }
   }
 
+  /**
+   * Request to send an email via Make WebHook
+   * @param email - email for send the inviation
+   * @returns 
+   */
+  private static async sendEmail (email:string) {
+    if (!email) {
+      console.error("Invalid email or email validation failed");
+      return;
+    }
+    const payload = {
+      to: [email],
+      boardLink: `https://taskly-kappa.vercel.app/complete-signup?email=${encodeURIComponent(email)}`,
+    };
+  
+    try {
+      const response = await fetch(
+        "https://hook.eu2.make.com/j4uqrwjh0i54l71w1aqmevtnhkwth2yr",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error:", errorText);
+        return;
+      }
+  
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
+  };
+
+
+  /**
+   * Send the email invitation and add a document in invitations collection to save boardId and user email
+   * @param email - Email for send the invitation
+   * @param boardId - BoardId where you want to invite user
+   */
   public static async sendEmailInvitation(email: string, boardId: string): Promise<void> {
     try {
+      await this.sendEmail(email);
       await setDoc(doc(this.firebaseFirestore, "invitations", email), {
         email,
         boardId,
         invitedAt: serverTimestamp(),
         status: "pending",
       });
-
-      const actionCodeSettings = {
-        url: `http://localhost:5173/complete-signup?email=${email}&mode=signIn`,
-        handleCodeInApp: true,
-      };
-      await sendSignInLinkToEmail(this.firebaseAuth, email, actionCodeSettings);
     } catch (error: any) {
       throw new Error(`Error while sending invitation: ${error}`);
     }

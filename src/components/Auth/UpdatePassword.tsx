@@ -9,8 +9,6 @@ import { FormActionsButton } from "../Form/actions/FormActionsButton";
 import { FormFieldItemType } from "../../utils/types/form.types";
 import { NotificationBanner } from "../Notification/NotificationBanner";
 import { Lock } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { SubmitButton } from "../Button/SubmitButton";
 
 /**
  * UpdatePassword component
@@ -21,12 +19,11 @@ import { SubmitButton } from "../Button/SubmitButton";
  *
  * @returns The rendered password update form or button.
  */
-export const UpdatePassword = ({ isNewUser }: { isNewUser?: boolean }) => {
-  const navigate = useNavigate();
+export const UpdatePassword = () => {
   // Zod schema for validating password fields
   const passwordSchema = z
     .object({
-      actualPassword: isNewUser ? z.string().optional() : z.string().min(8), // Minimum length of 8 for the current password
+      actualPassword: z.string().min(8), // Minimum length of 8 for the current password
       newPassword: z.string().min(8), // Minimum length of 8 for the new password
       confirmPassword: z.string().min(8), // Minimum length of 8 for password confirmation
     })
@@ -45,19 +42,15 @@ export const UpdatePassword = ({ isNewUser }: { isNewUser?: boolean }) => {
     );
 
   // State to toggle between showing the form or not
-  const [isUpdatePassword, setIsUpdatePassword] = useState(isNewUser ? true : false);
+  const [isUpdatePassword, setIsUpdatePassword] = useState(false);
 
   // Custom hook to handle password update logic
   const updatePassword = useUpdatePassword<z.infer<typeof passwordSchema>>(() => {
-    if (isNewUser) {
-      navigate("/");
-    } else {
-      setIsUpdatePassword(false);
-    } // Hide form after successful update
+    setIsUpdatePassword(false);
   });
 
   // Form content definition
-  const formContentDefault: FormFieldItemType[] = [
+  const formContent: FormFieldItemType[] = [
     {
       name: "actualPassword",
       type: "password",
@@ -77,8 +70,6 @@ export const UpdatePassword = ({ isNewUser }: { isNewUser?: boolean }) => {
       label: "Confirm password",
     },
   ];
-
-  const formContent = isNewUser ? formContentDefault.filter((form) => form.name !== "actualPassword") : formContentDefault;
 
   /**
    * Handles the password update process by submitting the form data.
@@ -104,22 +95,12 @@ export const UpdatePassword = ({ isNewUser }: { isNewUser?: boolean }) => {
                 if (item.hidden) return;
                 return <FormFieldInputItem key={item.name} form={form} item={item} />;
               })}
-
-              {isNewUser ? (
-                <SubmitButton isPending={updatePassword.isPending} disabled={updatePassword.isPending}>
-                  <span className="flex items-center gap-2">
-                    <Lock size={16} />
-                    Create a password
-                  </span>
-                </SubmitButton>
-              ) : (
-                <FormActionsButton isPending={updatePassword.isPending} setIsOpen={setIsUpdatePassword} disabled={updatePassword.isPending}>
-                  <span className="flex items-center gap-2">
-                    <Lock size={16} />
-                    Update password
-                  </span>
-                </FormActionsButton>
-              )}
+              <FormActionsButton isPending={updatePassword.isPending} setIsOpen={setIsUpdatePassword} disabled={updatePassword.isPending}>
+                <span className="flex items-center gap-2">
+                  <Lock size={16} />
+                  Update password
+                </span>
+              </FormActionsButton>
             </>
           )}
         </FormContainer>
