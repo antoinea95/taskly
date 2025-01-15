@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { Button } from "../ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { FieldValues } from "react-hook-form";
 import { useResetPassword } from "@/utils/hooks/FirestoreHooks/auth/updateUser";
@@ -13,18 +13,24 @@ import { FormFieldInputItem } from "../Form/fields/FormFieldInputItem";
 import { FormActionsButton } from "../Form/actions/FormActionsButton";
 import { LogIn, UserPlus } from "lucide-react";
 import { NotificationBanner } from "../Notification/NotificationBanner";
+import { User } from "firebase/auth";
 
 /**
  * AuthForm component
  *
  * This component renders a form for user authentication, allowing login, registration,
  * and password reset. It also provides an option to sign in with Google.
+ * @param {boolean} props.isUserInvitation - indicate if the user come from an email invitation
+ * @param {(user: User) => Promise<void>} props.addUserToBoard - After created an account user is added to the board save in the invitation document from firestore
  *
  * @returns The authentication form with input fields, Google sign-in option, and reset password functionality.
  */
-export const AuthForm = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const sign = useSign();
+export const AuthForm = ({ isUserInvitation, addUserToBoard }: { isUserInvitation?: boolean; addUserToBoard?: (user: User) => Promise<void> }) => {
+  const [isLogin, setIsLogin] = useState(isUserInvitation ? false : true);
+  const sign = useSign(isUserInvitation);
+  const [searchParams] = useSearchParams();
+  const invitedEmail = searchParams.get("email"); // Email invité depuis l'URL
+
   const navigate = useNavigate();
 
   /**
@@ -33,16 +39,10 @@ export const AuthForm = () => {
    */
   const UserSchema = z
     .object({
-      name: isLogin
-        ? z.string().optional()
-        : z.string().min(1, "Your name is required"),
-      email: z.string().email("Please provide a valid email"),
-      password: z
-        .string()
-        .min(8, "Your password must contain at least 8 characters"),
-      confirmPassword: isLogin
-        ? z.string().min(8).optional()
-        : z.string().min(8),
+      name: isLogin ? z.string().optional() : z.string().min(1, "Your name is required"),
+      email: invitedEmail ? z.string().email().default(invitedEmail) : z.string().email("Please provide a valid email"),
+      password: z.string().min(8, "Your password must contain at least 8 characters"),
+      confirmPassword: isLogin ? z.string().min(8).optional() : z.string().min(8),
     })
     .refine(
       (data) => {
@@ -67,6 +67,7 @@ export const AuthForm = () => {
       type: "email",
       placeholder: "johndoe@email.com",
       label: "Email",
+      value: invitedEmail ? invitedEmail : undefined,
     },
     { name: "password", type: "password", placeholder: "", label: "Password" },
     {
@@ -94,13 +95,22 @@ export const AuthForm = () => {
 
     if (email && password) {
       if (isLogin) {
-        sign.mutate({ email, password });
+        await sign.mutateAsync({ email, password });
       } else {
-        sign.mutate({
-          email,
-          password,
-          name: name ?? "",
-        });
+        await sign.mutateAsync(
+          {
+            email,
+            password,
+            name: name ?? "",
+          },
+          {
+            onSuccess: async (data) => {
+              if (isUserInvitation && addUserToBoard) {
+                await addUserToBoard(data);
+              }
+            },
+          }
+        );
       }
     } else {
       console.error("Email and password are required");
@@ -139,45 +149,30 @@ export const AuthForm = () => {
     <div className="flex flex-col justify-center w-full max-w-lg xl:max-w-2xl mb-20">
       <section className="mb-6">
         <h1 className="md:text-4xl text-xl font-bold">
-          {!isLogin ? "Create an account" : "Access your boards"}
+          {isUserInvitation ? "You have been invited to join Taskly." : !isLogin ? "Create an account" : "Access your boards"}
         </h1>
-        <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-center">
-            {isLogin
-              ? "Don't have an account yet?"
-              : "Already have an account?"}
-          </p>
-          <Button
-            onClick={() => setIsLogin((prev) => !prev)}
-            className="underline w-fit h-fit p-0"
-            variant="link"
-          >
-            {isLogin ? "Create one" : "Log in"}
-          </Button>
-        </div>
+        {!isUserInvitation && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-center">{isLogin ? "Don't have an account yet?" : "Already have an account?"}</p>
+            <Button onClick={() => setIsLogin((prev) => !prev)} className="underline w-fit h-fit p-0" variant="link">
+              {isLogin ? "Create one" : "Log in"}
+            </Button>
+          </div>
+        )}
       </section>
       <section className="space-y-3 flex flex-col items-end w-full">
-        <FormContainer
-          schema={UserSchema}
-          onSubmit={handleAuth}
-          mutationQuery={sign}
-        >
+        <FormContainer schema={UserSchema} onSubmit={handleAuth} mutationQuery={sign}>
           {({ form }) => (
             <>
               {formContent.map((item) => {
                 if (item.hidden) return;
                 return (
                   <div className="flex flex-col" key={item.name}>
-                    <FormFieldInputItem
-                      item={item}
-                      form={form}
-                    />
+                    <FormFieldInputItem item={item} form={form} />
                     {item.name === "password" && isLogin && (
                       <Button
                         type="button"
-                        onClick={() =>
-                          handleResetPassword(form.getValues().email as string)
-                        }
+                        onClick={() => handleResetPassword(form.getValues().email as string)}
                         className="justify-self-end self-end text-xs dark:text-gray-300"
                         variant="link"
                       >
@@ -193,28 +188,22 @@ export const AuthForm = () => {
                   {isLogin ? "Log in" : "Create an account"}
                 </span>
               </FormActionsButton>
-              <NotificationBanner
-                isError={resetPassword.isError}
-                content={resetPassword.error ? resetPassword.error.message : ""}
-              />
+              <NotificationBanner isError={resetPassword.isError} content={resetPassword.error ? resetPassword.error.message : ""} />
             </>
           )}
         </FormContainer>
       </section>
-      <section className="mt-3 flex flex-col items-center gap-3 w-full">
-        <p className="uppercase flex items-center justify-between text-gray-300 w-full px-3 text-xs md:text-base whitespace-nowrap dark:text-gray-700">
-          <span className="border border-gray-100 inline-block w-1/3 dark:border-gray-700"></span> Or
-          register with
-          <span className="border border-gray-100 inline-block w-1/3 dark:border-gray-700"></span>
-        </p>
-        <Button
-          onClick={signinWithGoogle}
-          className="uppercase w-full flex items-center rounded-xl dark:bg-gray-300 dark:text-gray-700"
-        >
-          <FcGoogle color="white" style={{ marginRight: "6px" }} /> Google
-        </Button>
-        <p>{isLogin}</p>
-      </section>
+      {!isUserInvitation && (
+        <section className="mt-3 flex flex-col items-center gap-3 w-full">
+          <p className="uppercase flex items-center justify-between text-gray-300 w-full px-3 text-xs md:text-base whitespace-nowrap dark:text-gray-700">
+            <span className="border border-gray-100 inline-block w-1/3 dark:border-gray-700"></span> Or register with
+            <span className="border border-gray-100 inline-block w-1/3 dark:border-gray-700"></span>
+          </p>
+          <Button onClick={signinWithGoogle} className="uppercase w-full flex items-center rounded-xl dark:bg-gray-300 dark:text-gray-700">
+            <FcGoogle color="white" style={{ marginRight: "6px" }} /> Google
+          </Button>
+        </section>
+      )}
     </div>
   );
 };

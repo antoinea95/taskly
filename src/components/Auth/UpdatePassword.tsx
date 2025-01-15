@@ -44,12 +44,10 @@ export const UpdatePassword = () => {
   // State to toggle between showing the form or not
   const [isUpdatePassword, setIsUpdatePassword] = useState(false);
 
-    // Custom hook to handle password update logic
-    const updatePassword = useUpdatePassword<z.infer<typeof passwordSchema>>(
-      () => {
-        setIsUpdatePassword(false); // Hide form after successful update
-      }
-    );
+  // Custom hook to handle password update logic
+  const updatePassword = useUpdatePassword<z.infer<typeof passwordSchema>>(() => {
+    setIsUpdatePassword(false);
+  });
 
   // Form content definition
   const formContent: FormFieldItemType[] = [
@@ -72,7 +70,6 @@ export const UpdatePassword = () => {
       label: "Confirm password",
     },
   ];
-  
 
   /**
    * Handles the password update process by submitting the form data.
@@ -90,43 +87,29 @@ export const UpdatePassword = () => {
   return (
     <div className="flex flex-col items-center">
       {isUpdatePassword ? (
-        <FormContainer
-          schema={passwordSchema}
-          onSubmit={handleUpdatePassword}
-          mutationQuery={updatePassword}
-        >
+        <FormContainer schema={passwordSchema} onSubmit={handleUpdatePassword} mutationQuery={updatePassword}>
           {({ form }) => (
             <>
               {/* Render the form fields */}
               {formContent.map((item) => {
                 if (item.hidden) return;
-                return (
-                  <FormFieldInputItem key={item.name} form={form} item={item} />
-                );
+                return <FormFieldInputItem key={item.name} form={form} item={item} />;
               })}
-              <FormActionsButton
-                isPending={updatePassword.isPending}
-                setIsOpen={setIsUpdatePassword}
-                disabled={updatePassword.isPending}
-              >
+              <FormActionsButton isPending={updatePassword.isPending} setIsOpen={setIsUpdatePassword} disabled={updatePassword.isPending}>
                 <span className="flex items-center gap-2">
                   <Lock size={16} />
                   Update password
                 </span>
               </FormActionsButton>
-              {/* Display status message */}
             </>
           )}
         </FormContainer>
       ) : (
         <div className="space-y-3 w-full">
-        <ToggleButton setIsOpen={setIsUpdatePassword}>
-          <Lock size={16} /> Update Password
-        </ToggleButton>
-          <NotificationBanner
-            isSuccess={updatePassword.isSuccess}
-            content={updatePassword.isSuccess ? "Password updated" : ""}
-          />
+          <ToggleButton setIsOpen={setIsUpdatePassword}>
+            <Lock size={16} /> Update Password
+          </ToggleButton>
+          <NotificationBanner isSuccess={updatePassword.isSuccess} content={updatePassword.isSuccess ? "Password updated" : ""} />
         </div>
       )}
     </div>

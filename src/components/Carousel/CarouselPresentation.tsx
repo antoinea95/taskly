@@ -37,7 +37,6 @@ export const CarouselPresentation = () => {
     })
   );
 
-  console.log(current)
 
   return (
     <>

@@ -42,12 +42,12 @@ const InputItem = <T extends FieldValues>(
   ref: ForwardedRef<HTMLInputElement>
 ) => {
 
+
   return (
     <FormField
       control={props.form.control}
       name={props.item.name as Path<T>}
       render={({ field }) => {
-
         return (
           <FormItem className="space-y-0 flex-1">
             <FormLabel htmlFor={props.item.name} className="dark:text-gray-300">{props.item.label}</FormLabel>
@@ -65,7 +65,7 @@ const InputItem = <T extends FieldValues>(
                 <Input
                   placeholder={props.item.placeholder}
                   onChange={field.onChange}
-                  defaultValue={field.value}
+                  defaultValue={props.item.value ? props.item.value : field.value}
                   type={props.item.type}
                   className="rounded-xl border-none shadow-none h-10 bg-gray-100 dark:bg-gray-700 dark:text-gray-300"
                   ref={ref}

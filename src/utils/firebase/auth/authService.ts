@@ -5,6 +5,7 @@ import {
   GoogleAuthProvider,
   reauthenticateWithCredential,
   signInWithEmailAndPassword,
+  signInWithEmailLink,
   signInWithPopup,
   signOut,
   updateEmail,
@@ -12,13 +13,9 @@ import {
   updateProfile,
   User,
 } from "firebase/auth";
-import {
-  firebaseAuth,
-  firebaseFirestore,
-  firebaseStorage,
-} from "../firebaseApp";
+import { firebaseAuth, firebaseFirestore, firebaseStorage } from "../firebaseApp";
 import { getFriendlyErrorMessage } from "@/utils/helpers/functions/formatErrors";
-import { doc, Firestore, setDoc } from "firebase/firestore";
+import { doc, Firestore, serverTimestamp, setDoc } from "firebase/firestore";
 import { FirestoreService } from "../firestore/firestoreService";
 import { deleteObject, ref } from "firebase/storage";
 import { UserType } from "@/utils/types/auth.types";
@@ -37,9 +34,7 @@ export class AuthService {
    */
   private static async addUserToFirestore(user: User): Promise<void> {
     const docRef = doc(this.firebaseFirestore, "users", user.uid);
-    const displayName =
-      user.displayName ||
-      (user.email ? user.email.split("@")[0] : "Unknown user");
+    const displayName = user.displayName || (user.email ? user.email.split("@")[0] : "Unknown user");
 
     try {
       await setDoc(
@@ -58,6 +53,62 @@ export class AuthService {
   }
 
   /**
+   * Request to send an email via Make WebHook
+   * @param email - email for send the inviation
+   * @returns 
+   */
+  private static async sendEmail (email:string) {
+    if (!email) {
+      console.error("Invalid email or email validation failed");
+      return;
+    }
+    const payload = {
+      to: [email],
+      boardLink: `https://taskly-kappa.vercel.app/complete-signup?email=${encodeURIComponent(email)}`,
+    };
+  
+    try {
+      const response = await fetch(
+        "https://hook.eu2.make.com/j4uqrwjh0i54l71w1aqmevtnhkwth2yr",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error:", errorText);
+        return;
+      }
+  
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
+  };
+
+
+  /**
+   * Send the email invitation and add a document in invitations collection to save boardId and user email
+   * @param email - Email for send the invitation
+   * @param boardId - BoardId where you want to invite user
+   */
+  public static async sendEmailInvitation(email: string, boardId: string): Promise<void> {
+    try {
+      await this.sendEmail(email);
+      await setDoc(doc(this.firebaseFirestore, "invitations", email), {
+        email,
+        boardId,
+        invitedAt: serverTimestamp(),
+        status: "pending",
+      });
+    } catch (error: any) {
+      throw new Error(`Error while sending invitation: ${error}`);
+    }
+  }
+
+  /**
    * Signs up a new user with email and password.
    * @param email - The email of the new user.
    * @param password- The password for the new user.
@@ -65,17 +116,9 @@ export class AuthService {
    * @returns The Firebase User object.
    * @throws Throws an error if sign-up fails.
    */
-  public static async signUp(
-    email: string,
-    password: string,
-    name: string
-  ): Promise<User> {
+  public static async signUp(email: string, password: string, name: string): Promise<User> {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        this.firebaseAuth,
-        email,
-        password
-      );
+      const userCredential = await createUserWithEmailAndPassword(this.firebaseAuth, email, password);
       const user = userCredential.user;
 
       await updateProfile(user, { displayName: name });
@@ -97,17 +140,32 @@ export class AuthService {
    */
   public static async signIn(email: string, password: string): Promise<User> {
     try {
-      const useCredential = await signInWithEmailAndPassword(
-        this.firebaseAuth,
-        email,
-        password
-      );
+      const useCredential = await signInWithEmailAndPassword(this.firebaseAuth, email, password);
       return useCredential.user;
     } catch (error: any) {
       const friendlyError = getFriendlyErrorMessage(error.code);
       throw new Error(friendlyError);
     }
   }
+
+    /**
+   * Signs in a user with invitation link.
+   * @param email - The email of the user.
+   * @returns The Firebase User object.
+   * @throws Throws an error if sign-in fails.
+   */
+    public static async signInWithLink(email: string): Promise<User> {
+      console.log(email)
+      try {
+        const useCredential = await signInWithEmailLink(this.firebaseAuth, email, window.location.href);
+        await this.addUserToFirestore(useCredential.user);
+        return useCredential.user;
+      } catch (error: any) {
+        console.log(error)
+        const friendlyError = getFriendlyErrorMessage(error.code);
+        throw new Error(friendlyError);
+      }
+    }
 
   /**
    * Signs in a user using Google authentication.
@@ -116,10 +174,7 @@ export class AuthService {
    */
   public static async signInWithGoogle(): Promise<User> {
     try {
-      const userCredential = await signInWithPopup(
-        this.firebaseAuth,
-        googleProvider
-      );
+      const userCredential = await signInWithPopup(this.firebaseAuth, googleProvider);
 
       const user = userCredential.user;
 
@@ -142,10 +197,7 @@ export class AuthService {
 
     if (user && user.email) {
       try {
-        const credential = EmailAuthProvider.credential(
-          user.email,
-          data.password
-        );
+        const credential = EmailAuthProvider.credential(user.email, data.password);
         await reauthenticateWithCredential(user, credential);
       } catch (error) {
         console.error(error);
@@ -192,10 +244,7 @@ export class AuthService {
    * @throws an error message if any operation fails during updating.
 
    */
-  public static async updateUserPassword(data: {
-    actualPassword: string;
-    newPassword: string;
-  }): Promise<void> {
+  public static async updateUserPassword(data: { actualPassword?: string; newPassword: string }): Promise<void> {
     const user = firebaseAuth.currentUser;
 
     // Check if the user is authenticated
@@ -205,9 +254,10 @@ export class AuthService {
     }
 
     try {
-      // First we reauthenticate the user
-      await this.reauthenticateUser({ password: data.actualPassword });
-      // Then we update his password
+
+      if(data.actualPassword) {
+        await this.reauthenticateUser({ password: data.actualPassword });
+      }
       await updatePassword(user, data.newPassword);
     } catch (error) {
       console.error("Error updating user password", error);
@@ -260,16 +310,9 @@ export class AuthService {
       return;
     }
 
-    const userFromFirestore = await FirestoreService.fetchDoc<UserType>(
-      "users",
-      user.uid
-    );
-   
-    
-    const profilPictureRef = ref(
-      firebaseStorage,
-      `${user.uid}/profile/${user.uid}`
-    );
+    const userFromFirestore = await FirestoreService.fetchDoc<UserType>("users", user.uid);
+
+    const profilPictureRef = ref(firebaseStorage, `${user.uid}/profile/${user.uid}`);
 
     try {
       await FirestoreService.removeMemberAndDeleteDocument("tasks", user.uid);
