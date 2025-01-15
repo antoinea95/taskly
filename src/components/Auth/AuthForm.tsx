@@ -25,7 +25,7 @@ import { User } from "firebase/auth";
  *
  * @returns The authentication form with input fields, Google sign-in option, and reset password functionality.
  */
-export const AuthForm = ({ isUserInvitation, addUserToBoard }: { isUserInvitation?: boolean; addUserToBoard: (user: User) => Promise<void> }) => {
+export const AuthForm = ({ isUserInvitation, addUserToBoard }: { isUserInvitation?: boolean; addUserToBoard?: (user: User) => Promise<void> }) => {
   const [isLogin, setIsLogin] = useState(isUserInvitation ? false : true);
   const sign = useSign(isUserInvitation);
   const [searchParams] = useSearchParams();
@@ -105,7 +105,7 @@ export const AuthForm = ({ isUserInvitation, addUserToBoard }: { isUserInvitatio
           },
           {
             onSuccess: async (data) => {
-              if (isUserInvitation) {
+              if (isUserInvitation && addUserToBoard) {
                 await addUserToBoard(data);
               }
             },
