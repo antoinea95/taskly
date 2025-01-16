@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { ScrollArea } from "../../ui/scroll-area";
 import { useParams } from "react-router-dom";
-import { AddMember } from "../../Members/AddMember";
 import { List, Tag, Users } from "lucide-react";
 import { MembersDetails } from "@/components/Members/MembersDetails";
 import { TaskCheckListSection } from "../CheckList/TaskCheckListSection";
@@ -27,6 +26,7 @@ import { DeleteButton } from "@/components/Button/DeleteButton";
 import { DeleteConfirmation } from "@/components/Form/actions/DeleteConfirmation";
 import { AddFileInTask } from "../Files/AddFileInTask";
 import { TaskFiles } from "../Files/TaskFiles";
+import { AddMemberToTask } from "@/components/Members/AddMemberToTask";
 
 /**
  * Component to display the details of a task, including the ability to update or delete the task,
@@ -122,7 +122,7 @@ export const TaskDetails = ({ task, setIsTaskOpen, list }: { task: TaskType; set
           <div className="rounded-xl w-full flex flex-col gap-3">
             <AddLabel labels={task.labels} mutationQuery={updateTask} />
             {board.data && (
-              <AddMember queryKey={["tasks", task.id]} members={task.members ? task.members : []} mutationQuery={updateTask} board={board.data} />
+              <AddMemberToTask queryKey={["tasks"]} taskMembers={task.members ? task.members : []} members={board.data.members ? board.data.members : []} mutationQuery={updateTask} board={board.data} />
             )}
             <AddTaskDeadline task={task} mutationQuery={updateTask} />
             <AddForm

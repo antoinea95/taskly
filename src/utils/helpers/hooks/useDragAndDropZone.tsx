@@ -132,7 +132,7 @@ export const useDragAndDropZone = (lists: ListType[], board: BoardType) => {
       // Delete active elements from is
       sortedListsInBoard.splice(activeIndex, 1);
 
-      // Insérer l'élément actif à la nouvelle position
+      // Insert active element
       sortedListsInBoard.splice(overIndex, 0, active.id.toString());
 
       queryClient.setQueryData(["board", board.id], (previousBoard?: BoardType) => {

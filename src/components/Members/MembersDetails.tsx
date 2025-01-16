@@ -65,7 +65,7 @@ export const MembersDetails = <T,>({
               members: updatedMembers, // Update the task members array
             }, task.id);
   
-            queryClient.invalidateQueries({ queryKey: ["task", task.id] }); // Invalidate the query to refetch updated data
+            queryClient.invalidateQueries({ queryKey: ["tasks"] }); // Invalidate the query to refetch updated data
           })
         );
       }
