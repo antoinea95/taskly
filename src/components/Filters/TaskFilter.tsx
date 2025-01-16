@@ -10,6 +10,12 @@ type TaskFilterProps = {
   children: (filteredTasks: TaskType[]) => JSX.Element;
 };
 
+/**
+ * Render a search bar and a list of tag to filter task in the board
+ * @param {TaskType[]} props.task - All the tasks in the board
+ * @param {TaskTagType[]} props.uniqueTagsFromTasks - An array of all tags labels in the board
+ * @param {(filteredTasks: TaskType[]) => JSX.Element} props.children - A function which pass the array of the filtered Tasks to the list card
+ */
 export const TaskFilter = ({tasks, uniqueTagsFromTasks, children }: TaskFilterProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [selectedTags, setSelectedTags] = useState<TaskTagType[]>([]);
@@ -39,7 +45,7 @@ export const TaskFilter = ({tasks, uniqueTagsFromTasks, children }: TaskFilterPr
   return (
     <section>
       <div className=" w-full rounded-xl p-3 space-y-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
         <SearchBar handleFilteredTasks={(e) => setSearchValue(e.target.value)} />
         <SelectLabel uniqueTagsFromTasks={uniqueTagsFromTasks} handleSelectedTags={handleSelectedTags} selectedTags={selectedTags} />
         </div>
