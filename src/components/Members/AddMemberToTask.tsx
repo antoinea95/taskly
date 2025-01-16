@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ScrollArea } from "../ui/scroll-area";
 import { useSelectedUsers } from "../../utils/helpers/hooks/useSelectedUsers";
 import { MemberButton } from "../Button/MemberButton";
-import { AddMemberProps } from "../../utils/types/members.type";
+import { AddMemberInTaskProps } from "../../utils/types/members.type";
 import { useFilteredUsersInTasks } from "@/utils/helpers/hooks/useFilteredUsersTasks";
 
 /**
@@ -18,8 +18,6 @@ import { useFilteredUsersInTasks } from "@/utils/helpers/hooks/useFilteredUsersT
  * This component allows users to search for and select members to add to a board or task.
  * The list of members is updated and saved using the provided mutation query.
  *
- * @template T - The type of the mutation query payload.
- * @param {AddMemberProps<T>} props - The props for the AddMember component.
  * @param {any[]} props.key - The query key used for invalidating cache after mutation.
  * @param {string[]} props.members - The current members of the board or task.
  * @param {Object} props.mutationQuery - The mutation query function to add members.
@@ -32,7 +30,7 @@ export const AddMemberToTask = ({
   members,
   mutationQuery,
   board,
-}: AddMemberProps) => {
+}: AddMemberInTaskProps) => {
 
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);

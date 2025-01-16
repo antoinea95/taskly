@@ -10,7 +10,14 @@ export type MembersDetailsProps<T> = {
   isBoard?: boolean;
 };
 
-export type AddMemberProps= {
+export type AddMemberProps<T> = {
+  queryKey: string[];
+  members: string[];
+  mutationQuery: MutationResultType<string, T>;
+  board?: BoardType;
+};
+
+export type AddMemberInTaskProps= {
   queryKey: string[];
   taskMembers: string[];
   members: string[];
